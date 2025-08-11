@@ -1,0 +1,159 @@
+stateDiagram-v2
+    %% Structure principale
+    state "PyramideIA avec Mécanismes Spécialisés" as PYR {
+        
+        %% Niveau 7 détaillé - Mentor et Apprentis
+        state "Niveau 7: IA Mentor et Apprentis" as N7 {
+            state "Système Mentor-Apprenti" as SMA {
+                IdentificationCompetences --> AttributionMentors
+                AttributionMentors --> TransmissionSavoir
+                TransmissionSavoir --> EvaluationProgression
+                EvaluationProgression --> CertificationCompetence
+            }
+            
+            state "Mécanismes d'Apprentissage" as MA {
+                ApprentissageSupervisé --> ApprentissageRenforcé
+                ApprentissageRenforcé --> ApprentissageAutonome
+                ApprentissageAutonome --> TransfertConnaissances
+            }
+            
+            state "Gestion des Compétences" as GC {
+                CartographieExpertise --> DetectionLacunes
+                DetectionLacunes --> PlanAcquisitionCompetences
+                PlanAcquisitionCompetences --> ValidationMaitrise
+            }
+            
+            SMA --> MA : Transmission méthodes
+            MA --> GC : Évolution compétences
+            GC --> SMA : Orientation apprentissage
+        }
+        
+        %% Mécanisme de Pruning et Optimisation
+        state "Système de Pruning et Optimisation" as SPO {
+            state "Détection Redondances" as DR {
+                AnalyseModeles --> IdentificationSurapprentissage
+                IdentificationSurapprentissage --> CartographieConnexions
+                CartographieConnexions --> SelectionCandidatsPruning
+            }
+            
+            state "Optimisation Modèles" as OM {
+                CompressionParametres --> DistillationConnaissances
+                DistillationConnaissances --> QuantificationPrecision
+                QuantificationPrecision --> OptimisationInference
+            }
+            
+            state "Évaluation Impact" as EI {
+                BenchmarkPerformance --> AnalyseQualitativeResultats
+                AnalyseQualitativeResultats --> MesureEfficienceGains
+                MesureEfficienceGains --> ValidationOptimisation
+            }
+            
+            DR --> OM : Candidats optimisation
+            OM --> EI : Modèles optimisés
+            EI --> DR : Retour performance
+        }
+        
+        %% Spécialisation par domaine
+        state "Systèmes de Spécialisation" as SS {
+            state "Spécialisation Domaines" as SD {
+                SpecialisationEducative --> SpecialisationMedicale
+                SpecialisationMedicale --> SpecialisationCulturelle
+                SpecialisationCulturelle --> SpecialisationProfessionnelle
+            }
+            
+            state "Adaptation Contextuelle" as AC {
+                DetectionContexte --> SelectionSpecialiste
+                SelectionSpecialiste --> AdaptationParametres
+                AdaptationParametres --> OptimisationSpecifique
+            }
+            
+            state "Formation Continue" as FC {
+                ApprentissageDonneesDomaine --> EntrainementSpecifique
+                EntrainementSpecifique --> EvaluationPerformanceDomaine
+                EvaluationPerformanceDomaine --> AmeliorationContinue
+            }
+            
+            SD --> AC : Modèles spécialisés
+            AC --> FC : Contexte adaptation
+            FC --> SD : Nouveaux modèles
+        }
+    }
+    
+    %% Mécanismes transversaux
+    state "Mécanismes Transversaux" as MT {
+        state "Transfert d'Apprentissage" as TA {
+            ModelPreentraine --> AdaptationTache
+            AdaptationTache --> FinetuningSpecifique
+            FinetuningSpecifique --> EvaluationTransfert
+        }
+        
+        state "Meta-Learning" as ML {
+            ApprentissageApprendre --> OptimisationHyperparametres
+            OptimisationHyperparametres --> AdaptationRapideNouvelleTache
+            AdaptationRapideNouvelleTache --> GeneralisationDomaines
+        }
+        
+        state "Évaluation Continue" as EC {
+            BenchmarkRegulier --> MesureProgression
+            MesureProgression --> CompetitionModeles
+            CompetitionModeles --> SelectionMeilleursApproches
+        }
+    }
+    
+    %% Connexions avec les niveaux de la pyramide
+    N7 --> PYR : Intégration niveau 7
+    SPO --> PYR : Optimisation tous niveaux
+    SS --> PYR : Spécialisation domaines
+    
+    %% Connexions avec mécanismes transversaux
+    MT --> N7 : Amélioration apprentissage
+    MT --> SPO : Optimisation méthodologies
+    MT --> SS : Adaptation spécialisation
+    
+    %% Connexions avec systèmes externes
+    SystemeIACore --> PYR : Capacités fondamentales
+    PYR --> ValidationCollaborative : Validation expertises
+    FeedbackUtilisateurs --> SS : Orientation spécialisation
+    
+    %% Système de gestion des versions et déploiement
+    state "Gestion Versions et Déploiement" as GVD {
+        state "Versioning Modèles" as VM {
+            DevModeles --> StagingValidation
+            StagingValidation --> ProductionDeployment
+            ProductionDeployment --> MonitoringPostDeploiement
+        }
+        
+        state "A/B Testing" as ABT {
+            HypothesesAmelioration --> ImplementationVariantes
+            ImplementationVariantes --> TestUtilisateursReels
+            TestUtilisateursReels --> AnalyseResultatsComparatifs
+        }
+        
+        state "Déploiement Progressif" as DP {
+            ReleaseCanary --> DeploiementIncremental
+            DeploiementIncremental --> RollbackCapabilites
+            RollbackCapabilites --> StabilisationVersions
+        }
+    }
+    
+    SPO --> GVD : Modèles optimisés
+    SS --> GVD : Variantes spécialisées
+    GVD --> EC : Mesures performance
+    
+    %% Note explicative
+    note right of N7
+        Le système Mentor-Apprenti est au cœur
+        de l'amélioration continue:
+        - Les modèles experts deviennent mentors
+        - Les modèles en formation sont apprentis
+        - Transmission structurée du savoir
+        - Évaluation objective des compétences
+    end note
+    
+    note right of SPO
+        Le pruning optimise l'architecture:
+        - Élimine connexions non essentielles
+        - Compresse sans perte de qualité
+        - Améliore performance et efficience
+        - Validation rigoureuse avant/après
+    end note

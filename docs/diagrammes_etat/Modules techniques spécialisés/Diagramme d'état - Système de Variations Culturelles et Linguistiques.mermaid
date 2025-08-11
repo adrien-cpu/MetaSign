@@ -1,0 +1,47 @@
+stateDiagram-v2
+    %% Composants existants de référence
+    state "SystemeIACore (Existant)" as IACore
+    state "Linguistes (Existant)" as LIN
+    state "GestionVariantesDiatopiques (Existant)" as GVD
+    
+    %% Nouveau Système de Variations Culturelles et Linguistiques
+    state "SystemeVariationsCulturellesLinguistiques" as SVCL {
+        state "CartographieCulturelle" as CC {
+            AnalyseOrigineUtilisateur --> DetectionContexteCulturel
+            DetectionContexteCulturel --> MappingReferentielsCulturels
+        }
+        
+        state "AdaptationLinguistiqueFineCulturelle" as ALFC {
+            IdentificationVariantesLocales --> AdaptationExpressionsLinguistiques
+            AdaptationExpressionsLinguistiques --> NormalisationSemantique
+        }
+        
+        state "EtymologieEtEvolutionLinguistique" as EEL {
+            TracageDynamiqueLanguage --> AnalyseEvolutionTermes
+            AnalyseEvolutionTermes --> IntegrationNeologismes
+        }
+        
+        state "GestionIdiotismesEtExpressionsCulturelles" as GIEC {
+            CollecteExpressionsPropres --> ClassificationContextuelle
+            ClassificationContextuelle --> TraductionCulturelle
+        }
+        
+        state "ReseauCollaboratifLinguistique" as RCL {
+            ValidationCommunautaire --> EnrichissementLexical
+            EnrichissementLexical --> DistributionConnaissances
+        }
+    }
+    
+    %% Connexions avec les systèmes existants
+    IACore --> SVCL : Capacites\ncognitives
+    LIN --> SVCL : Ressources\nlinguistiques
+    GVD --> SVCL : Variations\ndialectales
+    
+    %% Interactions internes
+    CC --> ALFC : Contexte\nculturel
+    ALFC --> GIEC : Adaptations\nlinguistiques
+    GIEC --> SVCL : Enrichissement\nsemantique
+    RCL --> SVCL : Validation\ncommunautaire
+    
+    %% Interaction avancée
+    SVCL --> IACore : Enrichissement\ncontinu des connaissances

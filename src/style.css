@@ -1,0 +1,237 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-color: #04a9f5;
+  --primary-hover: #0395d9;
+  --secondary-color: #748892;
+  --success-color: #1de9b6;
+  --warning-color: #f4c22b;
+  --danger-color: #f44236;
+  --dark-color: #373a3c;
+  --light-color: #f6f7fb;
+  --body-bg: #f4f7fa;
+  --sidebar-bg: #ffffff;
+  --card-bg: #ffffff;
+  --border-color: #e3e3e3;
+}
+
+body {
+  font-family: 'Open Sans', sans-serif;
+  background-color: theme('colors.gray.100');
+}
+
+.sidebar {
+  @apply fixed top-0 left-0 h-screen w-[280px] bg-white shadow-sm p-6 flex flex-col overflow-y-auto;
+}
+
+.sidebar-header {
+  @apply mb-8 pb-4 border-b;
+}
+
+.sidebar-brand {
+  @apply flex items-center space-x-3 text-xl font-semibold text-gray-800;
+}
+
+.nav-link {
+  @apply flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors;
+}
+
+.nav-link.active {
+  @apply text-blue-600 bg-blue-50;
+}
+
+.user-profile {
+  @apply p-4 bg-gray-50 rounded-lg flex items-center gap-4;
+}
+
+.user-profile img {
+  @apply w-10 h-10 rounded-full;
+}
+
+.user-profile-info {
+  @apply flex flex-col;
+}
+
+.user-profile-name {
+  @apply font-semibold text-gray-900;
+}
+
+.user-profile-role {
+  @apply text-sm text-gray-500;
+}
+
+.metric-card {
+  @apply bg-white p-6 rounded-lg shadow-sm transition-all duration-300;
+}
+
+.metric-card:hover {
+  @apply shadow-lg -translate-y-1;
+}
+
+.chart-container {
+  @apply bg-white p-6 rounded-lg shadow-sm transition-all duration-300;
+}
+
+.chart-container:hover {
+  @apply shadow-lg;
+}
+
+.metric-value {
+  @apply text-2xl font-semibold;
+}
+
+.metric-trend {
+  @apply flex items-center text-sm;
+}
+
+.period-button {
+  @apply px-3 py-1 rounded-lg text-sm transition-all duration-300;
+}
+
+.period-button:hover {
+  @apply scale-105;
+}
+
+.period-button.active {
+  @apply bg-blue-500 text-white;
+}
+
+/* Animations */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.pulse-animation {
+  animation: pulse 2s infinite;
+}
+
+.loading-fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+/* Responsive styles */
+@media (min-width: 1920px) {
+  .metric-card {
+    padding: 2rem;
+  }
+  
+  .metric-value {
+    font-size: 1.875rem;
+  }
+  
+  .chart-container {
+    padding: 2rem;
+  }
+  
+  h3.text-lg {
+    font-size: 1.25rem;
+  }
+  
+  .grid-cols-4 {
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 3840px) {
+  .metric-card {
+    padding: 2.5rem;
+  }
+  
+  .metric-value {
+    font-size: 2.25rem;
+  }
+  
+  .chart-container {
+    padding: 2.5rem;
+  }
+  
+  h3.text-lg {
+    font-size: 1.5rem;
+  }
+  
+  .grid-cols-4 {
+    gap: 2rem;
+  }
+  
+  .icon-animate {
+    width: 4rem;
+    height: 4rem;
+  }
+}
+
+/* Transitions */
+.recharts-wrapper {
+  transition: all 0.3s ease;
+}
+
+.recharts-wrapper:hover {
+  transform: scale(1.02);
+}
+
+.icon-animate {
+  transition: transform 0.3s ease;
+}
+
+.icon-animate:hover {
+  transform: rotate(10deg);
+}
+
+/* Shine effect */
+.shine-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine-effect::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(45deg);
+  transition: all 0.3s ease;
+  opacity: 0;
+}
+
+.shine-effect:hover::after {
+  opacity: 1;
+  transform: rotate(45deg) translate(100%, 100%);
+}
+
+/* Tooltip styles */
+.recharts-tooltip-wrapper {
+  transition: all 0.2s ease;
+}
+
+.recharts-tooltip-wrapper:hover {
+  transform: scale(1.05);
+}

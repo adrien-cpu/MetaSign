@@ -1,0 +1,49 @@
+stateDiagram-v2
+    %% Composants existants de référence
+    state "SystemeControleEthique (Existant)" as SCE
+    state "SupervisionHumaineRenforcee (Existant)" as SHR
+    
+    %% Nouveau Système Social et Communautaire
+    state "SystemeSocialCommunautaire" as SSC {
+        state "GestionClubsThematiques" as GCT {
+            CreationClub --> ValidationThematique
+            ValidationThematique --> GestionMembres
+            GestionMembres --> AnimationCommunautaire
+        }
+        
+        state "SalonsDiscussionInteractifs" as SDI {
+            CreationSalon --> DefinitionTheme
+            DefinitionTheme --> GestionParticipants
+            GestionParticipants --> ModerationIntelligente
+        }
+        
+        state "GestionEvenementielleCommunautaire" as GEC {
+            PlanificationEvenement --> ValidationAccessibilite
+            ValidationAccessibilite --> InvitationMembres
+            InvitationMembres --> SuiviParticipation
+        }
+        
+        state "ReseauContactsPersonnalise" as RCP {
+            GestionProfils --> ClassificationRelations
+            ClassificationRelations --> PrivacyManagement
+            PrivacyManagement --> CommunicationSecurisee
+        }
+        
+        state "ValidationEthiqueCommunautaire" as VEC {
+            SurveillanceInteractions --> DetectionComportements
+            DetectionComportements --> InterventionPreventive
+        }
+    }
+    
+    %% Connexions avec les systèmes existants
+    SCE --> SSC : Validation\nethique
+    SHR --> SSC : Supervision\ncontinue
+    
+    %% Interactions internes
+    GCT --> SDI : Dynamiques\ncommunautaires
+    SDI --> GEC : Evenements\ncollaboratifs
+    RCP --> VEC : Interactions\nsecurisees
+    
+    %% Interactions avancées
+    SSC --> SCE : Remontee\nanomalies
+    SSC --> SHR : Validation\ncontinue

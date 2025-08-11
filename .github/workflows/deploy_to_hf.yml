@@ -1,0 +1,23 @@
+name: Deploy to Hugging Face
+
+on:
+  push:
+    branches:
+      - main  # Ou la branche que tu veux
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install huggingface_hub
+        run: pip install huggingface_hub
+
+      - name: Upload to Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          huggingface-cli repo create MetaSign --organization my-org --type space
+          huggingface-cli upload MetaSign --repo-type space --token $HF_TOKEN --commit-message "Auto-deploy"

@@ -1,0 +1,93 @@
+stateDiagram-v2
+    %% Raccourcis vers les composants existants du diagramme d'état
+    state "SystemeIACore (Existant)" as IACore
+    state "Linguistes (Existant)" as Linguistes
+    state "SystemeExpressions (Existant)" as SE
+    state "SupervisionHumaineRenforcee (Existant)" as SHR
+    state "SystemeControleEthique (Existant)" as SCE
+    
+    %% Niveaux de la Pyramide IA
+    state "PyramideIALSF" as PIR {
+        state "IA Exploratrices et Predictives" as IEP {
+            VeilleInnovation --> PredictionBesoins
+            PredictionBesoins --> AdaptationProactive
+        }
+        
+        state "IA Collectrices et Filtrantes" as ICF {
+            CollecteDonnees --> AnalysePertinence
+            AnalysePertinence --> EnrichissementBase
+        }
+        
+        state "IA Preparatrices" as IP {
+            TraductionAutomatique --> ConversionLSF
+            AdaptationContenu --> OptimisationPedagogique
+        }
+        
+        state "IA Spectatrices et Utilisatrices" as ISU {
+            EvaluationExperience --> TestsAB
+            OptimisationEngagement --> SuiviUtilisateurs
+        }
+        
+        state "IA Gestionnaires d'Anomalies" as IGA {
+            DetectionErreurs --> AnalyseImpact
+            CorrectionAutomatique --> ValiditeSolution
+        }
+        
+        state "IA Analystes" as IA {
+            SegmentationApprenants --> PersonnalisationRetours
+            AnalyseProgressions --> RecommandationsAdaptees
+        }
+        
+        state "IA Mentor et Apprentis" as IMA {
+            SoutienTempsReel --> TutoratPersonnalise
+            SuiviProgressions --> AdaptationParcours
+        }
+        
+        state "IA Generatives" as IG {
+            CreationContenus --> EnrichissementOffre
+            PersonnalisationContenu --> AdaptationContextuelle
+        }
+        
+        state "IA Ethiciennes et Auditrices" as IEA {
+            AnalyseBiais --> GarantieEquite
+            AuditContinu --> RapportsConformite
+        }
+    }
+    
+    %% Connexions entre la Pyramide et le diagramme d'état existant
+    
+    %% Niveau supérieur - Exploration & Prédiction
+    IEP --> IACore : Integration innovations\net predictions
+    IEP --> SCE : Validation ethique\ndes predictions
+    
+    %% Collecte & Filtrage
+    ICF --> IACore : Donnees\ntraitees
+    ICF --> SCE : Verification\nbienfonde
+    
+    %% Préparation
+    IP --> Linguistes : Traduction\net adaptation
+    IP --> SE : Preparation\nexpressions
+    
+    %% Évaluation d'expérience
+    ISU --> SHR : Retours\nexperience
+    
+    %% Gestion des anomalies
+    IGA --> SCE : Signalement\nproblemes ethiques
+    
+    %% Analyse et personnalisation
+    IA --> IACore : Insights\net patterns
+    
+    %% Mentorat
+    IMA --> Linguistes : Adaptation\npedagogique
+    
+    %% Génération de contenu
+    IG --> SE : Expression\npersonnalisee
+    
+    %% Éthique et audit
+    IEA --> SCE : Garantie\nethique
+    IEA --> SHR : Rapports\nd'audit
+    
+    %% Connexions bidirectionnelles principales
+    IACore --> PIR : Capacites\ncognitives
+    SE --> PIR : Capacites\nd'expression
+    SCE --> PIR : Garde-fous\nethiques

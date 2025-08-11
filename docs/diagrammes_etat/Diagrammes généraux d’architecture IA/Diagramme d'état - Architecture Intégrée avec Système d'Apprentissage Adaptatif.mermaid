@@ -1,0 +1,211 @@
+stateDiagram-v2
+    %% Structure principale
+    [*] --> ValidationInitiale
+    ValidationInitiale --> SystemeControleEthique : Verification demarrage
+    SystemeControleEthique --> OrchestrateurCentral : Validation ethique
+    OrchestrateurCentral --> RouterMultimodal : Routage requete
+    
+    %% Orchestrateur Central - Point d'entrée unifié
+    state "OrchestrateurCentral" as OC {
+        state "GestionFluxDonnees" as GFD {
+            ReceptionRequetes --> AnalyseContexte
+            AnalyseContexte --> RoutageIntelligent
+        }
+        state "MoniteurPerformance" as MP {
+            CaptureMetriques --> AnalyseTempsReel
+            AnalyseTempsReel --> OptimisationDynamique
+        }
+        state "GestionCache" as GC {
+            StrategiesMiseEnCache --> InvalidationIntelligente
+            InvalidationIntelligente --> OptimisationStockage
+        }
+    }
+    
+    %% Router Multimodal - Routage intelligent des requêtes
+    state "RouterMultimodal" as RM {
+        state "AnalyseRequete" as AR {
+            IdentificationContexte --> DetectionModalite
+            DetectionModalite --> PrioritisationTraitement
+        }
+        state "DistributionCharge" as DC {
+            EquilibrageCharge --> RoutageAdaptatif
+            RoutageAdaptatif --> OptimisationLatence
+        }
+        state "GestionTimeout" as GT {
+            DetectionBloquage --> RetryExponentiel
+            RetryExponentiel --> NotificationEchec
+        }
+    }
+    
+    %% Système IA Core
+    state "SystemeIACore" as IAC {
+        state "IAReflexive" as IR {
+            AutoEvaluation --> OptimisationSysteme
+        }
+        state "IAEmpathique" as IE {
+            AnalyseEmotions --> AdaptationContextuelle
+        }
+        state "IACreative" as IC {
+            GenerationPatterns --> ValidationInnovation
+        }
+        state "IAMnemonique" as IM {
+            MemoireLongTerme --> AnalysePatterns
+        }
+    }
+    
+    %% Système d'Expression
+    state "SystemeExpressions" as SE {
+        state "ExpressionsFaciales" as EF {
+            ConfigurationVisage --> SynchronisationMouvement
+        }
+        state "GestesLSF" as GL {
+            ConfigurationMain --> MouvementSpatial
+        }
+        state "ProsodieLSF" as PL {
+            RythmeSignes --> TransitionsNaturelles
+        }
+    }
+
+    %% Système Cache Multi-niveaux
+    state "CacheMultiNiveaux" as CMN {
+        state "CacheL1" as CL1 {
+            AccesFrequent --> EvictionAdaptative
+        }
+        state "CacheL2" as CL2 {
+            StockagePersistant --> PromotionL1
+        }
+        state "CachePredictif" as CP {
+            AnalyseAcces --> PrechargementIntelligent
+            ModelePrediction --> CoAccessPatterns
+        }
+    }
+    
+    %% Système de Monitoring Unifié
+    state "MonitoringUnifie" as MU {
+        state "CollecteMetriques" as CM {
+            MetriquesPerformance --> MetriquesUtilisation
+            MetriquesUtilisation --> MetriquesQualite
+        }
+        state "AlertesAutomatisees" as AA {
+            DetectionAnomalie --> NotificationCiblee
+            NotificationCiblee --> EscalationAutomatique
+        }
+        state "OptimisationAutonome" as OA {
+            AnalyseTendances --> AjustementRessources
+            AjustementRessources --> ScalingAutomatique
+        }
+    }
+    
+    %% Système Linguistique
+    state "Linguistes" as LING {
+        state "TraductionLSF" as TL {
+            TexteVersLSF --> LSFVersTexte
+        }
+        state "AnalyseLinguistique" as AL {
+            AnalyseSyntaxique --> AnalyseSemantique
+        }
+    }
+
+    %% Système de Variations Dialectales
+    state "GestionVariantesDiatopiques" as GVD {
+        state "CartographieRegionale" as CR {
+            IdentificationVariantes --> ClassificationLocale
+        }
+        state "AdaptationContextuelle" as ACon {
+            DetectionOrigineSigneur --> SelectionVariante
+        }
+    }
+    
+    %% Validation Collaborative
+    state "ValidationCollaborative" as VC {
+        state "ValidationCommunaute" as VCo {
+            RetourLocuteurNatif --> ValidationPratique
+        }
+        state "MecanismeConsensus" as MC {
+            CollecteAvis --> CalculConsensus
+        }
+    }
+
+    %% Système d'Apprentissage Adaptatif
+    state "SystemeApprentissageAdaptatif" as SAA {
+        state "GestionProfilsUtilisateurs" as GPU {
+            ProfilSourd --> ProfilEntendant
+            ProfilInterprete --> ProfilEducateur
+        }
+        
+        state "DetectionLacunes" as DL {
+            AnalyseConversation --> IdentificationDomaines
+            EvaluationSeverite --> EnregistrementLacunes
+        }
+        
+        state "GenerationModulesPersonnalises" as GMP {
+            CreationModule --> AdaptationProfil
+            IntegrationPyramideIA --> ValidationModule
+        }
+        
+        state "SuiviProgression" as SP {
+            CalculExperience --> DeterminerNiveau
+            SuiviBadges --> RecommandationsPersonnalisees
+        }
+    }
+    
+    %% Pyramide IA
+    state "PyramideIALSF" as PIR {
+        state "IA Exploratrices et Predictives" as IEP {
+            VeilleInnovation --> PredictionBesoins
+            AnalyseContexte --> AdaptationProactive
+        }
+        
+        state "IA Collectrices et Filtrantes" as ICF {
+            CollecteDonnees --> AnalysePertinence
+        }
+        
+        state "IA Mentor et Apprentis" as IMA {
+            SoutienTempsReel --> TutoratPersonnalise
+        }
+        
+        state "IA Generatives" as IG {
+            CreationContenus --> PersonnalisationContenu
+        }
+        
+        state "IA Ethiciennes et Auditrices" as IEA {
+            AnalyseBiais --> GarantieEquite
+        }
+    }
+
+    %% Connexions principales
+    OC --> RM : Requetes
+    RM --> IAC : IA Core
+    RM --> LING : Traduction
+    RM --> SE : Expressions
+    RM --> SAA : Apprentissage
+    
+    OC --> CMN : Gestion cache
+    OC --> MU : Monitoring
+    
+    IAC --> PIR : Capacites cognitives
+    
+    SAA --> PIR : Generation modules
+    SAA --> VC : Validation contenu
+    SAA --> GVD : Adaptation dialectale
+    
+    GVD --> VC : Validation variantes
+    SE --> GVD : Adaptation expressions
+    
+    %% Système Conversationnel
+    state "SystemeConversationnel" as SC {
+        state "DetectionBesoins" as DB {
+            AnalyseReponses --> IdentificationLacunes
+            TransmissionSAA --> SuggestionSupports
+        }
+        
+        state "AdaptationLangue" as AL2 {
+            AdaptationLSF --> AdaptationFrancais
+            NiveauCompetence --> SelectionVocabulaire
+        }
+    }
+    
+    SC --> SAA : Detection lacunes
+    SC --> PIR : Analyse et generation
+    IAC --> SC : Capacites conversationnelles
+    GVD --> SC : Adaptation linguistique

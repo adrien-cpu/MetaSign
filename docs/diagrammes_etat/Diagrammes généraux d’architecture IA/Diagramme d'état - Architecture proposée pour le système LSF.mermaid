@@ -1,0 +1,152 @@
+stateDiagram-v2
+    %% Structure principale
+    [*] --> ValidationInitiale
+    ValidationInitiale --> SystemeControleEthique : Verification demarrage
+    SystemeControleEthique --> OrchestrateurCentral : Validation ethique
+    OrchestrateurCentral --> Linguistes : Traduction LSF
+    OrchestrateurCentral --> SystemeIACore : Traitement cognitif
+    OrchestrateurCentral --> SystemeExpressions : Expressions
+    
+    %% Nouveau composant: Orchestrateur Central
+    state "OrchestrateurCentral" as OC {
+        state "GestionFluxDonnees" as GFD {
+            ReceptionRequetes --> AnalyseContexte
+            AnalyseContexte --> RoutageIntelligent
+        }
+        state "MoniteurPerformance" as MP {
+            CaptureMetriques --> AnalyseTempsReel
+            AnalyseTempsReel --> OptimisationDynamique
+        }
+        state "IntegrateurModules" as IM {
+            EnregistrementModules --> ValidationCompatibilite
+            ValidationCompatibilite --> ActivationServices
+        }
+    }
+    
+    %% Système de Contrôle Éthique amélioré
+    state "SystemeControleEthique" as SCE {
+        state "ProtectionUtilisateur" as PU {
+            VerificationSecurite --> ValidationEthique
+            ValidationEthique --> CertificationConformite
+        }
+        state "SupervisionAutomatisee" as SA {
+            DetectionBiais --> AlerteAnomalie
+            AlerteAnomalie --> ActionCorrective
+        }
+        state "SupervisionCommunaute" as SC {
+            ValidationPairs --> RetourExperience
+            RetourExperience --> AmeliorationContinue
+        }
+    }
+
+    %% Système IA Core Optimisé
+    state "SystemeIACore" as IACore {
+        state "IAReflexive" as IR {
+            AutoEvaluation --> OptimisationSysteme
+        }
+        state "IAEmpathique" as IE {
+            AnalyseEmotions --> AdaptationContextuelle
+        }
+        state "IADistribuee" as ID {
+            DistributionTaches --> AggregationResultats
+        }
+        state "ProcessusApprentissage" as PA {
+            ApprentissageContinu --> ValidationConnaissance
+        }
+    }
+    
+    %% Système d'Expressions Enrichi
+    state "SystemeExpressions" as SE {
+        state "ExpressionFaciale" as EF {
+            ConfigurationVisage --> SynchronisationMouvement
+        }
+        state "GestesLSF" as GL {
+            ConfigurationMain --> MouvementSpatial
+        }
+        state "ProsodieLSF" as PL {
+            RythmeSignes --> TransitionsNaturelles
+        }
+        state "IntegrationContextuelle" as IC {
+            AdaptationContexte --> ExpressionGlobale
+        }
+    }
+    
+    %% Nouveau composant: Validation Collaborative
+    state "ValidationCollaborative" as VC {
+        state "ValidationCommunaute" as VCo {
+            RetourLocuteurNatif --> ValidationPratique
+        }
+        state "MecanismeConsensus" as MC {
+            CollecteAvis --> CalculConsensus
+        }
+        state "IntegrationConnaissance" as IConn {
+            ValidationFinale --> EnrichissementSysteme
+        }
+    }
+    
+    %% Nouveau composant: Apprentissage Observationnel
+    state "ApprentissageObservationnel" as AO {
+        state "CollecteInteractions" as CI {
+            CaptureVideos --> AnalyseContextuelle
+        }
+        state "AnalyseComparative" as ACo {
+            HumainVsAvatar --> OptimisationNaturalite
+        }
+        state "EnrichissementModeles" as EM {
+            ClassificationPatterns --> IntegrationDonnees
+        }
+    }
+    
+    %% Nouveau composant: Gestion des variations dialectales
+    state "GestionVariantesDiatopiques" as GVD {
+        state "CartographieRegionale" as CR {
+            IdentificationVariantes --> ClassificationLocale
+        }
+        state "AdaptationContextuelle" as ACon {
+            DetectionOrigineSigneur --> SelectionVariante
+        }
+    }
+    
+    %% Nouveau composant: Gestion de l'espace de signation
+    state "GestionEspaceSpatial" as GES {
+        state "ConstructionReferences" as CRef {
+            EtablissementPoints --> MaintienCoherence
+        }
+        state "CartographieMentale" as CM {
+            SuiviReferences --> UtilisationCoherente
+        }
+    }
+    
+    %% Nouveau composant: Mesure d'Impact et de Performance
+    state "MesureImpactPerformance" as MIP {
+        state "MetriquesUtilisation" as MU {
+            CaptureInteraction --> AnalyseSatisfaction
+        }
+        state "OptimisationPerformance" as OP {
+            AnalyseLatence --> AmeliorationFluidite
+        }
+        state "BenchmarkComparatif" as BC {
+            ComparaisonSystems --> RecommandationsOptimisation
+        }
+    }
+    
+    %% Interactions entre les composants
+    SCE --> VC : Validation\nethique
+    IACore --> GVD : Donnees\nlinguistiques
+    SE --> GES : Structure\nspatiale
+    AO --> IACore : Apprentissage\ncontinuel
+    
+    VC --> Linguistes : Enrichissement\nnormes et regles
+    VC --> SE : Validation\nexpressions
+    
+    AO --> GVD : Collecte\nvariantes regionales
+    AO --> MIP : Donnees\nperformance
+    
+    GVD --> SE : Expressions\nregionales
+    GVD --> VC : Validation\nautorites locales
+    
+    GES --> SE : Coordination\nspatiale
+    GES --> IACore : Logique\nspatiale
+    
+    MIP --> OC : Metriques\nperformance
+    MIP --> IACore : Orientations\noptimisation

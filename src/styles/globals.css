@@ -1,0 +1,210 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* dark-theme.css */
+:root {
+  /* Thème dark */
+  --color-primary-dark: linear-gradient(to bottom right, #1e293b, #0d253f, #1f2937);
+  --background-dark: #031022f0;
+  --text-dark: #f8efef;
+  --title-font-size-adjust: 0.700;
+  --description-font-size-adjust: 0.600;
+
+  /* Par défaut : thème clair */
+  --primary-color: var(--color-primary-dark);
+  --background-color: var(--background-dark);
+  --text-color: var(--text-dark);
+  --text-title: var(--title-font-size-adjust);
+  --text-description: var(--description-font-size-adjust);
+}
+
+body {
+  background: var(--background-color);
+  color: var(--text-color);
+}
+
+/* Styles globaux pour les tuiles */
+.tile {
+  background: var(--primary-color);
+  border-bottom: 2px solid var(--primary-color);
+  color: var(--text-color);
+  margin: 0.5rem 1.25rem;
+  padding: 2.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 100px;
+  min-height: 300px;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.2s ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Conteneur du titre et de l'icône */
+.tile-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Style du texte descriptif */
+.tile-description {
+  color: var(--text-color);
+  font-size-adjust: var(--text-description);
+  margin-top: 0.5rem;
+}
+
+/* Style pour le titre des tuiles */
+.tile-title {
+  color: #facc15;
+  font-weight: bold;
+  font-size-adjust: var(--text-title);
+}
+
+.tile:hover {
+  transform: scale(1.05);
+}
+
+/* Style pour l'icône */
+.tile-icon {
+  height: 2rem;
+  width: 2rem;
+  margin-right: 0.5rem;
+}
+
+.tile:hover .tile-icon {
+  color: #fbd38d;
+}
+
+.tile-sub {
+  background: white;
+  color: var(--text-color);
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: auto;
+}
+
+/* Pied de tile */
+.tile-footer {
+  background: transparent;
+  color: var(--text-color);
+  padding: 0.25rem;
+}
+
+.input {
+  padding: 0.5rem 1rem;
+  /* px-4 py-2 */
+  border: 1px solid #6b7280;
+  /* border-gray-400 */
+  border-radius: 0.5rem;
+  /* rounded-lg */
+  background-color: rgb(219, 217, 217);
+  /* bg-white */
+  color: black;
+  /* text-black */
+  outline: none;
+  /* focus:outline-none */
+}
+
+.input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px #3b82f6;
+  /* focus:ring-2 focus:ring-blue-500 */
+}
+
+/* Styles pour les placeholders */
+input::placeholder,
+textarea::placeholder {
+  color: #031636;
+  /* Couleur du texte du placeholder */
+  opacity: 1;
+  /* Opacité du texte du placeholder */
+  font-size: 1rem;
+  /* Taille de la police du placeholder */
+  font-style: italic;
+  /* Style de la police du placeholder */
+}
+
+/* Styles pour les placeholders lorsque le champ est focalisé */
+input:focus::placeholder,
+textarea:focus::placeholder {
+  color: #6b7280;
+  /* Couleur du texte du placeholder lorsque le champ est focalisé */
+}
+
+/* Layout Wrapper Styling */
+.LayoutWrapper {
+  background: none;
+  color: var(--text-color);
+  max-width: 64rem;
+  margin: auto;
+  padding-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 120px);
+  margin-top: 0px;
+  margin-bottom: 0px;
+  z-index: 30;
+  padding: 30px;
+  border-radius: 1rem;
+}
+
+/* Card Styling */
+.card {
+  margin: auto;
+  background: var(--primary-color);
+  border-radius: 1rem;
+  box-shadow: 0 3px 6px rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  max-width: 48rem;
+  max-height: 40rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 18rem;
+  overflow: auto;
+  /* Ajout d'une hauteur minimale */
+}
+
+.card-header {
+  color: var(--text-color);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.card-title {
+  color: var(--text-color);
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.card-content {
+  color: var(--text-color);
+  padding: 1.5rem;
+  text-align: center;
+  flex-grow: 1;
+  /* Permet à card-content de prendre tout l'espace disponible */
+}
+
+.card-footer {
+  background: transparent;
+  color: var(--text-color);
+  padding: 1rem;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}

@@ -1,0 +1,83 @@
+stateDiagram-v2
+    %% États principaux du système d'adaptation
+    [*] --> ValidationInitiale
+    ValidationInitiale --> SystemeAdaptation: Vérification démarrage
+    SystemeAdaptation --> AnalyseSituation: Analyse contexte
+
+    %% Système d'adaptation
+    state "SystemeAdaptation" as SA {
+        state "MoteurAnalyse" as MA {
+            AnalyseBesoins --> IdentificationFacteurs
+            IdentificationFacteurs --> PropositionAdaptations
+            PropositionAdaptations --> ValidationOptions
+        }
+        
+        state "GestionAdaptateurs" as GA {
+            SelectionAdaptateur --> ConfigurationAdaptateur
+            ConfigurationAdaptateur --> ExecutionAdaptation
+            ExecutionAdaptation --> EvaluationResultats
+        }
+        
+        state "ValidationAdaptation" as VA {
+            VerificationCompatibilite --> ValidationEthique
+            ValidationEthique --> EvaluationImpact
+            EvaluationImpact --> ApprobationFinale
+        }
+    }
+
+    %% Types d'adaptateurs
+    state "TypesAdaptateurs" as TA {
+        state "AdaptateurPredictif" as AP {
+            AnalyseFatigue --> PredictionPerformance
+            PredictionPerformance --> RecommandationsPrecises
+        }
+        
+        state "AdaptateurDynamique" as AD {
+            AjustementTempsReel --> OptimisationEnvironnement
+            OptimisationEnvironnement --> SupportCognitif
+        }
+        
+        state "AdaptateurCollaboratif" as AC {
+            AnalyseGroupe --> SuggestionPairs
+            SuggestionPairs --> OptimisationCollaboration
+        }
+        
+        state "AdaptateurIntegre" as AI {
+            ApprocheCombinee --> SynchronisationAdaptations
+            SynchronisationAdaptations --> OptimisationHolistique
+        }
+    }
+
+    %% Processus d'adaptation
+    state "ProcessusAdaptation" as PA {
+        CollecteSessionData --> ValidationSessionData
+        ValidationSessionData --> SelectionOptionsAdaptation
+        SelectionOptionsAdaptation --> ExecutionStrategie
+        ExecutionStrategie --> EvaluationResultats
+        EvaluationResultats --> AjustementsDynamiques
+    }
+
+    %% Intégration avec le système de surveillance
+    state "SurveillanceAdaptation" as SurvA {
+        MonitoringTempsReel --> DetectionAnomalies
+        DetectionAnomalies --> AjustementAutomatique
+        AjustementAutomatique --> LogsAdaptation
+    }
+    
+    %% Connexions
+    SystemeAdaptation --> TA: Sélection adaptateur
+    TA --> PA: Exécution
+    PA --> SurvA: Surveillance continue
+    SurvA --> SystemeAdaptation: Feedback
+    
+    %% États finaux et connexions principales
+    AnalyseSituation --> [*]: Adaptation terminée
+    
+    note right of SystemeAdaptation
+        Le système d'adaptation implémente:
+        1. Analyse des besoins spéciaux
+        2. Sélection dynamique d'adaptateurs
+        3. Configuration contextuelle
+        4. Validation éthique
+        5. Surveillance continue
+    end note

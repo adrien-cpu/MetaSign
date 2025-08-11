@@ -1,0 +1,100 @@
+stateDiagram-v2
+    %% Raccourcis vers les composants existants pour les connexions
+    state "SystemeIACore (Existant)" as IACore
+    state "Linguistes (Existant)" as Linguistes
+    state "SystemeExpressions (Existant)" as SE
+    state "SupervisionHumaineRenforcee (Existant)" as SHR
+    state "ValidationExperts (Existant)" as VE
+    state "IntelligenceDistribuée (Existant)" as ID
+    
+    %% Nouveau composant: Validation Collaborative
+    state "ValidationCollaborative" as VC {
+        state "ClubsThematiques" as CT {
+            HistoireLSF --> ValidateurNatif
+            Etymologie --> ValidateurNatif
+            PratiquesCulturelles --> ValidateurNatif
+        }
+        state "ValidationCroisee" as VCr {
+            PropositionIA --> AvisExperts
+            AvisExperts --> IntegrationDonnees
+        }
+        state "MecanismeConsensus" as MC {
+            CollecteAvis --> CalculConsensus
+            CalculConsensus --> ValidationFinale
+        }
+        
+        ValidateurNatif --> VCr
+        ValidationFinale --> AmeliorationContinue
+    }
+    
+    %% Nouveau composant: Apprentissage Observationnel
+    state "ApprentissageObservationnel" as AO {
+        state "CollecteInteractions" as CI {
+            CaptureTeams --> AnalyseContextuelle
+            AnalyseContextuelle --> ExtractionMotifs
+        }
+        state "TraitementVideos" as TV {
+            AnalyseVisuelle --> DetectionExpression
+            DetectionExpression --> ClassificationPatterns
+        }
+        state "ComparisonAvatarHumain" as CAH {
+            AnalyseEcarts --> OptimisationNaturalite
+        }
+        
+        ExtractionMotifs --> EnrichissementDonnees
+        ClassificationPatterns --> EnrichissementDonnees
+        OptimisationNaturalite --> AmeliorationRealisme
+    }
+    
+    %% Nouveau composant: Gestion Multilingue
+    state "GestionMultilingue" as GM {
+        state "AnalyseComparative" as AC {
+            IdentificationPatterns --> ExtractionsInvariantsLinguistiques
+            AnalyseDifferences --> EnrichissementContextuel
+        }
+        state "DetectionGestesParasites" as DGP {
+            AnalyseFrequence --> FiltrageBruit
+            IdentificationIdiosyncrasies --> OptimisationAutonome
+        }
+        state "TransfertConnaissances" as TC {
+            AdaptationCulturelle --> ValidationLocale
+            GeneralisationPatterns --> EnrichissementGlobal
+        }
+    }
+    
+    %% Nouveau composant: Évaluation de la Naturalité
+    state "EvaluationNaturalite" as EN {
+        state "MetriquesQualitatives" as MQ {
+            FluiditeExpression --> ScoreGlobal
+            CoherenceContextuelle --> ScoreGlobal
+            AuthenticiteExpression --> ScoreGlobal
+        }
+        state "FeedbackUtilisateurs" as FU {
+            CollecteImpressions --> AnalyseSentiment
+            SondageQualite --> AgregationResultats
+        }
+        state "AmeliorationContinue" as AC {
+            IdentificationFaiblesses --> PropositionAjustements
+            ValidationsAjustements --> DeploiementAmeliorations
+        }
+    }
+    
+    %% Connexions avec les composants existants
+    VC --> Linguistes : Enrichissement\nnormes et règles
+    VC --> SE : Validation\nexpressions
+    VC --> VE : Intégration\nexpertise communauté
+    
+    AO --> IACore : Amélioration\npar observation
+    AO --> ID : Données\nrécoltées
+    
+    GM --> Linguistes : Adaptations\nmulticulturelles
+    GM --> IACore : Transfert\nconnaissances
+    
+    EN --> SE : Optimisation\nnaturalité
+    EN --> SHR : Métriques\nperformance
+    
+    %% Interconnexions entre nouveaux composants
+    VC --> EN : Critères\nauthenticité
+    AO --> GM : Patterns\nlinguistiques
+    GM --> EN : Critères\nmulticulturels
+    EN --> VC : Orientations\nvalidation

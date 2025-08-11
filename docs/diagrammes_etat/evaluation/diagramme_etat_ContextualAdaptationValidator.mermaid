@@ -1,0 +1,33 @@
+stateDiagram-v2
+    title ContextualAdaptationValidator – Validation du plan d'adaptation émotionnelle en LSF
+
+    [*] --> Chargement_Contexte
+    Chargement_Contexte --> Analyse_Sociale
+    Analyse_Sociale --> Analyse_Narrative
+    Analyse_Narrative --> Analyse_Culturelle
+    Analyse_Culturelle --> Analyse_Temporelle
+
+    Analyse_Temporelle --> Vérification_Intensité
+    Vérification_Intensité --> Vérification_Cohérence_Expression
+    Vérification_Cohérence_Expression --> Vérification_Temporalité
+    Vérification_Temporalité --> Vérification_Authenticité_Culturelle
+
+    Vérification_Authenticité_Culturelle --> Vérification_Sémantique_LSF
+    Vérification_Sémantique_LSF --> Vérification_Posturale_Spatiale
+    Vérification_Posturale_Spatiale --> Validation_Finalisée
+
+    state Vérification_Sémantique_LSF {
+        [*] --> Détection_Anomalies_Signes
+        Détection_Anomalies_Signes --> Contrôle_Sens_Gestuel
+        Contrôle_Sens_Gestuel --> Vérification_Marqueurs_Grammat
+        Vérification_Marqueurs_Grammat --> [*]
+    }
+
+    state Vérification_Posturale_Spatiale {
+        [*] --> Analyse_Position_Corps
+        Analyse_Position_Corps --> Contrôle_Structure_Spatiale
+        Contrôle_Structure_Spatiale --> Vérification_Utilisation_Espace
+        Vérification_Utilisation_Espace --> [*]
+    }
+
+    Validation_Finalisée --> [*]

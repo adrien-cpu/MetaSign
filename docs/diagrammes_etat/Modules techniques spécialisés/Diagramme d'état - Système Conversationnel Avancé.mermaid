@@ -1,0 +1,50 @@
+stateDiagram-v2
+    %% Composants existants de référence
+    state "SystemeIACore (Existant)" as IACore
+    state "SystemeExpressions (Existant)" as SE
+    state "MultimodalAPI (Existant)" as MA
+    
+    %% Nouveau Système Conversationnel Avancé
+    state "SystemeConversationnelAvance" as SCA {
+        state "GestionContexteDialogue" as GCD {
+            AnalyseHistoriqueConversation --> MaintenirContexte
+            MaintenirContexte --> IntegrationMemoire
+        }
+        
+        state "StrategiesReponses" as SR {
+            AnalyseIntention --> SelectionStrategie
+            SelectionStrategie --> GenerationReponse
+            GenerationReponse --> ValidationCoherence
+        }
+        
+        state "ApprentissageConversationnel" as AC {
+            AnalyseFeedbackUtilisateur --> AjustementModele
+            AjustementModele --> OptimisationDialogue
+            OptimisationDialogue --> MiseAJourCompetences
+        }
+        
+        state "GestionMultimodale" as GM {
+            AdaptationModes --> SynchronisationExpression
+            SynchronisationExpression --> CoherenceMultimodale
+        }
+        
+        state "AnalyseEmotionnelleAvancee" as AEA {
+            DetectionNuanceEmotionnelle --> AdaptationTonalite
+            AdaptationTonalite --> AjustementComportement
+        }
+    }
+    
+    %% Connexions avec les systèmes existants
+    IACore --> SCA : Capacites\ncognitives
+    SE --> SCA : Expressions\net emotions
+    MA --> SCA : Synchronisation\nmultimodale
+    
+    %% Interactions internes
+    GCD --> SR : Contexte\nconversationnel
+    SR --> AC : Retour\nd'apprentissage
+    AC --> AEA : Ajustement\nemotionnel
+    GM --> SE : Expressions\nsynchronisees
+    
+    %% Interactions avancées
+    SCA --> IACore : Enrichissement\ncontinu
+end note

@@ -1,0 +1,2017 @@
+metasign/src/ai$ tree
+.
+├── ai-types
+│   └── index.ts
+├── api
+│   ├── ExternalAPIManager.ts
+│   ├── common
+│   │   ├── detection
+│   │   │   ├── AnomalyDetector.ts
+│   │   │   ├── CorrelationEngine.ts
+│   │   │   ├── MetricsCollector.ts
+│   │   │   ├── UnifiedAnomalyDetector.ts
+│   │   │   ├── interfaces
+│   │   │   │   └── IAnomalyDetector.ts
+│   │   │   └── types
+│   │   │       ├── AnomalyTypes.ts
+│   │   │       ├── CorrelationTypes.ts
+│   │   │       ├── MetricTypes.ts
+│   │   │       ├── UnifiedTypes.ts
+│   │   │       └── index.ts
+│   │   ├── healing
+│   │   │   ├── SelfHealer.ts
+│   │   │   └── types
+│   │   │       └── HealingTypes.ts
+│   │   ├── metrics
+│   │   │   ├── MetricBucket.ts
+│   │   │   ├── MetricsCollector.ts
+│   │   │   ├── MetricsCollectorAdapter.ts
+│   │   │   ├── interfaces
+│   │   │   │   └── IMetricsCollector.ts
+│   │   │   └── types
+│   │   │       └── MetricTypes.ts
+│   │   ├── monitoring
+│   │   │   └── LogService.ts
+│   │   ├── types
+│   │   │   └── system-integration.types.ts
+│   │   └── validation
+│   │       ├── ValidationService.ts
+│   │       ├── ValidatorProxy.ts
+│   │       ├── interfaces
+│   │       │   ├── IValidator.ts
+│   │       │   └── ValidatorInterfaces.ts
+│   │       ├── types
+│   │       │   ├── LSFTypes.ts
+│   │       │   ├── SecurityTypes.ts
+│   │       │   └── ValidationTypes.ts
+│   │       ├── utils
+│   │       │   └── RuleAdapter.ts
+│   │       └── validators
+│   │           ├── LSFValidator.ts
+│   │           └── SecurityValidator.ts
+│   ├── core
+│   │   ├── APIContext.ts
+│   │   ├── APICore.ts
+│   │   ├── APIRegistry.ts
+│   │   ├── middleware
+│   │   │   ├── AbstractMiddleware.ts
+│   │   │   ├── AuthenticationMiddleware.ts
+│   │   │   ├── CacheManager.ts
+│   │   │   ├── README.md
+│   │   │   ├── RateLimiter.ts
+│   │   │   ├── RateLimitingMiddleware.ts
+│   │   │   ├── RequestIdMiddleware.ts
+│   │   │   ├── SecurityMiddleware.ts
+│   │   │   ├── SecurityMiddlewareChain.ts
+│   │   │   ├── SecurityMiddlewareFactory.ts
+│   │   │   ├── __tests__
+│   │   │   │   ├── AuthenticationMiddleware.test.ts
+│   │   │   │   ├── RateLimitingMiddleware.test.ts
+│   │   │   │   ├── SecurityMiddleware.test.ts
+│   │   │   │   ├── SecurityMiddlewareChain.test.ts
+│   │   │   │   └── SecurityMiddlewareFactory.test.ts
+│   │   │   ├── config
+│   │   │   │   └── SecurityConfig.ts
+│   │   │   ├── di
+│   │   │   │   ├── SecurityServiceProvider.ts
+│   │   │   │   └── types.ts
+│   │   │   ├── index.ts
+│   │   │   ├── interfaces.ts
+│   │   │   ├── middleware-interfaces.ts
+│   │   │   ├── middlewares
+│   │   │   │   ├── AuthenticationMiddleware.ts
+│   │   │   │   ├── BehaviorAnalysisMiddleware.ts
+│   │   │   │   ├── ComplianceValidationMiddleware.ts
+│   │   │   │   ├── DataSanitizationMiddleware.ts
+│   │   │   │   ├── EncryptionMiddleware.ts
+│   │   │   │   ├── ErrorHandlerMiddleware.ts
+│   │   │   │   ├── IntrusionDetectionMiddleware.ts
+│   │   │   │   ├── RateLimitingMiddleware.ts
+│   │   │   │   ├── RequestIdMiddleware.ts
+│   │   │   │   ├── SecurityAuditMiddleware.ts
+│   │   │   │   └── SecurityHeadersMiddleware.ts
+│   │   │   ├── mocks
+│   │   │   │   ├── MockBehaviorAnalyzer.ts
+│   │   │   │   ├── MockComplianceValidator.ts
+│   │   │   │   └── MockIntrusionDetectionSystem.ts
+│   │   │   ├── mocks.ts
+│   │   │   ├── tests
+│   │   │   │   ├── IntrusionDetectionMiddleware.test.ts
+│   │   │   │   └── integration.test.ts
+│   │   │   ├── types
+│   │   │   │   └── middleware.types.ts
+│   │   │   ├── utils
+│   │   │   │   ├── security-logger.ts
+│   │   │   │   └── validation-helpers.ts
+│   │   │   └── validation-helpers.ts
+│   │   ├── types
+│   │   │   └── security.types.ts
+│   │   └── types.ts
+│   ├── distributed
+│   │   ├── DistributedIntelligenceManager.ts
+│   │   ├── ICognitionTypes.ts
+│   │   ├── aggregation
+│   │   │   ├── ModelAggregator.ts
+│   │   │   ├── ModelAggregatorFactory.ts
+│   │   │   ├── OptimizedModelAggregator.ts
+│   │   │   ├── adapters
+│   │   │   │   ├── ConsensusAdapter.ts
+│   │   │   │   └── MetricsCollectorAdapter.ts
+│   │   │   ├── aggregators
+│   │   │   │   ├── MetadataAggregator.ts
+│   │   │   │   └── ParameterAggregator.ts
+│   │   │   ├── cache
+│   │   │   │   └── CacheManager.ts
+│   │   │   ├── index.ts
+│   │   │   ├── interfaces
+│   │   │   │   ├── ExtendedMetricsCollector.ts
+│   │   │   │   ├── IExtendedMetricsCollector.ts
+│   │   │   │   └── IModelAggregatorFactory.ts
+│   │   │   ├── metrics
+│   │   │   │   └── MetricsRecorder.ts
+│   │   │   ├── types
+│   │   │   │   └── aggregation.types.ts
+│   │   │   └── weights
+│   │   │       └── WeightCalculator.ts
+│   │   ├── cognition
+│   │   │   ├── CognitionManager.ts
+│   │   │   ├── interfaces
+│   │   │   │   ├── ICognitionManager.ts
+│   │   │   │   ├── ICognitionTypes.ts
+│   │   │   │   └── IHumanSupervisor.ts
+│   │   │   └── types
+│   │   │       ├── CognitionErrorTypes.ts
+│   │   │       └── CognitionTypes.ts
+│   │   ├── consensus
+│   │   │   ├── ConflictResolver.ts
+│   │   │   ├── ConsensusManager.ts
+│   │   │   ├── RoundManager.ts
+│   │   │   ├── VotingSystem.ts
+│   │   │   ├── interfaces
+│   │   │   │   ├── IConflictResolver.ts
+│   │   │   │   ├── IConsensusManager.ts
+│   │   │   │   ├── IRoundManager.ts
+│   │   │   │   └── IVotingSystem.ts
+│   │   │   └── types
+│   │   │       ├── ConsensusErrorTypes.ts
+│   │   │       ├── ConsensusTypes.ts
+│   │   │       └── conflict.types.ts
+│   │   ├── evaluation
+│   │   │   ├── BiasDetector.ts
+│   │   │   ├── ConsistencyChecker.ts
+│   │   │   ├── DataQualityAnalyzer.ts
+│   │   │   ├── DistributionAnalyzer.ts
+│   │   │   ├── PerformanceEvaluator.ts
+│   │   │   ├── ReliabilityAssessor.ts
+│   │   │   ├── types
+│   │   │   │   └── performance.types.ts
+│   │   │   └── types.ts
+│   │   ├── fusion
+│   │   │   ├── FusionManager.ts
+│   │   │   ├── index.ts
+│   │   │   ├── interfaces
+│   │   │   │   ├── IEnhancedMetricsCollector.ts
+│   │   │   │   └── IFusionManager.ts
+│   │   │   └── types
+│   │   │       ├── errors.types.ts
+│   │   │       └── fusion.types.ts
+│   │   ├── monitoring
+│   │   │   ├── DistributedMonitor.ts
+│   │   │   ├── analysis
+│   │   │   │   ├── CPUAnalyzer.ts
+│   │   │   │   ├── ContextSwitchAnalyzer.ts
+│   │   │   │   ├── MemoryFragmentationAnalyzer.ts
+│   │   │   │   ├── MemoryLeakDetector.ts
+│   │   │   │   ├── PerformanceAnalyzer.ts
+│   │   │   │   └── ThreadAnalyzer.ts
+│   │   │   ├── health
+│   │   │   │   ├── DistributedHealthChecker.ts
+│   │   │   │   ├── alerts
+│   │   │   │   │   ├── AlertingManager.ts
+│   │   │   │   │   └── adapters
+│   │   │   │   │       ├── EmailAlertAdapter.ts
+│   │   │   │   │       ├── PagerDutyAlertAdapter.ts
+│   │   │   │   │       └── SlackAlertAdapter.ts
+│   │   │   │   ├── checks
+│   │   │   │   │   ├── APIHealthCheck.ts
+│   │   │   │   │   ├── BaseHealthCheck.ts
+│   │   │   │   │   ├── CPUHealthCheck.ts
+│   │   │   │   │   ├── DatabaseHealthCheck.ts
+│   │   │   │   │   ├── HealthCheckBase.ts
+│   │   │   │   │   └── MemoryHealthCheck.ts
+│   │   │   │   ├── clients
+│   │   │   │   │   └── HTTPClient.ts
+│   │   │   │   ├── examples
+│   │   │   │   │   └── advanced-monitoring-example.ts
+│   │   │   │   ├── history
+│   │   │   │   │   └── HealthHistoryManager.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── interfaces
+│   │   │   │   │   └── IDistributedHealthChecker.ts
+│   │   │   │   ├── metrics
+│   │   │   │   │   └── MetricsAggregator.ts
+│   │   │   │   └── types
+│   │   │   │       ├── HealthCheckTypes.ts
+│   │   │   │       ├── ThresholdTypes.ts
+│   │   │   │       ├── alert.types.ts
+│   │   │   │       ├── api-health.types.ts
+│   │   │   │       ├── health-metrics.types.ts
+│   │   │   │       ├── health.types.ts
+│   │   │   │       └── monitoring.types.ts
+│   │   │   ├── interfaces
+│   │   │   │   ├── IDistributedMonitor.ts
+│   │   │   │   ├── IPerformanceMonitor.ts
+│   │   │   │   └── IRealtimeMonitor.ts
+│   │   │   ├── metrics
+│   │   │   │   ├── CPUMetricsCollector.ts
+│   │   │   │   ├── DistributedMetricsCollector.ts
+│   │   │   │   ├── MemoryMetricsCollector.ts
+│   │   │   │   ├── MetricsBuffer.ts
+│   │   │   │   └── NetworkMetricsCollector.ts
+│   │   │   ├── optimization
+│   │   │   │   ├── CacheOptimizer.ts
+│   │   │   │   ├── LoadAnalyzer.ts
+│   │   │   │   ├── LoadBalancer.ts
+│   │   │   │   ├── NodeManager.ts
+│   │   │   │   ├── PerformanceAnalyzer.ts
+│   │   │   │   ├── PerformanceOptimizer.ts
+│   │   │   │   ├── ResourceManager.ts
+│   │   │   │   ├── alert.types.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── performance-optimizer-types.ts
+│   │   │   │   ├── strategies
+│   │   │   │   │   ├── AdaptiveStrategy.ts
+│   │   │   │   │   ├── BaseStrategy.ts
+│   │   │   │   │   ├── FIFOStrategy.ts
+│   │   │   │   │   ├── LFUStrategy.ts
+│   │   │   │   │   ├── LRUStrategy.ts
+│   │   │   │   │   ├── SizeStrategy.ts
+│   │   │   │   │   ├── Strategy.ts
+│   │   │   │   │   └── StrategyFactory.ts
+│   │   │   │   ├── types
+│   │   │   │   │   └── optimization.types.ts
+│   │   │   │   └── types.ts
+│   │   │   ├── realtime
+│   │   │   │   ├── CPURealtimeMonitor.ts
+│   │   │   │   ├── HealthCheckFactory.ts
+│   │   │   │   ├── HealthChecker.ts
+│   │   │   │   ├── HealthMonitoring.ts
+│   │   │   │   ├── MemoryRealtimeMonitor.ts
+│   │   │   │   ├── MetricsBuffer.ts
+│   │   │   │   ├── NetworkRealtimeMonitor.ts
+│   │   │   │   ├── RealtimeMetricProcessor.ts
+│   │   │   │   ├── RealtimeMonitor.ts
+│   │   │   │   ├── RealtimeMonitoringService.ts
+│   │   │   │   ├── advanced-health-monitoring.ts
+│   │   │   │   ├── alerts
+│   │   │   │   │   ├── AlertManager.ts
+│   │   │   │   │   ├── EscalationManager.ts
+│   │   │   │   │   ├── NotificationService.ts
+│   │   │   │   │   └── types.ts
+│   │   │   │   └── notification
+│   │   │   │       ├── EmailClient.ts
+│   │   │   │       ├── MessageFormatter.ts
+│   │   │   │       ├── NotificationChannel.ts
+│   │   │   │       ├── RecipientManager.ts
+│   │   │   │       ├── RetryPolicy.ts
+│   │   │   │       ├── channels
+│   │   │   │       │   ├── EmailChannel.ts
+│   │   │   │       │   ├── SMSChannel.ts
+│   │   │   │       │   └── SlackChannel.ts
+│   │   │   │       ├── clients
+│   │   │   │       │   └── EmailClient.ts
+│   │   │   │       ├── formatters
+│   │   │   │       │   └── MessageFormatter.ts
+│   │   │   │       ├── policies
+│   │   │   │       │   └── RetryPolicy.ts
+│   │   │   │       ├── recipients
+│   │   │   │       │   └── RecipientManager.ts
+│   │   │   │       └── types.ts
+│   │   │   └── types
+│   │   │       ├── memory.types.ts
+│   │   │       └── performance.types.ts
+│   │   ├── optimization
+│   │   │   ├── GlobalOptimizer.ts
+│   │   │   ├── LoadBalancer.ts
+│   │   │   ├── OptimizationService.ts
+│   │   │   ├── OptimizationStrategyFactory.ts
+│   │   │   ├── interfaces
+│   │   │   │   ├── IOptimizationStrategy.ts
+│   │   │   │   └── IOptimizer.ts
+│   │   │   ├── optimizers
+│   │   │   │   ├── PerformanceOptimizer.ts
+│   │   │   │   └── ResourceOptimizer.ts
+│   │   │   ├── strategies
+│   │   │   │   ├── KnowledgeDistillationStrategy.ts
+│   │   │   │   ├── LatencyOptimizationStrategy.ts
+│   │   │   │   ├── ModelCompressionStrategy.ts
+│   │   │   │   ├── ParameterPruningStrategy.ts
+│   │   │   │   ├── ResourceBalancingStrategy.ts
+│   │   │   │   ├── ThroughputOptimizationStrategy.ts
+│   │   │   │   └── __tests__
+│   │   │   │       └── ResourceBalancingStrategy.test.ts
+│   │   │   ├── types
+│   │   │   │   └── optimization.types.ts
+│   │   │   └── types.ts
+│   │   ├── training
+│   │   │   └── DistributedTrainingManager.ts
+│   │   ├── types
+│   │   │   └── DistributedTypes.ts
+│   │   └── validation
+│   │       ├── DistributionValidator.ts
+│   │       ├── FederatedValidator.ts
+│   │       ├── ValidationOrchestrator.ts
+│   │       ├── interfaces
+│   │       │   └── IDistributionValidator.ts
+│   │       └── validators
+│   │           └── ResourceValidator.ts
+│   ├── federated
+│   │   ├── FederatedLearningAPI.ts
+│   │   ├── FederatedLearningManager.ts
+│   │   ├── core
+│   │   │   ├── ModelAggregator.ts
+│   │   │   └── PrivacyGuard.ts
+│   │   └── services
+│   │       └── SecurityService.ts
+│   ├── feedback
+│   │   ├── InteractiveLearningSystem.ts
+│   │   ├── communication
+│   │   │   └── CommunicationManager.ts
+│   │   ├── criteria
+│   │   │   ├── CriteriaEvaluator.ts
+│   │   │   └── types.ts
+│   │   ├── learning
+│   │   │   ├── InteractiveLearningEvaluator.ts
+│   │   │   └── LearningAdapter.ts
+│   │   ├── rating
+│   │   │   └── TranslationRatingSystem.ts
+│   │   ├── timeline
+│   │   │   └── TimelineManager.ts
+│   │   └── types.ts
+│   ├── integration
+│   │   ├── SystemIntegrationModule.ts
+│   │   ├── evaluators
+│   │   │   └── status.evaluator.t
+│   │   ├── external
+│   │   │   ├── ExternalApiManager.ts
+│   │   │   ├── ExternalIntegrationManager.ts
+│   │   │   ├── IntegrationBridge.ts
+│   │   │   ├── WebhookManager.ts
+│   │   │   ├── http-client.types.ts
+│   │   │   └── types.ts
+│   │   ├── internal
+│   │   │   ├── EventBus.ts
+│   │   │   ├── MessageQueue.ts
+│   │   │   └── SystemBridge.ts
+│   │   ├── services
+│   │   │   ├── cleanup.service.ts
+│   │   │   ├── communication.service.ts
+│   │   │   ├── connection.service.ts
+│   │   │   ├── coordination.service.ts
+│   │   │   ├── data-management.service.ts
+│   │   │   ├── interface.service.ts
+│   │   │   ├── monitoring.service.ts
+│   │   │   ├── notification.service.ts
+│   │   │   └── synchronization.service.ts
+│   │   └── types
+│   │       └── utility.types.ts
+│   ├── monitoring
+│   │   ├── alerts
+│   │   │   ├── AlertManager.ts
+│   │   │   ├── EscalationManager.ts
+│   │   │   ├── NotificationService.ts
+│   │   │   └── types.ts
+│   │   ├── health
+│   │   │   ├── HealthCheck.ts
+│   │   │   ├── StatusReporter.ts
+│   │   │   └── SystemStatus.ts
+│   │   └── metrics
+│   │       ├── APIMetricsCollector.ts
+│   │       ├── MetricsAggregator.ts
+│   │       └── MetricsReporter.ts
+│   ├── multimodal
+│   │   ├── MultimodalAPI.ts
+│   │   ├── TemporalSynchronizer.ts
+│   │   ├── adaptation
+│   │   │   └── DynamicModalityAdapter.ts
+│   │   ├── analysis
+│   │   │   ├── ContextAnalyzer.ts
+│   │   │   ├── EmotionDetector.ts
+│   │   │   ├── IntentAnalyzer.ts
+│   │   │   ├── SituationalAnalyzer.ts
+│   │   │   ├── analyzers
+│   │   │   │   ├── LSFEmotionAnalyzer.ts
+│   │   │   │   └── VocalEmotionAnalyzer.ts
+│   │   │   ├── fusion
+│   │   │   │   └── EmotionFuser.ts
+│   │   │   ├── types
+│   │   │   │   └── modalities.ts
+│   │   │   └── types.ts
+│   │   ├── conflict
+│   │   │   └── ModalityConflictResolver.ts
+│   │   ├── core
+│   │   │   ├── ContextAdapter.ts
+│   │   │   └── ModalityFusion.ts
+│   │   ├── fusion
+│   │   │   ├── ModalityFusionEngine.ts
+│   │   │   └── strategies
+│   │   │       └── WeightedFusionStrategy.ts
+│   │   ├── performance
+│   │   │   └── ModalityPipeline.ts
+│   │   ├── processors
+│   │   │   ├── LSFProcessor.ts
+│   │   │   └── VocalProcessor.ts
+│   │   ├── quality
+│   │   │   ├── MultimodalValidator.ts
+│   │   │   └── types.ts
+│   │   ├── services
+│   │   │   └── SynchronizationService.ts
+│   │   ├── synchronization
+│   │   │   └── ModalitySynchronizer.ts
+│   │   └── types
+│   │       └── modalities.ts
+│   ├── performance
+│   │   ├── RealTimeMetricsCollector.ts
+│   │   └── cache
+│   │       └── PredictiveCache
+│   ├── resilience
+│   │   ├── ResilienceAPI.ts
+│   │   ├── core
+│   │   │   ├── ResourceOptimizer.ts
+│   │   │   └── SelfHealer.ts
+│   │   ├── managers
+│   │   │   ├── ResourceManager.ts
+│   │   │   └── StateManager.ts
+│   │   ├── services
+│   │   │   └── MonitoringService.ts
+│   │   └── types
+│   │       ├── OptimizationTypes.ts
+│   │       └── ResilienceTypes.ts
+│   ├── rpm
+│   │   ├── RPMIntegrationManager.ts
+│   │   ├── analysis
+│   │   │   └── PerformanceAnalyzer.ts
+│   │   ├── batch
+│   │   │   └── MetricsBatcher.ts
+│   │   ├── interfaces
+│   │   │   ├── IMetricAnalyzer.ts
+│   │   │   └── IPerformanceMonitor.ts
+│   │   ├── performance
+│   │   │   └── RPMPerformanceMonitor.ts
+│   │   └── types
+│   │       ├── AnalysisTypes.ts
+│   │       ├── BatchTypes.ts
+│   │       ├── MetricTypes.ts
+│   │       └── RPMTypes.ts
+│   ├── security
+│   │   ├── README.md
+│   │   ├── SecurityAPI.ts
+│   │   ├── access
+│   │   │   └── AccessControlManager.ts
+│   │   ├── audit
+│   │   │   ├── AuditManager.ts
+│   │   │   ├── AuditTrailManager.ts
+│   │   │   ├── SecurityAuditor.ts
+│   │   │   └── types
+│   │   │       └── AuditTypes.ts
+│   │   ├── auth
+│   │   │   └── SecurityMutualAuthenticationManager.ts
+│   │   ├── authentication
+│   │   │   ├── JWTService.ts
+│   │   │   ├── RoleManager.ts
+│   │   │   ├── TokenBlacklist.ts
+│   │   │   └── TokenValidator.ts
+│   │   ├── authorization
+│   │   │   ├── AccessControl.ts
+│   │   │   ├── PermissionManager.ts
+│   │   │   └── RoleValidator.ts
+│   │   ├── backup
+│   │   │   └── BackupManager.ts
+│   │   ├── behavior
+│   │   │   ├── AnomalyFactory.ts
+│   │   │   ├── SecurityBehaviorAnalyzer.ts
+│   │   │   ├── detectors
+│   │   │   │   ├── AccessPatternDetector.ts
+│   │   │   │   ├── InteractionPatternDetector.ts
+│   │   │   │   ├── PatternDetectorBase.ts
+│   │   │   │   ├── ResourcePatternDetector.ts
+│   │   │   │   └── TemporalPatternDetector.ts
+│   │   │   ├── interfaces.ts
+│   │   │   ├── types.ts
+│   │   │   └── utils
+│   │   │       └── StatisticalUtils.ts
+│   │   ├── compliance
+│   │   │   ├── ComplianceManager.ts
+│   │   │   ├── SecurityComplianceValidator.ts
+│   │   │   └── types.ts
+│   │   ├── config
+│   │   │   └── SecurityConfigurationManager.ts
+│   │   ├── core
+│   │   │   ├── AuthenticationManager.ts
+│   │   │   └── EncryptionManager.ts
+│   │   ├── data
+│   │   │   ├── DataSanitizer.ts
+│   │   │   ├── PIIManager.ts
+│   │   │   └── SecureDataHandler.ts
+│   │   ├── database
+│   │   │   └── DatabaseInterface.ts
+│   │   ├── dependency
+│   │   │   └── SecurityDependencyValidator.ts
+│   │   ├── encryption
+│   │   │   ├── CipherManager.ts
+│   │   │   ├── DataEncryptionManager.ts
+│   │   │   ├── EncryptionService.ts
+│   │   │   └── KeyManager.ts
+│   │   ├── events
+│   │   │   ├── SecurityEventsAggregator.ts
+│   │   │   └── types.ts
+│   │   ├── fraud
+│   │   │   └── FraudDetectionSystem.ts
+│   │   ├── gateway
+│   │   │   ├── SecurityAPIGateway.ts
+│   │   │   └── types.ts
+│   │   ├── ids
+│   │   │   ├── IntrusionDetectionSystem.ts
+│   │   │   └── types.ts
+│   │   ├── incident
+│   │   │   └── IncidentResponseManager.ts
+│   │   ├── intelligence
+│   │   │   └── SecurityThreatIntelligence.ts
+│   │   ├── interfaces
+│   │   │   ├── ISecuritySystem.ts
+│   │   │   └── SecurityInterfaces.ts
+│   │   ├── metrics
+│   │   │   └── SecurityMetricsCollector.ts
+│   │   ├── monitoring
+│   │   │   └── SecurityEventMonitor.ts
+│   │   ├── notification
+│   │   │   └── NotificationService.ts
+│   │   ├── perimeter
+│   │   │   ├── README.md
+│   │   │   ├── SecurityPerimeterManager.ts
+│   │   │   ├── __test__
+│   │   │   │   └── SecurityPerimeterManager.test.ts
+│   │   │   ├── audit
+│   │   │   │   └── PerimeterAuditor.ts
+│   │   │   ├── cache
+│   │   │   │   └── AccessCache.ts
+│   │   │   ├── collaborative
+│   │   │   │   └── PerimeterCollaborativeValidator.ts
+│   │   │   ├── detection
+│   │   │   │   └── PerimeterAnomalyDetector.ts
+│   │   │   ├── ethics
+│   │   │   │   └── PerimeterEthicsValidator.ts
+│   │   │   ├── monitoring
+│   │   │   │   ├── PerimeterMetricsCollector.ts
+│   │   │   │   └── PerimeterMonitor.ts
+│   │   │   ├── reporting
+│   │   │   │   ├── PerimeterReportGenerator.ts
+│   │   │   │   └── PerimeterReporting.ts
+│   │   │   ├── restrictions
+│   │   │   │   ├── PerimeterMonitoring.ts
+│   │   │   │   └── RestrictionChecker.ts
+│   │   │   ├── rules
+│   │   │   │   └── RuleManager.ts
+│   │   │   ├── validation
+│   │   │   │   └── PerimeterValidation.ts
+│   │   │   └── zone
+│   │   │       └── ZoneManager.ts
+│   │   ├── policy
+│   │   │   └── SecurityPolicyManager.ts
+│   │   ├── protection
+│   │   │   ├── PolicyEnforcer.ts
+│   │   │   ├── RateLimiter.ts
+│   │   │   └── ThreatDetector.ts
+│   │   ├── recovery
+│   │   │   ├── DisasterRecoveryManager.ts
+│   │   │   └── SecurityRecoveryManager.ts
+│   │   ├── services
+│   │   │   └── GeoIPService.ts
+│   │   ├── session
+│   │   │   ├── SessionManager.ts
+│   │   │   └── types.ts
+│   │   ├── testing
+│   │   │   └── SecurityPenetrationTester.ts
+│   │   ├── types
+│   │   │   ├── EventTypes.ts
+│   │   │   ├── SecurityTypes.ts
+│   │   │   └── perimeter-types.ts
+│   │   ├── utils
+│   │   │   └── CompressionService.ts
+│   │   └── validation
+│   │       ├── PolicyValidator.ts
+│   │       ├── SecurityValidator.ts
+│   │       └── TokenValidator.ts
+│   ├── types
+│   │   ├── base.ts
+│   │   ├── metrics.ts
+│   │   └── monitoring.ts
+│   └── validators
+│       ├── ValidatorRegistry.ts
+│       └── interfaces
+│           ├── IValidationContext.ts
+│           ├── IValidationResult.ts
+│           ├── IValidationSystem.ts
+│           └── IValidator.ts
+├── base
+│   ├── BaseAI.ts
+│   ├── IACore.ts
+│   └── types.ts
+├── conversational
+│   └── SystemeConversationnelAvance.ts
+├── coordinators
+│   ├── IACoordinator.ts
+│   ├── ProcessingPipeline.ts
+│   ├── README.md
+│   ├── RouterMultimodal.ts
+│   ├── SystemOrchestrator.ts
+│   ├── SystemeOrchestrateurCentral.ts
+│   ├── adapters
+│   │   ├── CacheManagerAdapter.ts
+│   │   ├── ExtendedCacheManagerAdapter.ts
+│   │   ├── ExtendedPerformanceMonitorAdapter.ts
+│   │   ├── PerformanceMonitorAdapter.ts
+│   │   └── SystemAdapters.ts
+│   ├── bridges
+│   │   ├── EthicsSystemBridge.ts
+│   │   ├── IACoreBridge.ts
+│   │   └── xpressionsSystemBridge.ts
+│   ├── cache
+│   │   └── CacheManager.ts
+│   ├── errors
+│   │   ├── component.errors.ts
+│   │   └── orchestrator.errors.ts
+│   ├── extensions
+│   │   └── SystemExtensions.ts
+│   ├── factories
+│   │   └── ExpressionComponentFactory.ts
+│   ├── handlers
+│   │   └── RequestHandlers.ts
+│   ├── index.ts
+│   ├── interfaces
+│   │   ├── ICache.ts
+│   │   ├── ICacheManager.ts
+│   │   ├── IEmotionFeedbackHandler.ts
+│   │   ├── IMetricsCollector.ts
+│   │   ├── IOrchestrator.ts
+│   │   └── ISystemComponents.ts
+│   ├── managers
+│   │   ├── EnhancedCacheManager.ts
+│   │   ├── EventManager.ts
+│   │   └── PerformanceMonitor.ts
+│   ├── services
+│   │   ├── AlertManager.ts
+│   │   ├── CacheService.ts
+│   │   ├── MetricsCollector.ts
+│   │   ├── MetricsStorage.ts
+│   │   ├── OptimizationService.ts
+│   │   ├── RequestService.ts
+│   │   └── metrics
+│   │       ├── MetricsCollector.ts
+│   │       ├── __test__
+│   │       │   └── MetricsCollector.test.ts
+│   │       ├── agregation
+│   │       │   └── AggregationStrategies.ts
+│   │       ├── alerts
+│   │       │   └── ThresholdManager.ts
+│   │       ├── exporters
+│   │       │   └── MetricsExporter.ts
+│   │       └── persistence
+│   │           └── MetricsPersistenceStrategy.ts
+│   ├── types
+│   │   ├── emotion-feedback.types.ts
+│   │   ├── feedback.types.ts
+│   │   ├── index.ts
+│   │   ├── metrics.types.ts
+│   │   └── orchestrator.types.ts
+│   ├── types.ts
+│   └── utils
+│       ├── ErrorHandling.ts
+│       └── MetricsTracking.ts
+├── cultural
+│   ├── GestionVariantesDiatopiques.ts
+│   ├── interfaces
+│   │   ├── IDialectMapper.ts
+│   │   ├── IOriginDetector.ts
+│   │   └── IVariantValidator.ts
+│   └── types.ts
+├── data
+│   └── DataManager.ts
+├── emotions
+│   ├── lsf
+│   │   └── types.ts
+│   └── types
+│       └── base.ts
+├── errors
+│   ├── ErrorManager.ts
+│   └── ErrorTypes.ts
+├── ethics
+│   ├── committee
+│   │   ├── EthicsCommittee.ts
+│   │   └── Member.ts
+│   ├── compliance
+│   │   ├── AuditTracker.ts
+│   │   ├── GDPRCompliance.ts
+│   │   └── RegulatoryChecker.ts
+│   ├── core
+│   │   ├── AsimovLaws.ts
+│   │   ├── EthicsCore.ts
+│   │   └── SystemeControleEthique.ts
+│   ├── rules
+│   │   └── CulturalRule.ts
+│   ├── supervision
+│   │   └── EthicsCommittee.ts
+│   ├── types
+│   │   └── index.ts
+│   └── voting
+│       ├── VoteConflictResolver.ts
+│       ├── VoteImplementations.ts
+│       ├── VoteTypes.ts
+│       ├── VotingSystem.ts
+│       └── types.ts
+├── feedback
+│   ├── FeedbackSystem.ts
+│   ├── adaptation
+│   │   └── SignAdaptationEngine.ts
+│   ├── analysis
+│   │   └── SignAnalyzer.ts
+│   ├── core
+│   │   ├── FeedbackDatabase.ts
+│   │   ├── FeedbackSystem.ts
+│   │   └── LSFAlertSystem.ts
+│   ├── evaluation
+│   │   ├── LSFAdvancedMetrics.ts
+│   │   └── MetricsCollector.ts
+│   ├── handlers
+│   │   ├── EmotionFeedbackHandler.ts
+│   │   └── ExpressionFeedbackHandler.ts
+│   ├── immersive
+│   ├── interfaces
+│   │   └── IEmotionFeedbackHandler.ts
+│   ├── learning
+│   │   ├── InteractiveLearningSystem.ts
+│   │   └── PersonalizedLearningPath.ts
+│   ├── observation
+│   │   ├── InteractionCollector.ts
+│   │   └── collaborative
+│   │       ├── ValidationSystem.ts
+│   │       ├── interfaces
+│   │       │   └── validation-interfaces.ts
+│   │       └── types
+│   │           └── validation-types.ts
+│   ├── quality
+│   │   └── FeedbackQualityAssessor.ts
+│   ├── services
+│   │   ├── ProformeValidationService.ts
+│   │   └── ZoneValidationService.ts
+│   ├── types
+│   │   ├── FeedbackInterfaces.ts
+│   │   ├── analysis.ts
+│   │   ├── base.ts
+│   │   ├── emotion-feedback.types.ts
+│   │   ├── feedback.types.ts
+│   │   ├── index.ts
+│   │   ├── validation.ts
+│   │   └── zone-validation.ts
+│   ├── types.ts
+│   └── validators
+│       ├── CulturalValidator.ts
+│       ├── FeedbackValidator.ts
+│       ├── GrammaticalValidator.ts
+│       ├── SpatialValidator.ts
+│       ├── TemporalValidator.ts
+│       ├── base
+│       │   └── BaseValidator.ts
+│       ├── constraints
+│       │   ├── ConstraintValidator.ts
+│       │   └── index.ts
+│       ├── interfaces
+│       │   ├── ICulturalValidator.ts
+│       │   ├── IFeedbackValidator.ts
+│       │   ├── IGrammaticalValidator.ts
+│       │   ├── ISpatialValidator.ts
+│       │   └── ITemporalValidator.ts
+│       ├── specialized
+│       │   ├── AbstractZoneValidator.ts
+│       │   ├── CoherenceValidator.ts
+│       │   ├── ProformeValidator.ts
+│       │   ├── ReferenceValidator.ts
+│       │   └── ZoneValidator.ts
+│       ├── types.ts
+│       └── zone
+│           ├── ZoneRelationshipValidator.ts
+│           ├── ZoneTransitionExtractor.ts
+│           ├── ZoneUsageExtractor.ts
+│           └── index.ts
+├── integration
+│   └── SystemeIntegrationMistral.ts
+├── judges
+│   ├── IJuge.ts
+│   └── JugeManager.ts
+├── managers
+│   ├── PerformanceMonitor.ts
+│   └── interfaces
+│       └── IPerformanceMonitor.ts
+├── monitoring
+│   └── MonitoringUnifie.ts
+├── multimodal
+│   ├── analysis
+│   │   ├── ContextAnalyzer.ts
+│   │   └── IntentAnalyzer.ts
+│   └── fusion
+│       └── ModalityFusionEngine.ts
+├── observers
+│   ├── Feedback.ts
+│   └── IAObserver.ts
+├── performance
+│   ├── EvaluationPerformance.ts
+│   ├── PerformanceMonitoringSystem.ts
+│   ├── cache
+│   │   ├── MultiLevelCache.ts
+│   │   ├── MultiLevelTransitionCache.ts
+│   │   └── interfaces
+│   │       └── cache.interfaces.ts
+│   └── types.ts
+├── pyramid
+│   ├── AdvancedMetricsCollector.ts
+│   ├── ParallelProcessingManager.ts
+│   ├── PyramidCache.ts
+│   ├── PyramidDataValidator.ts
+│   ├── PyramidLevelFactory.ts
+│   ├── PyramideIACore.test.ts
+│   ├── PyramideIACore.ts
+│   ├── PyramideIAIntegration.test.ts
+│   ├── interfaces
+│   │   └── IPyramidDataFlow.ts
+│   ├── levels
+│   │   └── ExplorerLevel.ts
+│   ├── shared-types.ts
+│   ├── types
+│   │   ├── explorer.ts
+│   │   └── pyramid-core.types.ts
+│   └── types.ts
+├── security
+│   ├── README.md
+│   ├── core
+│   │   ├── SecurityCore.ts
+│   │   └── SystemeSecuriteRenforcee.ts
+│   └── types
+│       └── features.ts
+├── services
+│   ├── gamification
+│   │   ├── GamificationManager.ts
+│   │   ├── README.md
+│   │   ├── adapters
+│   │   │   ├── LearningAdapter.ts
+│   │   │   └── index.ts
+│   │   ├── index.ts
+│   │   ├── point_avancement_service_gamification.md
+│   │   ├── services
+│   │   │   ├── BadgeService.ts
+│   │   │   ├── ChallengeService.ts
+│   │   │   ├── EventService.ts
+│   │   │   ├── LevelService.ts
+│   │   │   └── ProfileService.ts
+│   │   ├── types
+│   │   │   └── action.ts
+│   │   └── types.ts
+│   ├── learning
+│   │   ├── ExerciseManager.ts
+│   │   ├── InteractionService.ts
+│   │   ├── LearningEventHandler.ts
+│   │   ├── LearningService.ts
+│   │   ├── LearningServiceInitializer.ts
+│   │   ├── MIGRATION_GUIDE.md
+│   │   ├── Point_avancement_service_learning.md
+│   │   ├── SessionManager.ts
+│   │   ├── config
+│   │   │   └── learning-config.ts
+│   │   ├── evaluation
+│   │   │   └── interfaces
+│   │   │       └── ICompetencyGapDetector.ts
+│   │   ├── human
+│   │   │   ├── badges
+│   │   │   │   └── BadgeManagerService.ts
+│   │   │   ├── coda
+│   │   │   │   ├── codavirtuel
+│   │   │   │   │   ├── ReverseApprenticeshipSystem.ts
+│   │   │   │   │   ├── __tests__
+│   │   │   │   │   │   └── CODAIntegration.test.ts
+│   │   │   │   │   ├── adapters
+│   │   │   │   │   │   ├── ExerciseAdapter.ts
+│   │   │   │   │   │   ├── IExerciseAdapter.ts
+│   │   │   │   │   │   ├── README.md
+│   │   │   │   │   │   ├── RealTimeAdapter.ts
+│   │   │   │   │   │   ├── analyzers
+│   │   │   │   │   │   │   └── interaction-analyzer.ts
+│   │   │   │   │   │   ├── interfaces
+│   │   │   │   │   │   │   └── IRealTimeAdapter.ts
+│   │   │   │   │   │   ├── mocks
+│   │   │   │   │   │   │   └── mock-services.ts
+│   │   │   │   │   │   ├── services
+│   │   │   │   │   │   │   ├── AdapterAnalysisService.ts
+│   │   │   │   │   │   │   ├── AdapterConfigurationService.ts
+│   │   │   │   │   │   │   ├── AdapterMetricsService.ts
+│   │   │   │   │   │   │   └── index.ts
+│   │   │   │   │   │   ├── types.ts
+│   │   │   │   │   │   └── utils
+│   │   │   │   │   │       └── preference-utils.ts
+│   │   │   │   │   ├── evaluators
+│   │   │   │   │   │   ├── CECRLCODAEvaluator.ts
+│   │   │   │   │   │   ├── CECRLLevelEvaluator.ts
+│   │   │   │   │   │   ├── README.md
+│   │   │   │   │   │   ├── __tests__
+│   │   │   │   │   │   │   ├── CECRLCODAEvaluator.test.ts
+│   │   │   │   │   │   │   ├── factory.test.ts
+│   │   │   │   │   │   │   └── integration.test.ts
+│   │   │   │   │   │   ├── analyzers
+│   │   │   │   │   │   │   ├── AIStudentEvolver.ts
+│   │   │   │   │   │   │   ├── CulturalAnalyzer.ts
+│   │   │   │   │   │   │   ├── EmotionalAnalyzer.ts
+│   │   │   │   │   │   │   ├── MentorCompetencyAnalyzer.ts
+│   │   │   │   │   │   │   ├── MentorEvaluator.ts
+│   │   │   │   │   │   │   ├── MentorRecommendationEngine.ts
+│   │   │   │   │   │   │   ├── MentorSkillsAnalyzer.ts
+│   │   │   │   │   │   │   ├── __tests__
+│   │   │   │   │   │   │   │   ├── MentorEvaluator.test.ts
+│   │   │   │   │   │   │   │   └── MentorSkillsAnalyzer.test.ts
+│   │   │   │   │   │   │   └── index.ts
+│   │   │   │   │   │   ├── engines
+│   │   │   │   │   │   │   └── PredictionEngine.ts
+│   │   │   │   │   │   ├── generators
+│   │   │   │   │   │   │   ├── CulturalContextGenerator.ts
+│   │   │   │   │   │   │   ├── PredictionGenerator.ts
+│   │   │   │   │   │   │   └── SupportGenerator.ts
+│   │   │   │   │   │   ├── index.ts
+│   │   │   │   │   │   ├── repositories
+│   │   │   │   │   │   │   └── ConceptRepository.ts
+│   │   │   │   │   │   └── types
+│   │   │   │   │   │       └── CODAEvaluatorTypes.ts
+│   │   │   │   │   ├── examples
+│   │   │   │   │   │   └── AISimulatorExample.ts
+│   │   │   │   │   ├── exercises
+│   │   │   │   │   │   ├── ExerciseGenerator.interface.ts
+│   │   │   │   │   │   ├── ExerciseGeneratorService.ts
+│   │   │   │   │   │   ├── __tests__
+│   │   │   │   │   │   │   ├── ExerciseGeneratorService.integration.test.ts
+│   │   │   │   │   │   │   └── ExerciseGeneratorService.test.ts
+│   │   │   │   │   │   ├── adapters
+│   │   │   │   │   │   │   └── GeneratorAdapter.ts
+│   │   │   │   │   │   ├── cache
+│   │   │   │   │   │   │   └── ExerciseCacheManager.ts
+│   │   │   │   │   │   ├── content
+│   │   │   │   │   │   │   ├── ExerciseContentGenerator.ts
+│   │   │   │   │   │   │   └── strategies
+│   │   │   │   │   │   │       ├── ContentGeneratorRegistry.ts
+│   │   │   │   │   │   │       ├── MultipleChoiceStrategy.ts
+│   │   │   │   │   │   │       ├── index.ts
+│   │   │   │   │   │   │       └── interfaces
+│   │   │   │   │   │   │           └── IContentGeneratorStrategy.ts
+│   │   │   │   │   │   ├── factories
+│   │   │   │   │   │   │   └── ExerciseGeneratorFactory.ts
+│   │   │   │   │   │   ├── generators
+│   │   │   │   │   │   │   ├── BaseExerciseGenerator.ts
+│   │   │   │   │   │   │   ├── DragDropGenerator.ts
+│   │   │   │   │   │   │   ├── FillBlankGenerator.ts
+│   │   │   │   │   │   │   ├── MultipleChoiceGenerator.ts
+│   │   │   │   │   │   │   ├── SigningPracticeGenerator.ts
+│   │   │   │   │   │   │   ├── TextEntryGenerator.ts
+│   │   │   │   │   │   │   ├── VideoResponseGenerator.ts
+│   │   │   │   │   │   │   └── __tests__
+│   │   │   │   │   │   │       └── MultipleChoiceGenerator.test.ts
+│   │   │   │   │   │   ├── hints
+│   │   │   │   │   │   │   └── ExerciseHintsService.ts
+│   │   │   │   │   │   ├── index.ts
+│   │   │   │   │   │   ├── services
+│   │   │   │   │   │   │   └── ConceptsDataService.ts
+│   │   │   │   │   │   ├── types
+│   │   │   │   │   │   │   └── ExerciseGeneratorTypes.ts
+│   │   │   │   │   │   ├── utils
+│   │   │   │   │   │   │   └── ExerciseGeneratorUtils.ts
+│   │   │   │   │   │   └── validation
+│   │   │   │   │   │       └── ExerciseValidator.ts
+│   │   │   │   │   ├── index.ts
+│   │   │   │   │   ├── integration
+│   │   │   │   │   │   ├── LearningPyramidAIIntegration.ts
+│   │   │   │   │   │   ├── analysis
+│   │   │   │   │   │   │   └── CollectiveAnalyzer.ts
+│   │   │   │   │   │   ├── core
+│   │   │   │   │   │   │   ├── PyramidHealthMonitor.ts
+│   │   │   │   │   │   │   ├── PyramidRequestManager.ts
+│   │   │   │   │   │   │   └── PyramidStateManager.ts
+│   │   │   │   │   │   ├── index.ts
+│   │   │   │   │   │   └── types
+│   │   │   │   │   │       └── index.ts
+│   │   │   │   │   ├── interfaces
+│   │   │   │   │   │   ├── AISimulatorInterfaces.ts
+│   │   │   │   │   │   ├── ILevelEvaluator.ts
+│   │   │   │   │   │   └── index.ts
+│   │   │   │   │   ├── managers
+│   │   │   │   │   │   └── CODASessionManager.ts
+│   │   │   │   │   ├── repositories
+│   │   │   │   │   │   └── UserReverseApprenticeshipRepository.ts
+│   │   │   │   │   ├── scenarios
+│   │   │   │   │   │   ├── LearningScenarioGenerator.ts
+│   │   │   │   │   │   ├── catalog
+│   │   │   │   │   │   │   └── ThemeCatalogService.ts
+│   │   │   │   │   │   ├── difficulty
+│   │   │   │   │   │   │   └── ScenarioDifficultyService.ts
+│   │   │   │   │   │   ├── exercises
+│   │   │   │   │   │   │   ├── skills
+│   │   │   │   │   │   │   │   └── ExerciseSkillsService.ts
+│   │   │   │   │   │   │   ├── types
+│   │   │   │   │   │   │   │   ├── ExerciseTypes.ts
+│   │   │   │   │   │   │   │   └── ExerciseTypesEnums.ts
+│   │   │   │   │   │   │   └── utils
+│   │   │   │   │   │   │       └── ConceptGenerator.ts
+│   │   │   │   │   │   └── types
+│   │   │   │   │   │       ├── CatalogTypes.ts
+│   │   │   │   │   │       ├── DifficultyTypes.ts
+│   │   │   │   │   │       └── ScenarioTypes.ts
+│   │   │   │   │   ├── services
+│   │   │   │   │   │   ├── CODABusinessLogic.ts
+│   │   │   │   │   │   ├── CODASessionOrchestrator.ts
+│   │   │   │   │   │   ├── IProfileService.ts
+│   │   │   │   │   │   ├── LegacyCompatibilityService.ts
+│   │   │   │   │   │   └── ProfileService.ts
+│   │   │   │   │   ├── simulation
+│   │   │   │   │   │   ├── ErrorSimulator.ts
+│   │   │   │   │   │   ├── catalogs
+│   │   │   │   │   │   │   └── ErrorCatalog.ts
+│   │   │   │   │   │   ├── classifiers
+│   │   │   │   │   │   │   └── LSFClassifierSystem.ts
+│   │   │   │   │   │   ├── rhythm
+│   │   │   │   │   │   │   └── LSFRhythmSystem.ts
+│   │   │   │   │   │   ├── services
+│   │   │   │   │   │   │   ├── ClassifierService.ts
+│   │   │   │   │   │   │   ├── RhythmAnalysisService.ts
+│   │   │   │   │   │   │   ├── RhythmPatternService.ts
+│   │   │   │   │   │   │   ├── SpatialAnalysisService.ts
+│   │   │   │   │   │   │   ├── SpatialAnalysisServiceTypes.ts
+│   │   │   │   │   │   │   ├── SpatialManipulationService.ts
+│   │   │   │   │   │   │   ├── SyntaxAnalysisService.ts
+│   │   │   │   │   │   │   └── SyntaxManipulationService.ts
+│   │   │   │   │   │   ├── spatial
+│   │   │   │   │   │   │   ├── LSFSpatialSystem.ts
+│   │   │   │   │   │   │   └── LSFSpatialSystemTypes.ts
+│   │   │   │   │   │   ├── syntax
+│   │   │   │   │   │   │   └── LSFSyntaxSystem.ts
+│   │   │   │   │   │   ├── transformers
+│   │   │   │   │   │   │   ├── BaseErrorTransformer.ts
+│   │   │   │   │   │   │   ├── ErrorTransformerFactory.ts
+│   │   │   │   │   │   │   ├── FacialExpressionTransformer.ts
+│   │   │   │   │   │   │   ├── HandConfigurationTransformer.ts
+│   │   │   │   │   │   │   ├── LocationTransformer.ts
+│   │   │   │   │   │   │   ├── MovementTransformer.ts
+│   │   │   │   │   │   │   ├── OrientationTransformer.ts
+│   │   │   │   │   │   │   ├── ProformeTransformer.ts
+│   │   │   │   │   │   │   ├── RhythmTransformer.ts
+│   │   │   │   │   │   │   ├── SignOrderTransformer.ts
+│   │   │   │   │   │   │   ├── SpatialReferenceTransformer.ts
+│   │   │   │   │   │   │   ├── SyntacticSpaceTransformer.ts
+│   │   │   │   │   │   │   ├── index.ts
+│   │   │   │   │   │   │   └── space
+│   │   │   │   │   │   │       ├── SyntacticSpaceValidator.ts
+│   │   │   │   │   │   │       ├── factories
+│   │   │   │   │   │   │       │   └── SpaceTransformationFactory.ts
+│   │   │   │   │   │   │       ├── index.ts
+│   │   │   │   │   │   │       ├── managers
+│   │   │   │   │   │   │       │   └── ZoneManager.ts
+│   │   │   │   │   │   │       ├── metrics
+│   │   │   │   │   │   │       │   └── SyntacticSpaceMetrics.ts
+│   │   │   │   │   │   │       ├── services
+│   │   │   │   │   │   │       │   └── SpatialTransformationService.ts
+│   │   │   │   │   │   │       ├── strategies
+│   │   │   │   │   │   │       │   ├── LocationTransformationStrategy.ts
+│   │   │   │   │   │   │       │   ├── PlacementTransformationStrategy.ts
+│   │   │   │   │   │   │       │   ├── ReferenceTransformationStrategy.ts
+│   │   │   │   │   │   │       │   ├── ScaleTransformationStrategy.ts
+│   │   │   │   │   │   │       │   ├── ZoneTransformationStrategy.ts
+│   │   │   │   │   │   │       │   └── index.ts
+│   │   │   │   │   │   │       ├── types
+│   │   │   │   │   │   │       │   ├── ExtendedLSFTypes.ts
+│   │   │   │   │   │   │       │   └── SpaceTransformationTypes.ts
+│   │   │   │   │   │   │       └── utils
+│   │   │   │   │   │   │           └── SpatialTypeUtils.ts
+│   │   │   │   │   │   ├── types
+│   │   │   │   │   │   │   ├── ErrorTypes.ts
+│   │   │   │   │   │   │   ├── LSFClassifiersTypes.ts
+│   │   │   │   │   │   │   ├── LSFContentTypes.ts
+│   │   │   │   │   │   │   ├── LSFSignTypes.ts
+│   │   │   │   │   │   │   ├── LSFSpaceTypes.ts
+│   │   │   │   │   │   │   ├── LSFTimingTypes.ts
+│   │   │   │   │   │   │   ├── LSFTypesAugmentation.ts
+│   │   │   │   │   │   │   └── index.ts
+│   │   │   │   │   │   └── utils
+│   │   │   │   │   │       └── ErrorSimulationUtils.ts
+│   │   │   │   │   ├── simulators
+│   │   │   │   │   │   ├── AIStudentSimulator.ts
+│   │   │   │   │   │   └── __tests__
+│   │   │   │   │   │       └── AIStudentSimulator.test.ts
+│   │   │   │   │   ├── systems
+│   │   │   │   │   │   ├── AIEmotionalSystem.ts
+│   │   │   │   │   │   ├── AIEvolutionSystem.ts
+│   │   │   │   │   │   ├── AIMemorySystem.ts
+│   │   │   │   │   │   ├── AIPersonalitySystem.ts
+│   │   │   │   │   │   ├── EnhancedCODASystem.ts
+│   │   │   │   │   │   ├── README.md
+│   │   │   │   │   │   ├── __tests__
+│   │   │   │   │   │   │   ├── AIEmotionalSystem.test.ts
+│   │   │   │   │   │   │   └── Integration.test.ts
+│   │   │   │   │   │   ├── benchmarks
+│   │   │   │   │   │   │   └── PerformanceBenchmarks.ts
+│   │   │   │   │   │   ├── config
+│   │   │   │   │   │   │   └── EmotionalConfigPresets.ts
+│   │   │   │   │   │   ├── examples
+│   │   │   │   │   │   │   └── EmotionalSystemExamples.ts
+│   │   │   │   │   │   ├── history
+│   │   │   │   │   │   │   └── EmotionalHistoryManager.ts
+│   │   │   │   │   │   ├── index.ts
+│   │   │   │   │   │   ├── pattern
+│   │   │   │   │   │   │   └── EmotionalPatternDetector.ts
+│   │   │   │   │   │   ├── transition
+│   │   │   │   │   │   │   └── EmotionalTransitionManager.ts
+│   │   │   │   │   │   └── types
+│   │   │   │   │   │       └── EmotionalTypes.ts
+│   │   │   │   │   ├── types
+│   │   │   │   │   │   ├── CODASystemTypes.ts
+│   │   │   │   │   │   ├── LSFBaseTypes.ts
+│   │   │   │   │   │   └── index.ts
+│   │   │   │   │   ├── types.ts
+│   │   │   │   │   └── utils
+│   │   │   │   │       ├── AISimulatorUtils.ts
+│   │   │   │   │       └── TypeConverter.ts
+│   │   │   │   └── types
+│   │   │   │       └── index.ts
+│   │   │   ├── evaluation
+│   │   │   │   ├── ComprehensionEvaluator.ts
+│   │   │   │   ├── README.md
+│   │   │   │   ├── analytics
+│   │   │   │   │   └── PerformanceAnalyzer.ts
+│   │   │   │   ├── detection
+│   │   │   │   │   ├── ActivityRecommendationService.ts
+│   │   │   │   │   ├── CompetencyGapDetector.ts
+│   │   │   │   │   ├── KnowledgeGapDetector.ts
+│   │   │   │   │   ├── README.md
+│   │   │   │   │   ├── UnifiedGapDetectorService.ts
+│   │   │   │   │   ├── __tests__
+│   │   │   │   │   │   └── KnowledgeGapDetector.test.ts
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── evaluation-utilities.ts
+│   │   │   │   ├── examples
+│   │   │   │   │   └── EvaluationServiceExample.ts
+│   │   │   │   ├── graphs
+│   │   │   │   │   └── ConceptRelationshipGraph.ts
+│   │   │   │   ├── integration
+│   │   │   │   │   └── EvaluationServiceRegistration.ts
+│   │   │   │   ├── interfaces
+│   │   │   │   │   ├── ICompetencyGapDetector.ts
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── models
+│   │   │   │   │   └── UserComprehensionState.ts
+│   │   │   │   ├── prediction
+│   │   │   │   │   └── DifficultyPredictor.ts
+│   │   │   │   ├── processing
+│   │   │   │   │   ├── AnswerComparisonService.ts
+│   │   │   │   │   ├── LearningGapService.ts
+│   │   │   │   │   └── SubmissionProcessor.ts
+│   │   │   │   ├── recommendation
+│   │   │   │   │   └── LearningPathRecommender.ts
+│   │   │   │   ├── repositories
+│   │   │   │   │   └── UserPerformanceRepository.ts
+│   │   │   │   └── types.ts
+│   │   │   ├── immersive
+│   │   │   │   └── rendering
+│   │   │   │       └── NeRFRenderer.ts
+│   │   │   ├── modules
+│   │   │   │   └── ModuleManagerService.ts
+│   │   │   ├── personalization
+│   │   │   │   ├── ProfileManager.ts
+│   │   │   │   ├── README.md
+│   │   │   │   ├── __tests__
+│   │   │   │   │   └── ProfileManager.test.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── interfaces
+│   │   │   │   │   └── IUserProfileManager.ts
+│   │   │   │   └── types.ts
+│   │   │   └── progress
+│   │   │       └── ProgressManagerService.ts
+│   │   ├── index.ts
+│   │   ├── integration
+│   │   │   └── pyramid
+│   │   │       └── LearningPyramidIntegration.ts
+│   │   ├── interfaces
+│   │   │   ├── AnalyticsInterfaces.ts
+│   │   │   ├── BaseService.ts
+│   │   │   ├── ConfigurationInterfaces.ts
+│   │   │   ├── CoreLearningInterfaces.ts
+│   │   │   ├── ExtendedLearningInterfaces.ts
+│   │   │   ├── LSFContentInterfaces.ts
+│   │   │   ├── LearningTypes.ts
+│   │   │   ├── ServiceInterfaces.ts
+│   │   │   ├── Utils.ts
+│   │   │   ├── __tests__
+│   │   │   │   └── interfaces-validation.test.ts
+│   │   │   └── index.ts
+│   │   ├── interfaces.ts
+│   │   ├── machine
+│   │   │   ├── adaptative
+│   │   │   │   ├── AdaptiveLearningSystem.ts
+│   │   │   │   ├── IntelligentAdapter.ts
+│   │   │   │   ├── interfaces
+│   │   │   │   │   ├── IAdaptiveLearningSystem.ts
+│   │   │   │   │   ├── IIntelligentAdapter.ts
+│   │   │   │   │   ├── index.ts
+│   │   │   │   │   └── types.ts
+│   │   │   │   └── strategies
+│   │   │   │       ├── AdaptationStrategy.ts
+│   │   │   │       ├── AdaptationStrategyFactory.ts
+│   │   │   │       ├── AdaptationStrategySelector.ts
+│   │   │   │       ├── AssistanceStrategy.ts
+│   │   │   │       ├── ContentStrategy.ts
+│   │   │   │       ├── DifficultyStrategy.ts
+│   │   │   │       ├── PaceStrategy.ts
+│   │   │   │       └── index.ts
+│   │   │   ├── adapters
+│   │   │   │   ├── IntelligentAdapterFactory.ts
+│   │   │   │   ├── __tests__
+│   │   │   │   │   └── IntelligentAdapter.test.ts
+│   │   │   │   ├── fallback
+│   │   │   │   │   ├── FallbackService.ts
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── prediction
+│   │   │   │   │   ├── PredictionBuilder.ts
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── realtime
+│   │   │   │   │   ├── AssistanceProvider.ts
+│   │   │   │   │   ├── EngagementMonitor.ts
+│   │   │   │   │   ├── FrustrationDetector.ts
+│   │   │   │   │   └── PaceAdjuster.ts
+│   │   │   │   └── validation
+│   │   │   │       └── index.ts
+│   │   │   ├── analytics
+│   │   │   │   ├── LearningAnalyticsProcessor.ts
+│   │   │   │   └── analyzers
+│   │   │   │       └── RiskPredictor.ts
+│   │   │   ├── fine-tuning
+│   │   │   │   ├── Guide_d_utilisation_du_fine-tuning_loal.md
+│   │   │   │   ├── integration
+│   │   │   │   │   └── finetuning
+│   │   │   │   │       ├── FineTuningLearningIntegration.ts
+│   │   │   │   │       └── management
+│   │   │   │   │           └── TrainingManager.ts
+│   │   │   │   ├── storage
+│   │   │   │   │   └── LocalStorageManager.ts
+│   │   │   │   ├── types.ts
+│   │   │   │   └── utils
+│   │   │   │       ├── DeviceDetector.ts
+│   │   │   │       ├── ThreadPool.ts
+│   │   │   │       ├── compression.ts
+│   │   │   │       └── workerScript.js
+│   │   │   ├── generative
+│   │   │   │   └── gans
+│   │   │   │       ├── GANsLearningIntegration.ts
+│   │   │   │       └── adapters
+│   │   │   │           └── ContentAdapter.ts
+│   │   │   └── metrics
+│   │   │       ├── ProgressTracker.ts
+│   │   │       ├── RecommendationEngine.ts
+│   │   │       └── analyzers
+│   │   │           └── CognitiveLoadEstimator.ts
+│   │   ├── metrics
+│   │   │   ├── LearningMetricsCollector.ts
+│   │   │   ├── MetricsAnalyzer.ts
+│   │   │   ├── MetricsStore.ts
+│   │   │   ├── ProgressTracker.ts
+│   │   │   ├── README.md
+│   │   │   ├── RecommendationEngine.ts
+│   │   │   ├── calculators
+│   │   │   │   └── MetricsCalculator.ts
+│   │   │   ├── index.ts
+│   │   │   ├── interfaces
+│   │   │   │   └── MetricsInterfaces.ts
+│   │   │   ├── managers
+│   │   │   │   ├── CustomMetricsManager.ts
+│   │   │   │   ├── MetricsProfileManager.ts
+│   │   │   │   └── MetricsSnapshotManager.ts
+│   │   │   ├── processors
+│   │   │   │   ├── MasteryMetricsProcessor.ts
+│   │   │   │   └── PerformanceMetricsProcessor.ts
+│   │   │   ├── providers
+│   │   │   │   └── MetricsStorageProvider.ts
+│   │   │   ├── types
+│   │   │   │   ├── DetailedMetricsTypes.ts
+│   │   │   │   ├── MetricsTypes.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   └── metrics-augmentations.d.ts
+│   │   │   ├── types.ts
+│   │   │   └── utils
+│   │   │       ├── MetricsTransformers.ts
+│   │   │       ├── MetricsUpdateHelpers.ts
+│   │   │       └── MetricsUtils.ts
+│   │   ├── personalization
+│   │   │   ├── PersonalizedLearningPath.ts
+│   │   │   ├── __tests__
+│   │   │   │   └── PersonalizedLearningPath.test.ts
+│   │   │   ├── generators
+│   │   │   │   └── PathStepGenerator.ts
+│   │   │   ├── index.ts
+│   │   │   ├── managers
+│   │   │   │   ├── PathProgressManager.ts
+│   │   │   │   ├── PathStatisticsGenerator.ts
+│   │   │   │   └── ProgressCalculator.ts
+│   │   │   ├── types
+│   │   │   │   ├── BaseTypes.ts
+│   │   │   │   ├── Constants.ts
+│   │   │   │   ├── LearningPathTypes.ts
+│   │   │   │   ├── PathInterfaces.ts
+│   │   │   │   ├── StepInterfaces.ts
+│   │   │   │   ├── TypeUtils.ts
+│   │   │   │   └── index.ts
+│   │   │   └── utils
+│   │   │       ├── FormatConstants.ts
+│   │   │       ├── FormatHelpers.ts
+│   │   │       ├── PathFormatUtils.ts
+│   │   │       ├── StepConfigurationManager.ts
+│   │   │       ├── StepContentGenerator.ts
+│   │   │       └── StepDependencyManager.ts
+│   │   ├── pyramid
+│   │   │   ├── EthicsIntegration.ts
+│   │   │   └── interfaces
+│   │   │       └── IEthicsSystem.ts
+│   │   ├── registry
+│   │   │   ├── LearningServiceRegistry.ts
+│   │   │   ├── interfaces
+│   │   │   │   ├── ServiceDescription.ts
+│   │   │   │   ├── ServiceHealth.ts
+│   │   │   │   ├── ServiceRegistryConfig.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   └── types.ts
+│   │   │   ├── managers
+│   │   │   │   ├── DependencyManager.ts
+│   │   │   │   ├── EventManager.ts
+│   │   │   │   ├── HealthCheckManager.ts
+│   │   │   │   ├── RecoveryManager.ts
+│   │   │   │   └── index.ts
+│   │   │   ├── registry
+│   │   │   │   ├── LearningServiceRegistry.ts
+│   │   │   │   ├── ServiceAdapter.ts
+│   │   │   │   └── index.ts
+│   │   │   └── utils
+│   │   │       ├── MetricsCollector.ts
+│   │   │       ├── RegistryUtils.ts
+│   │   │       └── index.ts
+│   │   ├── shared
+│   │   │   └── events
+│   │   │       └── EventBus.ts
+│   │   ├── test-integration.ts
+│   │   ├── types
+│   │   │   ├── AdaptedContent.ts
+│   │   │   ├── BadgeTypes.ts
+│   │   │   ├── LearningExtensions.ts
+│   │   │   ├── LearningTypesExtended.ts
+│   │   │   ├── adaptation.types.ts
+│   │   │   ├── additional-types.ts
+│   │   │   ├── base.ts
+│   │   │   ├── constants.ts
+│   │   │   ├── events.ts
+│   │   │   ├── imports-exports.ts
+│   │   │   ├── index.ts
+│   │   │   ├── interaction-utils.ts
+│   │   │   ├── interaction.ts
+│   │   │   ├── learning-enums.ts
+│   │   │   ├── learning-events.ts
+│   │   │   ├── learning-interfaces.ts
+│   │   │   ├── learning.ts
+│   │   │   ├── prediction-types.ts
+│   │   │   ├── session.ts
+│   │   │   ├── user.ts
+│   │   │   └── validation.ts
+│   │   ├── types.ts
+│   │   └── utils
+│   │       ├── LearningInterfaceAdapters.ts
+│   │       ├── logger.ts
+│   │       ├── performance-tracking.ts
+│   │       └── performance-wrapper.ts
+│   └── shared
+│       └── events
+│           └── EventBus.ts
+├── spatial
+│   ├── GestionEspaceSpatial.ts
+│   ├── README.md
+│   ├── SpatialManager.ts
+│   ├── SpatialTypes.ts
+│   ├── cache
+│   │   ├── MultiLevelCache.ts
+│   │   ├── index.ts
+│   │   └── interfaces
+│   │       └── cache.interfaces.ts
+│   ├── index.ts
+│   ├── reference
+│   │   ├── ReferenceBuilder.ts
+│   │   ├── ReferenceTracker.ts
+│   │   └── index.ts
+│   ├── types
+│   │   ├── SpatialTypes.ts
+│   │   ├── index.ts
+│   │   └── interfaces
+│   │       ├── IReferenceBuilder.ts
+│   │       ├── IReferenceTracker.ts
+│   │       ├── ISpatialCoherenceValidator.ts
+│   │       ├── ISpatialStructureManager.ts
+│   │       ├── SpatialInterfaces.ts
+│   │       └── index.ts
+│   ├── types.ts
+│   └── validation
+│       └── SpatialCoherenceValidator.ts
+├── specialized
+│   ├── LinguisteAI.ts
+│   ├── analysis
+│   │   ├── SemanticAnalyzer.ts
+│   │   ├── spatial-types.ts
+│   │   ├── translation-types.ts
+│   │   └── types.ts
+│   ├── cultural
+│   │   ├── CulturalContextAdapter.ts
+│   │   ├── cache
+│   │   │   └── CulturalCache.ts
+│   │   ├── config
+│   │   │   └── CulturalAdaptationConfig.ts
+│   │   ├── facade
+│   │   │   └── CulturalAdaptationFacade.ts
+│   │   ├── interfaces
+│   │   │   └── validation.interfaces.ts
+│   │   ├── moitoring
+│   │   │   └── CulturalPerformanceMonitor.ts
+│   │   ├── monitoring
+│   │   │   └── CulturalPerformanceMonitor.ts
+│   │   ├── services
+│   │   │   ├── CulturalRuleService.ts
+│   │   │   └── CulturalValidationService.ts
+│   │   ├── types-extended.ts
+│   │   └── types.ts
+│   ├── emotional
+│   │   ├── EmotionFusionValidator.ts
+│   │   ├── LSFEmotionValidator.ts
+│   │   └── VocalEmotionValidator.ts
+│   ├── grammar
+│   │   ├── LSFGrammarValidator.ts
+│   │   ├── types
+│   │   │   ├── body-posture.types.ts
+│   │   │   └── index.ts
+│   │   ├── types.ts
+│   │   └── validators
+│   │       ├── NonManualGrammarValidator.ts
+│   │       ├── SpatialGrammarValidator.ts
+│   │       ├── TemporalGrammarValidator.ts
+│   │       ├── body
+│   │       │   └── BodyPostureValidator.ts
+│   │       ├── facial
+│   │       │   └── FacialGrammarValidator.ts
+│   │       ├── factories
+│   │       │   └── BodyPostureValidatorFactory.ts
+│   │       ├── gaze
+│   │       │   └── GazeValidator.ts
+│   │       ├── head
+│   │       │   └── HeadMovementValidator.ts
+│   │       ├── index.ts
+│   │       ├── interfaces
+│   │       │   └── IBodyPostureValidator.ts
+│   │       └── types
+│   │           └── temporal-grammar-types.ts
+│   └── spatial
+│       ├── README.md
+│       ├── SpatialStructureManager.ts
+│       ├── __tests__
+│       │   └── SpatialStructureManager.integration.test.ts
+│       ├── analyzers
+│       │   ├── ComponentExtractor.ts
+│       │   ├── SpatialAnalyzer.ts
+│       │   ├── __tests__
+│       │   │   ├── ComponentExtractor.test.ts
+│       │   │   └── SpatialAnalyzer.test.ts
+│       │   └── interfaces
+│       │       └── IComponentExtractor.ts
+│       ├── base-types.ts
+│       ├── core
+│       │   ├── ProformeRegistry.ts
+│       │   ├── SigningSpace.ts
+│       │   ├── __tests__
+│       │   │   ├── ProformeRegistry.test.ts
+│       │   │   ├── SigningSpace.test.ts
+│       │   │   └── TestProformeRegistry.ts
+│       │   └── interfaces
+│       │       ├── IProformeRegistry.ts
+│       │       └── ISigningSpace.ts
+│       ├── generators
+│       │   ├── LayoutGenerator.ts
+│       │   ├── ReferenceZoneGenerator.ts
+│       │   ├── __tests__
+│       │   │   ├── LayoutGenerator.test.ts
+│       │   │   └── ReferenceZoneGenerator.test.ts
+│       │   └── interfaces
+│       │       ├── ILayoutGenerator.ts
+│       │       └── IReferenceZoneGenerator.ts
+│       ├── geometry
+│       │   ├── index.ts
+│       │   └── types.ts
+│       ├── hand-types.ts
+│       ├── index.ts
+│       ├── optimizers
+│       ├── types.ts
+│       └── validation
+│           ├── SpatialValidator.ts
+│           ├── __tests__
+│           │   └── SpatialValidator.test.ts
+│           └── interfaces
+│               └── ISpatialValidator.ts
+├── state
+│   ├── IAStateManager.ts
+│   ├── StateManager.ts
+│   ├── actions.ts
+│   ├── handlers.ts
+│   ├── reducer.ts
+│   ├── types.ts
+│   └── validators.ts
+├── systems
+│   ├── SystemeExpressions.ts
+│   ├── expressions
+│   │   ├── ExpressionPipeline.ts
+│   │   ├── ExpressionSystem.ts
+│   │   ├── FacialExpressionSystem.ts
+│   │   ├── LSFExpressionBridge.ts
+│   │   ├── analysis
+│   │   │   ├── LSFPatternAnalyzer.ts
+│   │   │   ├── LSFPatternOptimizer.ts
+│   │   │   ├── LSFPatternValidator.ts
+│   │   │   └── __tests__
+│   │   │       ├── LSFPatternSystem.bench.ts
+│   │   │       ├── LSFPatternSystem.concurrency.test.ts
+│   │   │       ├── LSFPatternSystem.error.test.ts
+│   │   │       ├── LSFPatternSystem.memory.test.ts
+│   │   │       └── LSFPatternSystem.test.ts
+│   │   ├── animation
+│   │   │   ├── ExpressionAnimator.ts
+│   │   │   ├── Interpolator.ts
+│   │   │   ├── PerformanceMonitor.ts
+│   │   │   └── __tests__
+│   │   │       ├── ExpressionAnimator.advanced.test.ts
+│   │   │       ├── ExpressionAnimator.test.ts
+│   │   │       ├── Interpolator.advanced.test.ts
+│   │   │       ├── Interpolator.test.ts
+│   │   │       ├── PerformanceMonitor.advanced.test.ts
+│   │   │       └── PerformanceMonitor.test.ts
+│   │   ├── cache
+│   │   │   └── ExpressionCache.ts
+│   │   ├── context
+│   │   │   └── LSFContextTransitionSystem.ts
+│   │   ├── cultural
+│   │   │   ├── LSFComplexEmotions.ts
+│   │   │   ├── LSFCulturalRules.ts
+│   │   │   ├── LSFCulturalSpecificsSystem.ts
+│   │   │   ├── LSFCulturalValidationSystem.ts
+│   │   │   ├── LSFCulturalValidator.ts
+│   │   │   ├── LSFEtymologySystem.ts
+│   │   │   ├── __tests__
+│   │   │   │   ├── CulturalSystem.test.ts
+│   │   │   │   └── utils
+│   │   │   │       ├── ComplexTestScenarios.ts
+│   │   │   │       ├── CulturalTestUtilities.ts
+│   │   │   │       ├── constants
+│   │   │   │       │   └── cultural-test-constants.ts
+│   │   │   │       ├── core
+│   │   │   │       │   ├── TestBuilder.ts
+│   │   │   │       │   ├── TestPlugin.ts
+│   │   │   │       │   ├── TestRegistry.ts
+│   │   │   │       │   └── ValidationStrategy.ts
+│   │   │   │       ├── generators
+│   │   │   │       │   └── ScenarioGenerator.ts
+│   │   │   │       ├── helpers
+│   │   │   │       │   └── ScenarioUtils.ts
+│   │   │   │       ├── index.ts
+│   │   │   │       ├── scenario-types.ts
+│   │   │   │       ├── types
+│   │   │   │       │   ├── index.ts
+│   │   │   │       │   ├── scenario-types.ts
+│   │   │   │       │   └── scenario.ts
+│   │   │   │       └── validators
+│   │   │   │           ├── ResultsValidator.ts
+│   │   │   │           └── ScenarioValidator.ts
+│   │   │   ├── index.ts
+│   │   │   └── types.ts
+│   │   ├── dialectal
+│   │   │   └── LSFDialectVariations.ts
+│   │   ├── emotions
+│   │   │   ├── LSFContextualEmotionSystem.ts
+│   │   │   ├── LSFEmotionSystem.ts
+│   │   │   ├── SystemeEmotionnel.ts
+│   │   │   ├── base
+│   │   │   │   ├── EmotionAnalyzer.ts
+│   │   │   │   ├── EmotionGenerator.ts
+│   │   │   │   ├── LSFEmotionSystem.ts
+│   │   │   │   └── types.ts
+│   │   │   ├── components
+│   │   │   │   ├── BodyComponentsManager.ts
+│   │   │   │   ├── FacialComponentsManager.ts
+│   │   │   │   └── TimingManager.ts
+│   │   │   ├── contextual
+│   │   │   │   ├── EmotionAdaptationEngine.ts
+│   │   │   │   ├── analyzers
+│   │   │   │   │   ├── CulturalContextAnalyzer.ts
+│   │   │   │   │   ├── NarrativeContextAnalyzer.ts
+│   │   │   │   │   ├── SocialContextAnalyzer.ts
+│   │   │   │   │   ├── TemporalContextAnalyzer.ts
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── contextual.types.ts
+│   │   │   │   ├── evaluation
+│   │   │   │   │   ├── ContextualAdaptationValidator.ts
+│   │   │   │   │   └── EmotionAdaptationEvaluator.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── interfaces.ts
+│   │   │   │   ├── types
+│   │   │   │   │   ├── contextual.types.ts
+│   │   │   │   │   └── index.ts
+│   │   │   │   └── types.ts
+│   │   │   ├── contextual-emotions.types.ts
+│   │   │   ├── index.ts
+│   │   │   ├── integration
+│   │   │   │   ├── LSFConflictResolver.ts
+│   │   │   │   └── LSFEmotionExpressionIntegrator.ts
+│   │   │   ├── lsf
+│   │   │   │   └── types.ts
+│   │   │   ├── syntax
+│   │   │   │   ├── LSFEmotionSyntaxController.ts
+│   │   │   │   ├── LSFEmotionSyntaxSystem.ts
+│   │   │   │   ├── expressionUtils.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   └── types.ts
+│   │   │   ├── types
+│   │   │   │   ├── LSFExpression.ts
+│   │   │   │   ├── base.ts
+│   │   │   │   ├── config.ts
+│   │   │   │   ├── contextual.ts
+│   │   │   │   ├── emotional-expression.types.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── lsf.ts
+│   │   │   │   └── syntax.ts
+│   │   │   ├── types.ts
+│   │   │   ├── utils
+│   │   │   │   ├── EmotionUtils.ts
+│   │   │   │   └── PerformanceMonitor.ts
+│   │   │   └── validation
+│   │   │       ├── CoherenceValidator.ts
+│   │   │       ├── ContextualAdaptationValidator.ts
+│   │   │       ├── EmotionValidator.ts
+│   │   │       └── MetricsCalculator.ts
+│   │   ├── feedback
+│   │   │   ├── FeedbackDatabase.ts
+│   │   │   ├── LSFAlertSystem.ts
+│   │   │   ├── LSFEmergencyFeedbackSystem.ts
+│   │   │   └── LSFFeedbackSystem.ts
+│   │   ├── grammar
+│   │   │   ├── LSFContextValidator.ts
+│   │   │   ├── LSFGrammarRules.ts
+│   │   │   ├── LSFTransitionSystem.ts
+│   │   │   ├── index.ts
+│   │   │   └── types
+│   │   │       └── transition-types.ts
+│   │   ├── learning
+│   │   │   └── LSFEmergencyLearningSystem.ts
+│   │   ├── linguistic
+│   │   │   └── LSFLinguisticProsody.ts
+│   │   ├── lsf
+│   │   │   ├── LSFExpressionSynchronizer.ts
+│   │   │   ├── LSFGrammarSystem.ts
+│   │   │   ├── index.ts
+│   │   │   └── types.ts
+│   │   ├── patterns
+│   │   │   └── ExpressionPatterns.ts
+│   │   ├── pragmatic
+│   │   │   └── LSFPragmaticSystem.ts
+│   │   ├── prosodic
+│   │   │   └── LSFProsodicPatterns.ts
+│   │   ├── rpm
+│   │   │   ├── ExpressionCombinator.ts
+│   │   │   ├── ExpressionDebugger.ts
+│   │   │   ├── ExpressionOptimizer.ts
+│   │   │   ├── ExpressionPerformanceMonitor.ts
+│   │   │   ├── ExpressionProfiler.ts
+│   │   │   ├── ExpressionScheduler.t
+│   │   │   ├── ExpressionSequencer.ts
+│   │   │   ├── ExpressionTimeline.ts
+│   │   │   ├── MorphBatchProcessor.ts
+│   │   │   ├── MorphDataValidator.ts
+│   │   │   ├── MorphDependencyManager.ts
+│   │   │   ├── MorphFrameProcessor.ts
+│   │   │   ├── MorphInterpolator.ts
+│   │   │   ├── MorphKeyValidator.ts
+│   │   │   ├── MorphOperation.ts
+│   │   │   ├── MorphQueueManager.ts
+│   │   │   ├── MorphRelationshipValidator.ts
+│   │   │   ├── MorphStateValidator.ts
+│   │   │   ├── MorphSynchronizer.ts
+│   │   │   ├── MorphTransitionManager.ts
+│   │   │   ├── RPMAPIClient.ts
+│   │   │   ├── RPMAlertSystem.ts
+│   │   │   ├── RPMCalculator.ts
+│   │   │   ├── RPMErrorHandling.ts
+│   │   │   ├── RPMEventEmitter.ts
+│   │   │   ├── RPMEventProcessor.ts
+│   │   │   ├── RPMEventQueue.ts
+│   │   │   ├── RPMEvents.ts
+│   │   │   ├── RPMExpressionSystem.ts
+│   │   │   ├── RPMHealthCheck.ts
+│   │   │   ├── RPMIntegrationSystem.ts
+│   │   │   ├── RPMIntegrator.ts
+│   │   │   ├── RPMMonitoring.ts
+│   │   │   ├── RPMMorphProcessor.ts
+│   │   │   ├── RPMMorphTargets.ts
+│   │   │   ├── RPMPerformanceManager.ts
+│   │   │   ├── RPMPriorityQueue.ts
+│   │   │   ├── RPMRealtimeSystem.ts
+│   │   │   ├── RPMRecoverySystem.ts
+│   │   │   ├── RPMResourceManager.ts
+│   │   │   ├── RPMRetryPolicy.ts
+│   │   │   ├── RPMStateManager.ts
+│   │   │   ├── RPMSynchronizationSystem.ts
+│   │   │   ├── RPMWebSocketClient.ts
+│   │   │   ├── RPMWebSocketHandlers.ts
+│   │   │   ├── index.ts
+│   │   │   ├── metrics
+│   │   │   │   ├── MetricBucket.ts
+│   │   │   │   ├── MetricsStore.ts
+│   │   │   │   ├── RPMMetricsCollector.ts
+│   │   │   │   ├── intercaces
+│   │   │   │   │   └── IMetricsCollector.ts
+│   │   │   │   ├── types
+│   │   │   │   │   └── MetricTypes.ts
+│   │   │   │   └── utils
+│   │   │   │       ├── StatisticalUtils.ts
+│   │   │   │       └── TimeSeriesUtils.ts
+│   │   │   ├── ressources
+│   │   │   │   ├── PriorityQueue.ts
+│   │   │   │   ├── ResourceMonitor.ts
+│   │   │   │   └── ResourcePool.ts
+│   │   │   ├── types
+│   │   │   │   ├── RPMError.ts
+│   │   │   │   ├── RecoveryTypes.ts
+│   │   │   │   └── ResourceTypes.ts
+│   │   │   ├── types.ts
+│   │   │   └── utils
+│   │   │       └── ResourceUtils.ts
+│   │   ├── situations
+│   │   │   ├── LSFSpecialSituationsHandler.ts
+│   │   │   ├── educational
+│   │   │   │   ├── LSFEducationalHandler.ts
+│   │   │   │   ├── __tests__
+│   │   │   │   │   └── LSFEducationalSystem.test.ts
+│   │   │   │   ├── integration
+│   │   │   │   │   ├── SystemIntegrationModule.ts
+│   │   │   │   │   ├── interfaces
+│   │   │   │   │   │   ├── CommunicationInterfaces.ts
+│   │   │   │   │   │   ├── __tests__
+│   │   │   │   │   │   │   └── CommunicationInterfaces.test.ts
+│   │   │   │   │   │   ├── types
+│   │   │   │   │   │   │   └── index.ts
+│   │   │   │   │   │   └── types.ts
+│   │   │   │   │   └── types
+│   │   │   │   │       └── index.ts
+│   │   │   │   ├── special_needs
+│   │   │   │   │   ├── LSFSpecialNeedsHandler.ts
+│   │   │   │   │   ├── SystemIntegration.ts
+│   │   │   │   │   ├── __tests__
+│   │   │   │   │   │   └── LSFSpecialNeeds.test.ts
+│   │   │   │   │   ├── adaptations
+│   │   │   │   │   │   ├── AdaptationExecutionSystem.ts
+│   │   │   │   │   │   ├── AdaptationFactory.ts
+│   │   │   │   │   │   ├── AdaptationInterface.ts
+│   │   │   │   │   │   ├── AdaptationModule.ts
+│   │   │   │   │   │   ├── AdaptationSystem.ts
+│   │   │   │   │   │   ├── AdapterTypes.ts
+│   │   │   │   │   │   ├── AdapterValidator.ts
+│   │   │   │   │   │   ├── AdvancedAdaptationFactory.ts
+│   │   │   │   │   │   ├── AdvancedFeatures.ts
+│   │   │   │   │   │   ├── AdvancedFeaturesAdapter.ts
+│   │   │   │   │   │   ├── AdvancedFeaturesImplementation.ts
+│   │   │   │   │   │   ├── DynamicAdaptationSystem.ts
+│   │   │   │   │   │   ├── EnhancedAdaptationFactory.ts
+│   │   │   │   │   │   ├── EnhancedValidationService.ts
+│   │   │   │   │   │   ├── SituationalAnalyzer.ts
+│   │   │   │   │   │   ├── SystemIntegration.ts
+│   │   │   │   │   │   ├── __tests__
+│   │   │   │   │   │   │   ├── AdvancedFeatures.test.ts
+│   │   │   │   │   │   │   └── types
+│   │   │   │   │   │   │       └── AdvancedFeaturesTestTypes.ts
+│   │   │   │   │   │   ├── adapters
+│   │   │   │   │   │   │   ├── AdvancedAdapter.ts
+│   │   │   │   │   │   │   └── BaseAdapter.ts
+│   │   │   │   │   │   ├── examples
+│   │   │   │   │   │   │   └── BasicUsageExample.ts
+│   │   │   │   │   │   ├── index.ts
+│   │   │   │   │   │   ├── interfaces
+│   │   │   │   │   │   │   ├── IAdaptationDependencies.ts
+│   │   │   │   │   │   │   ├── IAdapter.ts
+│   │   │   │   │   │   │   ├── IAdvancedAdaptation.ts
+│   │   │   │   │   │   │   ├── adaptation-interfaces.ts
+│   │   │   │   │   │   │   └── interfaces.ts
+│   │   │   │   │   │   ├── lsf-adaptation-interface.ts
+│   │   │   │   │   │   ├── optimization
+│   │   │   │   │   │   │   └── AdaptationCache.ts
+│   │   │   │   │   │   ├── types
+│   │   │   │   │   │   │   ├── adaptation-module-config.ts
+│   │   │   │   │   │   │   ├── adaptation-types.ts
+│   │   │   │   │   │   │   ├── intervention.types.ts
+│   │   │   │   │   │   │   └── supplementary.types.ts
+│   │   │   │   │   │   ├── types.ts
+│   │   │   │   │   │   ├── utils
+│   │   │   │   │   │   │   ├── AdaptationEvaluator.ts
+│   │   │   │   │   │   │   └── adaptation-logger.ts
+│   │   │   │   │   │   └── validation
+│   │   │   │   │   │       ├── AdapterValidator.ts
+│   │   │   │   │   │       └── EnhancedValidationService.ts
+│   │   │   │   │   ├── implementations
+│   │   │   │   │   │   └── SpecialNeedsImplementations.ts
+│   │   │   │   │   ├── support
+│   │   │   │   │   │   └── MultimodalSupportSystem.ts
+│   │   │   │   │   ├── tracking
+│   │   │   │   │   │   ├── AdditionalMetrics.ts
+│   │   │   │   │   │   ├── DetailedProgressTracker.ts
+│   │   │   │   │   │   ├── __tests__
+│   │   │   │   │   │   │   ├── TrackingSystem.advanced.test.ts
+│   │   │   │   │   │   │   ├── TrackingSystem.test.ts
+│   │   │   │   │   │   │   ├── customMatchers.ts
+│   │   │   │   │   │   │   ├── generators.ts
+│   │   │   │   │   │   │   ├── jest.d.ts
+│   │   │   │   │   │   │   └── types.ts
+│   │   │   │   │   │   ├── jest.d.ts
+│   │   │   │   │   │   └── types.ts
+│   │   │   │   │   └── types.ts
+│   │   │   │   ├── types
+│   │   │   │   │   └── educational-types.ts
+│   │   │   │   └── types.ts
+│   │   │   ├── emergency
+│   │   │   │   ├── medical
+│   │   │   │   │   ├── EmergencyCoordinator.ts
+│   │   │   │   │   ├── EmergencySignalSystem.ts
+│   │   │   │   │   ├── MedicalEmergencyHandler.ts
+│   │   │   │   │   ├── __tests__
+│   │   │   │   │   │   └── MedicalEmergencySystem.test.ts
+│   │   │   │   │   └── interfaces
+│   │   │   │   │       └── MedicalEmergencyInterfaces.ts
+│   │   │   │   └── safety
+│   │   │   │       ├── EmergencyCoordinator.ts
+│   │   │   │       ├── EvacuationHandler.ts
+│   │   │   │       ├── EvacuationSignalSystem.ts
+│   │   │   │       ├── __tests__
+│   │   │   │       │   ├── EvacuationSignalSystem.advanced.test.ts
+│   │   │   │       │   ├── EvacuationSignalSystem.test.ts
+│   │   │   │       │   └── EvacuationSystem.perf.test.ts
+│   │   │   │       ├── emergency.types.ts
+│   │   │   │       ├── handler.types.ts
+│   │   │   │       ├── security.types.ts
+│   │   │   │       └── types.ts
+│   │   │   ├── multilingual
+│   │   │   │   ├── international
+│   │   │   │   └── interpretation
+│   │   │   └── technological
+│   │   │       ├── video
+│   │   │       └── virtual
+│   │   ├── temporal
+│   │   │   ├── LSFTemporalExpressions.ts
+│   │   │   ├── index.ts
+│   │   │   └── types.ts
+│   │   ├── timing
+│   │   │   ├── ExpressionsAnimator.ts
+│   │   │   ├── FrameController.ts
+│   │   │   ├── StreamController.ts
+│   │   │   ├── TimingController.ts
+│   │   │   ├── TimingSequence.ts
+│   │   │   └── types.ts
+│   │   ├── types
+│   │   │   └── interfaces.ts
+│   │   ├── types.ts
+│   │   └── validation
+│   │       ├── ExpressionSynchronizer.ts
+│   │       ├── ExpressionValidator.ts
+│   │       ├── LSFAdvancedValidationSystem.ts
+│   │       ├── LSFValidationRules.ts
+│   │       ├── LSFValidationSystem.ts
+│   │       ├── MouthValidator.ts
+│   │       ├── RPMMorphValidator.ts
+│   │       ├── ValidationMethods.ts
+│   │       ├── ValidationRules.ts
+│   │       └── ValidationTypes.ts
+│   └── integration
+│       ├── MistralTransitionAdapter.ts
+│       └── mistral
+│           └── types.ts
+├── types
+│   ├── IAState.ts
+│   ├── adaptation-types.ts
+│   ├── base.ts
+│   ├── cache.ts
+│   ├── conversational.ts
+│   ├── cultural-test-types.ts
+│   ├── emotions.ts
+│   ├── expressions
+│   │   ├── index.ts
+│   │   └── interfaces.ts
+│   ├── expressions.ts
+│   ├── feedback
+│   │   ├── expression.ts
+│   │   ├── index.ts
+│   │   ├── validation.ts
+│   │   └── validators
+│   │       └── interfaces
+│   │           └── ISpatialValidator.ts
+│   ├── geometry.ts
+│   ├── index.ts
+│   ├── intent.ts
+│   ├── logger.ts
+│   ├── lsf
+│   │   └── extended.ts
+│   ├── lsf-complex-emotions.types.ts
+│   ├── lsf.ts
+│   ├── metrics.ts
+│   ├── modality.ts
+│   ├── model-integration.ts
+│   ├── monitoring.ts
+│   ├── orchestration.types.ts
+│   ├── quality.ts
+│   ├── situation.ts
+│   ├── systems
+│   │   └── expressions
+│   │       └── emotions
+│   │           └── lsf.ts
+│   ├── temporal.ts
+│   └── validators.ts
+├── types.ts
+├── utils
+│   ├── Cache.ts
+│   ├── Logger.ts
+│   ├── LoggerFactory.ts
+│   ├── Observable.ts
+│   └── logging
+│       ├── LogFormatter.ts
+│       ├── LogLevel.ts
+│       ├── LogMetricsManager.ts
+│       ├── LoggerTypes.ts
+│       └── index.ts
+└── validation
+    ├── Guide d'Intégration du Système de Validations collaborativei.md
+    ├── README.md
+    ├── ValidationCollaborative.ts
+    ├── ValidationSystemFacade.ts
+    ├── __tests__
+    │   ├── CollaborationManager.test.ts
+    │   └── EnhancedCollaborationManager.test.ts
+    ├── implementations
+    │   ├── BaseManager.ts
+    │   ├── CollaborationManager.ts
+    │   ├── CollaborationManagerRegistry.ts
+    │   ├── ConsensusManager.ts
+    │   ├── EnhancedCollaborationManager.ts
+    │   ├── ExpertProfileManager.ts
+    │   ├── FeedbackManager.ts
+    │   ├── ValidationManager.ts
+    │   └── ValidationStateManager.ts
+    ├── interfaces
+    │   ├── ICollaborationManager.ts
+    │   ├── ICollaborationManagerRegistry.ts
+    │   ├── IConsensusCalculator.ts
+    │   ├── IConsensusManager.ts
+    │   ├── IEventManager.ts
+    │   ├── IExpertProfileManager.ts
+    │   ├── IFeedbackManager.ts
+    │   ├── INativeValidator.ts
+    │   ├── IValidationManager.ts
+    │   ├── IValidationStateManager.ts
+    │   └── collaborative-validation.interfaces.ts
+    ├── services
+    │   ├── AnalyticsService.ts
+    │   ├── ConsensusService.ts
+    │   ├── DataPersistenceService.ts
+    │   ├── EventManager.ts
+    │   ├── RestApiService.ts
+    │   ├── expert-service.ts
+    │   ├── thematic-club-service.ts
+    │   └── validation-processing-service.ts
+    ├── types
+    │   ├── api.types.ts
+    │   ├── events.ts
+    │   ├── expert.ts
+    │   ├── history.ts
+    │   ├── index.ts
+    │   ├── notification.ts
+    │   ├── pagination.ts
+    │   ├── result.ts
+    │   ├── statistics.ts
+    │   └── validation-state.ts
+    ├── types.ts
+    └── utils
+        ├── adaptation-service.ts
+        ├── pagination-helpers.ts
+        ├── result-helpers.ts
+        └── validation-helpers.ts
+
+584 directories, 1429 files

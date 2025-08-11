@@ -1,0 +1,35 @@
+stateDiagram-v2
+  title Diagramme d'état – AuthenticityScoringSystem (LSF)
+
+  %% États principaux
+  [*] --> Initialisation
+  Initialisation --> ChargementContexte : charger données culturelles/sociales
+  ChargementContexte --> VérificationComposantes
+
+  state VérificationComposantes {
+    VérificationComposantes --> VérifExpressionFaciale
+    VérificationComposantes --> VérifGestuelle
+    VérificationComposantes --> VérifPosture
+    VérificationComposantes --> VérifDynamique
+    VérifExpressionFaciale --> Agrégation
+    VérifGestuelle --> Agrégation
+    VérifPosture --> Agrégation
+    VérifDynamique --> Agrégation
+  }
+
+  Agrégation --> ÉvaluationAuthenticité
+  ÉvaluationAuthenticité --> AnalyseCohérenceContextuelle : croisement avec contexte (émotionnel, social, narratif)
+  AnalyseCohérenceContextuelle --> ScoreAuthenticité
+
+  ScoreAuthenticité --> ValidationExpert : seuil > 0.85 ?
+  ValidationExpert --> Acceptée : oui
+  ValidationExpert --> Rejetée : non
+  Acceptée --> [*]
+  Rejetée --> RecommandationsAutoCorrection : retour au système de correction
+
+  RecommandationsAutoCorrection --> [*]
+
+  %% États facultatifs
+  ScoreAuthenticité --> VérifSpécificitésLSF : composantes culturelles propres ?
+  VérifSpécificitésLSF --> AnalyseCohérenceContextuelle
+

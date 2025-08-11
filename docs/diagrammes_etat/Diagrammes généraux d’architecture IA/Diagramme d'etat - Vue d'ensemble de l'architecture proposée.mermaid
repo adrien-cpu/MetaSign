@@ -1,0 +1,105 @@
+```mermaid
+graph TB
+    subgraph "Couche d'Integration et d'Orchestration"
+        SO[System Orchestrator]
+        SI[State Integrator]
+        EM[Event Manager]
+    end
+    
+    subgraph "Systemes Fondamentaux"
+        SCE[Systeme Controle Ethique]
+        IAC[IA Core]
+        SE[Systeme Expressions]
+        ID[Intelligence Distribuee]
+    end
+    
+    subgraph "Nouveaux Systemes d'Optimisation"
+        POS[Performance Optimization System]
+        subgraph "Composants Performance"
+            POS1[Audit Performance]
+            POS2[Optimisation Distribuee]
+            POS3[Cache Intelligent]
+        end
+    end
+    
+    subgraph "Nouveaux Systemes d'Observation"
+        OLS[Observation Learning System]
+        subgraph "Composants Observation"
+            AO[Apprentissage Observationnel]
+            VC[Validation Collaborative]
+            EN[Evaluation Naturalite]
+        end
+    end
+    
+    subgraph "Nouveaux Systemes Culturels"
+        MCS[Multicultural System]
+        subgraph "Composants Culturels"
+            GVD[Gestion Variantes Diatopiques]
+            GM[Gestion Multilingue]
+            ICE[Integration Contexte Externe]
+        end
+    end
+    
+    subgraph "Nouveaux Systemes d'Expression"
+        AES[Advanced Expression System]
+        subgraph "Composants Expression"
+            CNM[Composantes Non-Manuelles]
+            GES[Gestion Espace Spatial]
+            GI[Gestion Iconicite]
+        end
+    end
+    
+    %% Connexions principales
+    SO -- Orchestre --> SCE
+    SO -- Orchestre --> IAC
+    SO -- Orchestre --> SE
+    SO -- Orchestre --> ID
+    SO -- Orchestre --> POS
+    SO -- Orchestre --> OLS
+    SO -- Orchestre --> MCS
+    SO -- Orchestre --> AES
+    
+    SI -- Integre --> SO
+    SI -- Connecte etats --> SCE
+    SI -- Connecte etats --> IAC
+    
+    EM -- Evenements --> SO
+    
+    %% Connexions des nouveaux systemes
+    POS -- Optimise --> IAC
+    POS -- Optimise --> ID
+    POS -- Metriques --> OLS
+    
+    OLS -- Enrichit --> IAC
+    OLS -- Valide --> AES
+    OLS -- Fournit feedback --> MCS
+    
+    MCS -- Adapte --> IAC
+    MCS -- Contexte --> AES
+    
+    AES -- Expressions avancees --> SE
+    
+    %% Connexions internes des composants
+    POS1 -- Alimente --> POS
+    POS2 -- Alimente --> POS
+    POS3 -- Alimente --> POS
+    
+    AO -- Alimente --> OLS
+    VC -- Alimente --> OLS
+    EN -- Alimente --> OLS
+    
+    GVD -- Alimente --> MCS
+    GM -- Alimente --> MCS
+    ICE -- Alimente --> MCS
+    
+    CNM -- Alimente --> AES
+    GES -- Alimente --> AES
+    GI -- Alimente --> AES
+    
+    classDef core fill:#f9f,stroke:#333,stroke-width:2px
+    classDef new fill:#bbf,stroke:#333,stroke-width:2px
+    classDef integration fill:#bfb,stroke:#333,stroke-width:2px
+    
+    class SCE,IAC,SE,ID core
+    class POS,OLS,MCS,AES new
+    class SO,SI,EM integration

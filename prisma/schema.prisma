@@ -1,0 +1,237 @@
+datasource db {
+  provider = "postgresql" // ou "mysql" ou "sqlite" selon votre base de données
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  ADMIN
+  DEVELOPER
+  PROFESSOR
+}
+
+enum ClubRole {
+  MEMBER
+  MODERATOR
+  ADMIN
+}
+
+enum CorrectionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id              String           @id @default(cuid())
+  email           String           @unique
+  password        String
+  role            Role             @default(USER)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  profile         Profile?
+  sessions        Session[]
+  memberships     ClubMembership[]
+  posts           Post[]
+  votes           Vote[] // ✅ Ajout de la relation correcte
+  correctionVotes CorrectionVote[]
+  clubPosts       ClubPost[]
+  userPreferences UserPreferences?
+  ArtifactVote    ArtifactVote[]
+}
+
+model UserPreferences {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id])
+  preferences Json
+  showTiles   Boolean  @default(true) // ✅ Ajout de showTiles avec une valeur par défaut
+  showCards   Boolean  @default(true) // ✅ Ajout de showCards avec une valeur par défaut
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Profile {
+  id        String  @id @default(uuid())
+  firstName String?
+  lastName  String?
+  phone     String?
+  location  String?
+  userId    String  @unique
+  user      User    @relation(fields: [userId], references: [id])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Post {
+  id       String @id @default(cuid())
+  content  String
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  votes    Vote[] // ✅ Ajout de la relation correcte
+}
+
+model Vote {
+  id     String @id @default(cuid())
+  userId String
+  postId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId]) // Un utilisateur ne peut voter qu'une fois par post
+}
+
+model Club {
+  id                  String               @id @default(cuid())
+  name                String               @unique
+  description         String?
+  type                String               @default("general") // ✅ Ajout d'une valeur par défaut
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  members             ClubMembership[]
+  posts               ClubPost[]
+  artifacts           Artifact[]
+  glossaryCorrections GlossaryCorrection[]
+  memberCount         Int                  @default(0)
+}
+
+model ClubMembership {
+  id       String   @id @default(cuid())
+  userId   String
+  clubId   String
+  joinedAt DateTime @default(now())
+  role     ClubRole @default(MEMBER)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  club Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, clubId])
+}
+
+model ClubPost {
+  id        String   @id @default(cuid())
+  content   String
+  mediaUrl  String?
+  createdAt DateTime @default(now())
+  authorId  String
+  clubId    String
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  club   Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
+}
+
+model Artifact {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  mediaUrl    String?
+  clubId      String
+  createdAt   DateTime @default(now())
+  validated   Boolean  @default(false)
+
+  club          Club           @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  artifactVotes ArtifactVote[]
+}
+
+model ArtifactVote {
+  id         String  @id @default(cuid())
+  userId     String
+  artifactId String
+  vote       Boolean
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  artifact Artifact @relation(fields: [artifactId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, artifactId])
+}
+
+model GlossaryCorrection {
+  id                   String           @id @default(cuid())
+  sign                 String
+  incorrectTranslation String
+  suggestedCorrection  String
+  status               CorrectionStatus @default(PENDING)
+  clubId               String
+  createdAt            DateTime         @default(now())
+
+  club  Club             @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  votes CorrectionVote[]
+}
+
+model CorrectionVote {
+  id           String  @id @default(cuid())
+  userId       String
+  correctionId String
+  vote         Boolean
+
+  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  correction GlossaryCorrection @relation(fields: [correctionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, correctionId])
+}
+
+model CulturalHub {
+  id            String   @id @default(cuid())
+  tourName      String
+  type          String
+  startDate     DateTime
+  isActive      Boolean  @default(true)
+  activePlayers Int      @default(0) // Ajoutez cette propriété si nécessaire
+}
+
+model Gaming {
+  id             String @id @default(cuid())
+  tournamentName String
+  status         String
+  activePlayers  Int    @default(0) // Ajoutez cette propriété si nécessaire
+  questCount     Int    @default(0) // Ajoutez cette propriété si nécessaire
+}
+
+model Cinema {
+  id             String   @id @default(cuid())
+  productionName String
+  type           String
+  startDate      DateTime
+  status         String
+}
+
+model News {
+  id      String  @id @default(cuid())
+  title   String
+  content String
+  isLive  Boolean
+}
+
+model Business {
+  id     String @id @default(cuid())
+  name   String
+  status String
+  type   String // Ajoutez cette propriété si nécessaire
+}
+
+model Travel {
+  id     String @id @default(cuid())
+  name   String
+  status String
+}
+
+model AiModel {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

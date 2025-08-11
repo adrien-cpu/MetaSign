@@ -1,0 +1,32 @@
+stateDiagram-v2
+    [*] --> ReceptionDonneesIA
+
+    ReceptionDonneesIA --> SynchronisationNormalisation : Harmonisation des modèles locaux, sandbox et partenaires
+    SynchronisationNormalisation --> FusionAggregation : Comparaison et consensus des résultats IA
+    FusionAggregation --> ValidationFiltrage : Application des règles de qualité et suppression des biais
+    ValidationFiltrage --> MiseAJourRetroaction : Intégration et feedback aux IA locales
+    MiseAJourRetroaction --> [*]
+
+    state SynchronisationNormalisation {
+        [*] --> HarmonisationDonnees
+        HarmonisationDonnees --> VerificationCoherence
+        VerificationCoherence --> [*]
+    }
+
+    state FusionAggregation {
+        [*] --> ComparaisonResultats
+        ComparaisonResultats --> SelectionConsensus
+        SelectionConsensus --> [*]
+    }
+
+    state ValidationFiltrage {
+        [*] --> ApplicationReglesQualite
+        ApplicationReglesQualite --> SuppressionBiais
+        SuppressionBiais --> [*]
+    }
+
+    state MiseAJourRetroaction {
+        [*] --> IntegrationConnaissances
+        IntegrationConnaissances --> FeedbackIALocales
+        FeedbackIALocales --> [*]
+    }

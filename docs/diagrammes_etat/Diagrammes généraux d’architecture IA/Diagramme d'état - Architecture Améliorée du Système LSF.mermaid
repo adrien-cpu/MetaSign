@@ -1,0 +1,97 @@
+```mermaid
+    %% Structure principale améliorée
+    [*] --> ValidationInitiale
+    ValidationInitiale --> SystemeControleEthique: Verification demarrage
+    SystemeControleEthique --> OrchestrateurCentral: Validation ethique
+    OrchestrateurCentral --> RouterMultimodal: Routage requete
+    
+    %% Orchestrateur Central - Point d'entrée unifié
+    state "OrchestrateurCentral" as OC {
+        state "GestionFluxDonnees" as GFD {
+            ReceptionRequetes --> AnalyseContexte
+            AnalyseContexte --> RoutageIntelligent
+        }
+        state "MoniteurPerformance" as MP {
+            CaptureMetriques --> AnalyseTempsReel
+            AnalyseTempsReel --> OptimisationDynamique
+        }
+        state "GestionCache" as GC {
+            StrategiesMiseEnCache --> InvalidationIntelligente
+            InvalidationIntelligente --> OptimisationStockage
+        }
+    }
+    
+    %% Router Multimodal - Nouveau composant pour distribuer les requêtes
+    state "RouterMultimodal" as RM {
+        state "AnalyseRequete" as AR {
+            IdentificationContexte --> DetectionModalite
+            DetectionModalite --> PrioritisationTraitement
+        }
+        state "DistributionCharge" as DC {
+            EquilibrageCharge --> RoutageAdaptatif
+            RoutageAdaptatif --> OptimisationLatence
+        }
+    }
+    
+    %% Système IA Core amélioré avec cache partagé
+    state "SystemeIACore" as IACore {
+        state "IAReflexive" as IR {
+            AutoEvaluation --> OptimisationSysteme
+        }
+        state "IAEmpathique" as IE {
+            AnalyseEmotions --> AdaptationContextuelle
+        }
+        state "CachePartage" as CP {
+            IndexationResultats --> GestionPriorite
+            GestionPriorite --> StrategieRemplacement
+        }
+    }
+    
+    %% Validation Collaborative améliorée
+    state "ValidationCollaborative" as VC {
+        state "ValidationParCommunaute" as VPC {
+            SoumissionExperts --> ConsensusAutomatise
+        }
+        state "IntegrationContinue" as IC {
+            ValidationIncrementale --> RetourUtilisateur
+        }
+        state "AdaptationContextuelle" as AC {
+            ProfilUtilisateur --> AdaptationReponse
+        }
+    }
+    
+    %% Système de Monitoring Unifié - Nouveau composant
+    state "MonitoringUnifie" as MU {
+        state "CollecteMetriques" as CM {
+            MetriquesPerformance --> MetriquesUtilisation
+            MetriquesUtilisation --> MetriquesQualite
+        }
+        state "AlertesAutomatisees" as AA {
+            DetectionAnomalie --> NotificationCiblee
+            NotificationCiblee --> EscalationAutomatique
+        }
+        state "OptimisationAutonome" as OA {
+            AnalyseTendances --> AjustementRessources
+            AjustementRessources --> ScalingAutomatique
+        }
+    }
+    
+    %% Interactions entre composants
+    RM --> IACore : Traitement\ncognitif
+    RM --> Linguistes : Traduction\nLSF
+    RM --> SystemeExpressions : Generation\nexpressions
+    
+    IACore --> VC : Validation\nresultats
+    
+    OC --> MU : Metriques\nglobales
+    OC --> RM : Configuration\nroutes
+    
+    MU --> IACore : Optimisation\nressources
+    MU --> OC : Indicateurs\nperformance
+    
+    VC --> IACore : Amelioration\ncontinue
+    
+    %% Connexions avec les systèmes existants (simplifiés)
+    state "Linguistes" as Linguistes
+    state "SystemeExpressions" as SE
+    state "SystemeControleEthique" as SCE

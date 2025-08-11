@@ -1,0 +1,105 @@
+Diagramme de Gantt MetaSign - Module d'Apprentissage (Format CSV)
+📋 Vue d'ensemble du projet
+État actuel : 65% → 75% (post-refactorisation)
+Objectif : 85%
+Durée estimée : 24 semaines
+
+🏗️ 1. Architecture et Services (PRIORITÉ HAUTE)
+csvTâche,Description,Début,Fin,Durée,Prérequis,Statut,Progression,Responsable,Priorité
+ARCH-001,Structure de base,S1,S2,2 semaines,,Terminé,100%,Équipe Core,HAUTE
+ARCH-002,Architecture orientée services,S1,S4,4 semaines,,Terminé,95%,Équipe Core,HAUTE
+ARCH-003,Registre de services,S2,S5,3 semaines,ARCH-001,Terminé,95%,Équipe Core,HAUTE
+ARCH-004,Services métier de base,S5,S9,4 semaines,ARCH-002,En cours,80%,Équipe Dev,HAUTE
+ARCH-005,Standardisation interfaces,S6,S10,4 semaines,ARCH-003,À faire,20%,Équipe Dev,HAUTE
+ARCH-006,Documentation technique,S7,S11,4 semaines,ARCH-004,En cours,60%,Tech Writer,MOYENNE
+
+📚 2. CODA Virtuel / Apprentissage Inverse (PRIORITÉ HAUTE)
+csvTâche,Description,Début,Fin,Durée,Prérequis,Statut,Progression,Responsable,Priorité
+CODA-001,Système CODA virtuel,S6,S12,6 semaines,ARCH-004,À faire,10%,Équipe IA,HAUTE
+CODA-002,CECRLLevelEvaluator,S7,S11,4 semaines,CODA-001,À faire,5%,Équipe IA,HAUTE
+CODA-003,Progression adaptative,S8,S13,5 semaines,CODA-002,À faire,0%,Équipe IA,HAUTE
+CODA-004,Simulateur d'erreurs,S9,S14,5 semaines,CODA-001,À faire,0%,Équipe IA,HAUTE
+CODA-005,Feedback bidirectionnel,S10,S15,5 semaines,CODA-003,À faire,0%,Équipe UX,HAUTE
+CODA-006,Générateurs d'exercices,S11,S16,5 semaines,CODA-002,À faire,5%,Équipe Content,HAUTE
+CODA-007,Intégration registre,S13,S17,4 semaines,CODA-005,À faire,0%,Équipe Dev,HAUTE
+
+🔄 3. Système de Transformation d'Erreurs (RÉVOLUTIONNAIRE)
+csvTâche,Description,Début,Fin,Durée,Prérequis,Statut,Progression,Responsable,Priorité
+TRANS-001,ProformeTransformer refacto,S1,S6,5 semaines,,Terminé,90%,Équipe Core,HAUTE
+TRANS-002,RhythmTransformer refacto,S2,S7,5 semaines,,Terminé,85%,Équipe Core,HAUTE
+TRANS-003,SignOrderTransformer refacto,S3,S8,5 semaines,,Terminé,80%,Équipe Core,HAUTE
+TRANS-004,SpatialTransformer refacto,S4,S9,5 semaines,,Terminé,85%,Équipe Core,HAUTE
+TRANS-005,Intégration services,S8,S12,4 semaines,TRANS-001-004,En cours,60%,Équipe Dev,HAUTE
+TRANS-006,Tests unitaires,S9,S13,4 semaines,TRANS-005,À faire,15%,Équipe QA,HAUTE
+TRANS-007,Optimisations,S12,S16,4 semaines,TRANS-006,À faire,0%,Équipe Perf,MOYENNE
+
+🎯 4. Personnalisation des Parcours (EXCELLENCE)
+csvTâche,Description,Début,Fin,Durée,Prérequis,Statut,Progression,Responsable,Priorité
+PERS-001,PersonalizedLearningPath v3,S1,S5,4 semaines,,Terminé,95%,Équipe Core,HAUTE
+PERS-002,PathStepGenerator,S3,S7,4 semaines,PERS-001,Terminé,90%,Équipe Core,HAUTE
+PERS-003,PathProgressManager,S4,S8,4 semaines,PERS-001,Terminé,90%,Équipe Core,HAUTE
+PERS-004,PathFormatUtils,S5,S8,3 semaines,PERS-002,Terminé,85%,Équipe Core,MOYENNE
+PERS-005,Tests complets,S6,S10,4 semaines,PERS-003,En cours,70%,Équipe QA,HAUTE
+PERS-006,Migration guide,S7,S10,3 semaines,PERS-004,Terminé,100%,Tech Writer,MOYENNE
+
+📊 5. Système de Métriques et Analytics (PROFESSIONNEL)
+csvTâche,Description,Début,Fin,Durée,Prérequis,Statut,Progression,Responsable,Priorité
+METR-001,MetricsCollector refacto,S2,S6,4 semaines,,Terminé,90%,Équipe Core,HAUTE
+METR-002,MetricsAnalyzer refacto,S3,S7,4 semaines,METR-001,Terminé,85%,Équipe Core,HAUTE
+METR-003,Dashboard analytics,S6,S11,5 semaines,METR-002,En cours,75%,Équipe UI,HAUTE
+METR-004,Rapports automatisés,S8,S13,5 semaines,METR-003,À faire,25%,Équipe Dev,MOYENNE
+METR-005,Adaptation temps réel,S9,S14,5 semaines,METR-002,À faire,75%,Équipe IA,HAUTE
+METR-006,Alertes intelligentes,S11,S16,5 semaines,METR-004,À faire,0%,Équipe DevOps,MOYENNE
+
+🔗 6. Intégration Système (CRITIQUE)
+csvTâche,Description,Début,Fin,Durée,Prérequis,Statut,Progression,Responsable,Priorité
+INTEG-001,Architecture intégration,S4,S8,4 semaines,ARCH-004,Terminé,70%,Équipe Arch,HAUTE
+INTEG-002,Synchronisation modules,S8,S14,6 semaines,INTEG-001,À faire,20%,Équipe Dev,HAUTE
+INTEG-003,API unifiée,S10,S16,6 semaines,INTEG-002,À faire,10%,Équipe API,HAUTE
+INTEG-004,Système observation,S12,S18,6 semaines,INTEG-003,À faire,0%,Équipe IA,MOYENNE
+INTEG-005,Métriques intégration,S14,S19,5 semaines,INTEG-004,À faire,0%,Équipe DevOps,MOYENNE
+INTEG-006,Tests intégration,S16,S21,5 semaines,INTEG-005,À faire,0%,Équipe QA,HAUTE
+
+🔍 7. Monitoring et Résilience (OPÉRATIONNEL)
+csvTâche,Description,Début,Fin,Durée,Prérequis,Statut,Progression,Responsable,Priorité
+MONIT-001,Système monitoring,S3,S7,4 semaines,ARCH-003,Terminé,80%,Équipe DevOps,HAUTE
+MONIT-002,Résilience récupération,S5,S9,4 semaines,MONIT-001,Terminé,70%,Équipe DevOps,HAUTE
+MONIT-003,Équilibrage charge,S9,S15,6 semaines,MONIT-002,À faire,0%,Équipe Infra,MOYENNE
+MONIT-004,Circuit breakers,S7,S11,4 semaines,MONIT-001,En cours,50%,Équipe DevOps,HAUTE
+MONIT-005,Monitoring avancé,S11,S17,6 semaines,MONIT-004,À faire,0%,Équipe DevOps,MOYENNE
+MONIT-006,Alertes proactives,S15,S20,5 semaines,MONIT-005,À faire,0%,Équipe DevOps,BASSE
+
+🧪 8. Tests et Qualité (FONDAMENTAL)
+csvTâche,Description,Début,Fin,Durée,Prérequis,Statut,Progression,Responsable,Priorité
+TEST-001,Tests unitaires base,S6,S12,6 semaines,ARCH-004,En cours,15%,Équipe QA,HAUTE
+TEST-002,Tests intégration,S10,S16,6 semaines,TEST-001,À faire,5%,Équipe QA,HAUTE
+TEST-003,Tests performance,S12,S18,6 semaines,TEST-002,À faire,0%,Équipe Perf,MOYENNE
+TEST-004,Tests end-to-end,S14,S20,6 semaines,TEST-003,À faire,0%,Équipe QA,HAUTE
+TEST-005,Coverage reporting,S8,S12,4 semaines,TEST-001,À faire,10%,Équipe QA,MOYENNE
+TEST-006,Tests automatisés CI/CD,S16,S22,6 semaines,TEST-004,À faire,0%,Équipe DevOps,HAUTE
+
+🎮 9. Gamification (BASSE PRIORITÉ)
+csvTâche,Description,Début,Fin,Durée,Prérequis,Statut,Progression,Responsable,Priorité
+GAME-001,Architecture gamification,S18,S22,4 semaines,INTEG-005,À planifier,5%,Équipe UX,BASSE
+GAME-002,Système points/badges,S20,S24,4 semaines,GAME-001,À planifier,0%,Équipe Dev,BASSE
+GAME-003,Leaderboards,S22,S26,4 semaines,GAME-002,À planifier,0%,Équipe Dev,BASSE
+GAME-004,Défis personnalisés,S24,S28,4 semaines,GAME-003,À planifier,0%,Équipe Content,BASSE
+
+🌐 10. Apprentissage Immersif NeRF (FUTUR)
+csvTâche,Description,Début,Fin,Durée,Prérequis,Statut,Progression,Responsable,Priorité
+NERF-001,Recherche NeRF LSF,S24,S28,4 semaines,INTEG-006,À planifier,5%,Équipe R&D,BASSE
+NERF-002,Prototype NeRF,S26,S32,6 semaines,NERF-001,À planifier,0%,Équipe R&D,BASSE
+NERF-003,Intégration NeRF,S30,S36,6 semaines,NERF-002,À planifier,0%,Équipe 3D,BASSE
+
+📈 Résumé Exécutif
+Phases du Projet
+PhaseSemainesObjectifs PrincipauxStatutPhase 1S1-S8Architecture + Refactorisation✅ 90% TerminéPhase 2S9-S16Services Métier + CODA🟡 En cours (40%)Phase 3S17-S24Intégration + Tests🔴 À planifierPhase 4S25-S32Optimisation + Gamification🔴 Futur
+Indicateurs Clés
+
+Avancement Global : 75%
+Risques Critiques : Intégration système
+Prochaine Étape Critique : Finalisation CODA Virtuel
+ROI Estimé : +300% efficacité développement
+
+
+Ce diagramme de Gantt reflète l'état post-refactorisation et les priorités actuelles du projet MetaSign.

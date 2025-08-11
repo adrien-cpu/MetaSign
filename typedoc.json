@@ -1,0 +1,19 @@
+{
+    "entryPointStrategy": "expand",
+    "entryPoints": [
+        "src"
+    ],
+    "out": "docs",
+    "excludeExternals": true,
+    "excludePrivate": true,
+    "excludeProtected": true,
+    "disableSources": true,
+    "exclude": [
+        "**/*.test.ts",
+        "**/*.stories.ts",
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/build/**",
+        "**/public/**"
+    ]
+}

@@ -1,0 +1,32 @@
+stateDiagram-v2
+    [*] --> RéceptionEmotionEtContexte
+
+    RéceptionEmotionEtContexte --> AnalyseDuContexte : analyse sociale, narrative, culturelle, temporelle
+    AnalyseDuContexte --> DéterminationDesAdaptations : calculs et ajustements
+    DéterminationDesAdaptations --> ApplicationDesAdaptations : modulations faciales, gestuelles, temporelles
+    ApplicationDesAdaptations --> GénérationEmotionAdaptée : création de l'émotion contextuelle
+    GénérationEmotionAdaptée --> ValidationParValidator : appel du Contextual Adaptation Validator
+    ValidationParValidator --> TransmissionRésultatFinal : résultat enrichi et validé envoyé au système
+    TransmissionRésultatFinal --> [*]
+
+    state AnalyseDuContexte {
+        [*] --> AnalyseSociale
+        AnalyseSociale --> AnalyseNarrative
+        AnalyseNarrative --> AnalyseCulturelle
+        AnalyseCulturelle --> AnalyseTemporelle
+        AnalyseTemporelle --> [*]
+    }
+
+    state DéterminationDesAdaptations {
+        [*] --> ModulationIntensité
+        ModulationIntensité --> AjustementsExpressifs
+        AjustementsExpressifs --> AjustementsTemporaux
+        AjustementsTemporaux --> [*]
+    }
+
+    state ApplicationDesAdaptations {
+        [*] --> ApplicationFaciale
+        ApplicationFaciale --> ApplicationGestuelle
+        ApplicationGestuelle --> ApplicationTemporelle
+        ApplicationTemporelle --> [*]
+    }

@@ -1,0 +1,204 @@
+# Bonnes pratiques pour le développement de l'application LSF
+
+exactOptionalPropertyTypes: true. Cette erreur indique que nous ne pouvons pas directement assigner undefined à une propriété qui n'est pas explicitement définie comme optionnelle ou qui n'inclut pas undefined dans son type.
+
+1. Correction du problème principal d'assignation optionnelle
+Le problème principal venait de la façon dont les propriétés optionnelles sont gérées quand exactOptionalPropertyTypes: true est activé dans le tsconfig. Dans ce mode, TypeScript fait une distinction stricte entre une propriété manquante et une propriété explicitement définie comme undefined.
+
+📌 **Note importante :** Avant d'implémenter de nouvelles fonctionnalités ou de modifier l'existant, **vérifiez toujours la cohérence avec :**
+- 🔹 **L'arborescence de l'IA** (`arborescence_AI`) pour assurer une structure harmonieuse.
+- 🔹 **Les diagrammes d'état** pour garantir que les transitions et comportements sont bien définis.
+
+## 1. Organisation des imports
+
+Respectez ces principes pour éviter les problèmes d'import cycliques:
+
+```typescript
+// ✅ BON: Utiliser les alias définis dans tsconfig.json
+import { SpatialVector } from '@spatial/types';
+import { ProsodicPattern } from '@ai-types/lsf';
+import { SystemOrchestrator } from '@ai/coordinators/SystemOrchestrator';
+
+// ❌ MAUVAIS: Chemins relatifs complexes
+import { SpatialVector } from '../../../../spatial/types';
+import { ProsodicPattern } from '../../../types/lsf';
+```
+
+- Créez et maintenez des fichiers **barrel (index.ts)** dans chaque dossier pour faciliter les imports.
+- Envisagez d'utiliser des **path aliases** dans `tsconfig.json` pour simplifier les imports:
+  ```json
+  {
+    "compilerOptions": {
+      "paths": {
+        "@types/*": ["src/types/*"],
+        "@components/*": ["src/components/*"]
+      }
+    }
+  }
+  ```
+
+## 2. Typage strict
+
+Respectez toujours les règles de typage strict:
+
+```typescript
+// ✅ BON: Types explicites
+function processData<T>(data: T[], callback: (item: T, index: number) => void): void {
+  data.forEach((item, index) => callback(item, index));
+}
+
+// ❌ MAUVAIS: Types implicites ou any
+function processData(data, callback) {
+  data.forEach((item, index) => callback(item, index));
+}
+```
+
+- Activez les options TypeScript strictes: **strictNullChecks**, **noImplicitAny**, etc.
+- Évitez les assertions de type sauf si absolument nécessaire.
+- Utilisez des **types dédiés** pour éviter les `unknown` inutiles.
+- **Vérifiez si un élément est réellement utilisé avant de l'implémenter** pour éviter du code inutile et une complexité accrue.
+
+## 3. Structure des classes
+
+Suivez une structure cohérente pour les classes:
+
+```typescript
+export class ExampleClass {
+  private static instance: ExampleClass; // Propriété privée statique
+  private data: Map<string, unknown>; // Propriété privée
+  
+  private constructor() {
+    this.data = new Map();
+  }
+  
+  public static getInstance(): ExampleClass {
+    if (!ExampleClass.instance) {
+      ExampleClass.instance = new ExampleClass();
+    }
+    return ExampleClass.instance;
+  }
+  
+  public getData(key: string): unknown {
+    return this.data.get(key);
+  }
+  
+  private validateKey(key: string): boolean {
+    return key.length > 0;
+  }
+}
+```
+
+- **Principe de responsabilité unique**: chaque classe/module ne devrait avoir qu'une seule raison de changer.
+- **Divisez les fichiers trop grands** en modules plus petits et spécialisés.
+- **Avant d'ajouter une nouvelle implémentation, vérifiez sa pertinence et son impact sur l'architecture en vous référant au fichier `arborescence_AI` et aux diagrammes d'état.**
+
+## 4. Gestion des erreurs
+
+Utilisez des types d'erreur spécifiques:
+
+```typescript
+export class ValidationError extends Error {
+  public readonly validationErrors: string[];
+  
+  constructor(message: string, errors: string[] = []) {
+    super(message);
+    this.name = 'ValidationError';
+    this.validationErrors = errors;
+  }
+}
+
+try {
+  // Opération risquée
+} catch (error) {
+  if (error instanceof ValidationError) {
+    logger.warn('Validation failed', { errors: error.validationErrors });
+  } else {
+    logger.error('Unknown error', { error });
+  }
+}
+```
+
+- Créez des **classes d'erreur personnalisées**.
+- Gérez les erreurs au niveau approprié.
+- Journalisez les erreurs de manière cohérente.
+
+## 5. Outils d'analyse statique
+
+Pour identifier et éviter les éléments inutilisés :
+
+- **ESLint avec `eslint-plugin-unused-imports`** : Détecte les imports inutilisés.
+- **`ts-prune`** : Identifie les fonctions et variables non utilisées.
+
+Intégrer ces outils dans le processus de développement permet d’assurer un code plus propre et optimisé.
+
+## 6. Tests unitaires
+
+- Utilisez des **mocks** pour isoler les composants pendant les tests.
+- Testez les **cas limites et conditions d'erreur**.
+- Intégration continue : exécuter les tests automatiquement.
+
+## 7. Documentation
+
+Utilisez des commentaires JSDoc:
+
+```typescript
+/**
+ * Gère les modèles prosodiques en LSF.
+ *
+ * @example
+ * const patterns = new LSFProsodicPatterns();
+ * const modifiedVector = patterns.applyProsodicModifier(vector, 'emphatic');
+ */
+export class LSFProsodicPatterns {
+  // ...
+}
+```
+
+- Créez un **README.md** pour chaque module majeur.
+- Documentez toutes les **interfaces publiques**.
+
+## 8. Conventions de nommage
+
+- **Interfaces**: `IValidator`, `ProsodicPattern`
+- **Types**: `ColorType`, `SpatialVector`
+- **Classes**: `ExpressionValidator`
+- **Constantes**: `MAX_CACHE_SIZE`
+- **Fichiers**:
+  - Classes: `LSFProsodicPatterns.ts`
+  - Interfaces: `validator-interfaces.ts`
+  - Types: `spatial-types.ts`
+
+## 9. Sécurité et validation
+
+```typescript
+function validateSpatialVector(vector: unknown): SpatialVector {
+  if (typeof vector !== 'object' || vector === null) {
+    throw new ValidationError('Invalid spatial vector');
+  }
+
+  const { x, y, z } = vector as Record<string, unknown>;
+  if (typeof x !== 'number' || typeof y !== 'number' || typeof z !== 'number') {
+    throw new ValidationError('Invalid spatial vector: x, y, and z must be numbers');
+  }
+  return { x, y, z };
+}
+```
+
+## 10. Performance et Memory Leaks
+
+```typescript
+class ComponentManager {
+  private listeners: Map<string, () => void> = new Map();
+  
+  public addListener(id: string, callback: () => void): void {
+    this.listeners.set(id, callback);
+  }
+  
+  public removeListener(id: string): void {
+    this.listeners.delete(id);
+  }
+  
+  public destroy(): void {
+    this.listeners.clear();
+  }
+}

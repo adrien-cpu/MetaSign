@@ -1,0 +1,239 @@
+/* Blue Theme - Elegant and Subtle */
+:root {
+  /* Couleurs du thème */
+  --color-primary-blue: #2e429e;
+  /* Bleu profond pour les accents */
+  --background-blue: #040d5c;
+  /* Bleu très sombre pour le fond de page */
+  --text-blue: #ffffff;
+  /* Texte en blanc pour un bon contraste */
+  --tile-border-color: #1a237e;
+  /* Bord légèrement différent pour les tuiles */
+  --title-font-size-adjust: 1rem;
+  --description-font-size-adjust: 0.9rem;
+
+  /* Thème par défaut */
+  --primary-color: var(--color-primary-blue);
+  --background-color: var(--background-blue);
+  --text-color: var(--text-blue);
+  --tile-border: var(--tile-border-color);
+  --text-title: var(--title-font-size-adjust);
+  --text-description: var(--description-font-size-adjust);
+}
+
+body {
+  background: var(--background-color);
+  color: var(--text-color);
+  font-family: "Poppins", sans-serif;
+  line-height: 1.6;
+  padding: 0;
+  margin: 0;
+}
+
+/* styles.css */
+.overlay {
+  position: fixed;
+  top: 64px;
+  bottom: 64px;
+  right: 0;
+  width: 256px;
+  background-color: #1f2937;
+  color: white;
+  z-index: 50;
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+.overlay.open {
+  transform: translateX(0);
+}
+
+.input {
+  padding: 0.5rem 1rem;
+  /* px-4 py-2 */
+  border: 1px solid #6b7280;
+  /* border-gray-400 */
+  border-radius: 0.5rem;
+  /* rounded-lg */
+  background-color: white;
+  /* bg-white */
+  color: black;
+  /* text-black */
+  outline: none;
+  /* focus:outline-none */
+}
+
+.input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px #3b82f6;
+  /* focus:ring-2 focus:ring-blue-500 */
+}
+
+/* Styles pour les placeholders */
+input::placeholder,
+textarea::placeholder {
+  color: #031636;
+  /* Couleur du texte du placeholder */
+  opacity: 1;
+  /* Opacité du texte du placeholder */
+  font-size: 1rem;
+  /* Taille de la police du placeholder */
+  font-style: italic;
+  /* Style de la police du placeholder */
+}
+
+/* Styles pour les placeholders lorsque le champ est focalisé */
+input:focus::placeholder,
+textarea:focus::placeholder {
+  color: #6b7280;
+  /* Couleur du texte du placeholder lorsque le champ est focalisé */
+}
+
+/* Styles globaux pour les tuiles avec effet glacé et ombre */
+.tile {
+  background: rgba(46, 66, 158, 0.6);
+  /* Fond semi-transparent pour l'effet glacé */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  /* Bord léger pour renforcer l'effet */
+  backdrop-filter: blur(8px);
+  /* Effet de flou pour l'effet glacé */
+  box-shadow: 0 6px #0353f3;
+  /* Ombre renforcée */
+  color: var(--text-color);
+  margin: 0.5rem 1.25rem;
+  padding: 2.5rem;
+  border-radius: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 100px;
+  min-height: 300px;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.2s ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.tile:hover {
+  transform: scale(1.05);
+}
+
+/* Conteneur du titre et de l'icône */
+.tile-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Style du texte descriptif */
+.tile-description {
+  color: var(--text-color);
+  font-size: var(--text-description);
+  margin-top: 0.5rem;
+}
+
+/* Style pour le titre des tuiles */
+.tile-title {
+  color: #facc15;
+  /* Jaune chaud pour mettre en valeur le titre */
+  font-weight: bold;
+  font-size: var(--text-title);
+}
+
+.tile-icon {
+  height: 2rem;
+  width: 2rem;
+  margin-right: 0.5rem;
+}
+
+.tile:hover .tile-icon {
+  color: #fbd38d;
+  /* Jaune plus clair au survol */
+}
+
+.tile-sub {
+  background: rgba(30, 41, 59, 0.8);
+  /* Fond semi-transparent pour l'effet glacé */
+  backdrop-filter: blur(6px);
+  color: var(--text-color);
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: auto;
+}
+
+/* Pied de tile */
+.tile-footer {
+  background: transparent;
+  color: var(--text-color);
+  padding: 0.25rem;
+}
+
+/* Layout Wrapper Styling */
+.LayoutWrapper {
+  background: none;
+  color: var(--text-color);
+  max-width: 80rem;
+  margin: auto;
+  padding-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 120px);
+  margin-top: 0;
+  margin-bottom: 0;
+  z-index: 30;
+  padding: 30px;
+  border-radius: 1rem;
+}
+
+/* Card Styling avec effet glacé */
+.card {
+  margin: auto;
+  background: rgba(46, 66, 158, 0.6);
+  /* Fond semi-transparent pour l'effet glacé */
+  border-radius: 1rem;
+  box-shadow: 0 6px #0353f3;
+  /* Ombre plus marquée */
+  backdrop-filter: blur(8px);
+  padding: 1.5rem;
+  max-width: 48rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card-header {
+  color: var(--text-color);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.card-title {
+  color: var(--text-color);
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.card-content {
+  color: var(--text-color);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.card-footer {
+  background: transparent;
+  color: var(--text-color);
+  padding: 1rem;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}

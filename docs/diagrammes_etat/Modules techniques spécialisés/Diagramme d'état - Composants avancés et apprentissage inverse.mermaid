@@ -1,0 +1,184 @@
+stateDiagram-v2
+    %% Raccourcis vers les composants existants
+    state "SystemeIACore (Existant)" as IACore
+    state "Linguistes (Existant)" as Linguistes
+    state "SystemeExpressions (Existant)" as SE
+    state "SupervisionHumaineRenforcee (Existant)" as SHR
+    
+    %% 1. Gestion des variations dialectales
+    state "GestionVariantesDiatopiques" as GVD {
+        state "CartographieRegionale" as CR {
+            IdentificationVariantes --> ClassificationLocale
+            ClassificationLocale --> MappingRelationnel
+        }
+        state "AdaptationContextuelle" as AC {
+            DetectionOrigineSigneur --> SelectionVarianteAdaptee
+            SelectionVarianteAdaptee --> SubstitutionDynamique
+        }
+        state "EnrichissementLexical" as EL {
+            CollecteVariantesLocales --> ValidationAuthenticitéLocale
+            ValidationAuthenticitéLocale --> IntegrationCorpusGlobal
+        }
+    }
+    
+    %% 2. Interface avec les technologies d'avatar
+    state "InterfaceAvatar" as IA {
+        state "CoordinationTemporelle" as CT {
+            PlanificationMouvements --> SynchronisationLabiale
+            SynchronisationLabiale --> TransitionsNaturelles
+        }
+        state "MapExpressionsFaciales" as MEF {
+            TraductionEmotionSignaux --> ConfigurationFaciale
+            ConfigurationFaciale --> AjustementDynamique
+        }
+        state "RenderingConfigurationsManuel" as RCM {
+            ModelisationMains --> PositionnementCorrect
+            PositionnementCorrect --> DynamiqueFluidite
+        }
+    }
+    
+    %% 3. Gestion de l'espace de signation
+    state "GestionEspaceSpatial" as GES {
+        state "ConstructionReferences" as CRef {
+            EtablissementPoints --> MaintienCoherence
+            ReactivationReferences --> ActualisationDynamique
+        }
+        state "UtilisationEspaceSyntaxique" as UES {
+            StructuresRelationSpatiale --> TransfertFormeCorps
+            DirectionRegardSignification --> NiveauxHierarchiques
+        }
+        state "CartographieMentale" as CM {
+            SuiviReferencesSpatiales --> ReutilisationCoherente
+            MecanismesPointages --> MemoireContextuelle
+        }
+    }
+    
+    %% 4. Mécanismes d'explicitation
+    state "CapacitesMetaLinguistiques" as CML {
+        state "ExplicitationConcepts" as EC {
+            DetectionAmbiguite --> PropositionClarification
+            DemandeValidation --> AjustementComprehension
+        }
+        state "AlternativesLexicales" as AL {
+            IdentificationSynonymie --> SuggestionVariantes
+            AdaptationRegistre --> ContextualisationChoix
+        }
+        state "AutoPedagogie" as AP {
+            ExplicationProcessus --> JustificationChoix
+            ApprentissageInteractif --> AmeliorationContinue
+        }
+    }
+    
+    %% 5. Intégration de données contextuelles externes
+    state "IntegrationContexteExterne" as ICE {
+        state "ActualiteCommunauteSourde" as ACS {
+            VeilleInformative --> SelectionPertinence
+            AdaptationDiscours --> ReferencesCulturelles
+        }
+        state "EvenementsSignificatifs" as ES {
+            CalendrierCommunautaire --> AjustementPrioritesSujets
+            SensibiliteSituationnelle --> AdaptationTonalite
+        }
+        state "TendancesCulturelles" as TC {
+            AnalyseTendances --> IntegrationReferences
+            IdentificationSensibilites --> EvitementFauxPas
+        }
+    }
+    
+    %% 6. Système de mesure d'impact
+    state "MesureImpact" as MI {
+        state "CollecteStatistiques" as CSt {
+            UtilisationFonctionnalites --> SatisfactionUtilisateurs
+            ProblèmesRencontres --> PrioritisationAmelioration
+        }
+        state "AnalyseQualitative" as AQ {
+            FeedbackNarratif --> ThemesRecurrents
+            EntretiensUtilisateurs --> IdentificationBesoins
+        }
+        state "IndicateursPerformance" as IP {
+            ComprehensionUtilisateur --> SatisfactionCommunication
+            EfficaciteTransmission --> ImpactSocial
+        }
+    }
+    
+    %% 7. Gestion de l'aspect iconique
+    state "GestionIconicite" as GI {
+        state "ReconnaissanceVisuelle" as RV {
+            IdentificationSchemas --> InterpretationVisuoSpatiale
+            AnalyseProformes --> ComprehensionSemantique
+        }
+        state "ProductionIconique" as PI {
+            ConceptionSchematique --> TranspositionVisuelle
+            AdaptationScale --> RepresentationAdequate
+        }
+        state "MetaphoresCulturelles" as MC {
+            IdentificationExpressionsImagees --> TranspositionContextuelle
+            AdaptationReferentsCulturels --> ExpressionAuthentique
+        }
+    }
+    
+    %% Composantes non-manuelles essentielles (PI, PAF, PU)
+    state "ComposantesNonManuellesEssentielles" as CNM {
+        state "MarqueursAspectoTemporels" as MAT {
+            PAF --> RealisationSoudaine
+            PAF --> AspectAccompli
+            PAF --> IntensitePonctuelle
+        }
+        
+        state "ModificateursIntensite" as MI2 {
+            PI --> IntensiteFaible
+            PI --> PrecisionFine
+            PU --> IntensiteForte
+            PU --> EtendueVaste
+        }
+        
+        state "IntegrationGrammaticale" as IG {
+            SynchronisationManuel --> SynchronisationNonManuel
+            CoordinationTemporelle --> ExpressionCoherente
+        }
+    }
+    
+    %% Apprentissage Inverse (CODA virtuel)
+    state "ApprentissageInverse" as AIIV {
+        state "AvatarApprenant" as AA {
+            NiveauDebutant --> NiveauIntermediaire
+            NiveauIntermediaire --> NiveauAvance
+            NiveauAvance --> MaitriseCODA
+        }
+        
+        state "MecaniqueProgression" as MP {
+            CollecteEnseignements --> EvaluationProgres
+            EvaluationProgres --> AdaptationNiveau
+            AdaptationNiveau --> SimulationErreurs
+        }
+        
+        state "EngagementUtilisateur" as EU {
+            RecompensesEnseignant --> BadgesExpertise
+            SuiviProgresEleve --> CelebrationEtapes
+        }
+        
+        state "EvaluationCECRL" as ECEC {
+            NiveauA1A2 --> EvaluationElementaire
+            NiveauB1B2 --> EvaluationIndependant
+            NiveauC1C2 --> EvaluationExperimente
+        }
+    }
+    
+    %% Connexions principales avec le système existant
+    GVD --> Linguistes : Enrichissement\ndialectal
+    IA --> SE : Rendu des\nexpressions
+    GES --> SE : Structure\nspatiale
+    CML --> IACore : Capacités\nméta-cognitives
+    ICE --> IACore : Enrichissement\ncontextuel
+    MI --> SHR : Métriques\nd'amélioration
+    GI --> SE : Expression\niconique
+    CNM --> SE : Marqueurs\ngrammaticaux
+    AIIV --> IACore : Apprentissage\ncontinu
+    
+    %% Interconnexions entre nouveaux composants
+    GVD --> GI : Variations\niconiques locales
+    GES --> CNM : Coordination\nspatiale
+    CNM --> IA : Reproduction\nfidèle
+    AIIV --> MI : Mesure\nprogrès
+    CML --> AIIV : Support\npédagogique
+    GI --> GES : Intégration\nspatiale iconique

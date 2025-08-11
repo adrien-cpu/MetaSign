@@ -1,0 +1,85 @@
+// src/ai/api/performance/cache/PredictiveCache.ts
+export interface CacheConfig {
+    maxSize: number;
+    ttl: number; // Time to live in ms
+    predictionThreshold: number; // 0-1, seuil de prédiction pour pré-chargement
+}
+
+export class PredictiveCache<K, V> {
+    private cache = new Map<K, { value: V, expiresAt: number, usageCount: number }>();
+    private usagePatterns = new Map<K, Set<K>>();
+    private config: CacheConfig;
+
+    constructor(config: CacheConfig) {
+        this.config = config;
+    }
+
+    set(key: K, value: V): void {
+        const expiresAt = Date.now() + this.config.ttl;
+        this.cache.set(key, { value, expiresAt, usageCount: 0 });
+        this.pruneCache();
+    }
+
+    get(key: K): V | undefined {
+        const entry = this.cache.get(key);
+        if (!entry || entry.expiresAt < Date.now()) {
+            if (entry) {
+                this.cache.delete(key);
+            }
+            return undefined;
+        }
+
+        // Mettre à jour les statistiques d'usage
+        entry.usageCount++;
+
+        // Précharger les entrées potentiellement suivantes
+        this.predictAndPreload(key);
+
+        return entry.value;
+    }
+
+    private predictAndPreload(key: K): void {
+        // Mise à jour des patterns d'utilisation
+        const lastUsedKey = this._lastUsedKey;
+        if (lastUsedKey !== undefined && lastUsedKey !== key) {
+            if (!this.usagePatterns.has(lastUsedKey)) {
+                this.usagePatterns.set(lastUsedKey, new Set());
+            }
+            this.usagePatterns.get(lastUsedKey)!.add(key);
+        }
+        this._lastUsedKey = key;
+
+        // Prédiction des prochaines entrées à utiliser
+        const predictedKeys = this.predictNextKeys(key);
+        // Préchargement asynchrone pourrait être implémenté ici
+
+        console.log(`Predicted next keys after ${String(key)}: ${[...predictedKeys].map(k => String(k)).join(', ')}`);
+    }
+
+    private predictNextKeys(key: K): Set<K> {
+        if (!this.usagePatterns.has(key)) {
+            return new Set();
+        }
+
+        // Récupérer toutes les clés qui suivent habituellement la clé actuelle
+        return this.usagePatterns.get(key)!;
+    }
+
+    private pruneCache(): void {
+        // Si le cache dépasse la taille maximale, supprimer les entrées les moins utilisées
+        if (this.cache.size <= this.config.maxSize) {
+            return;
+        }
+
+        const entries = [...this.cache.entries()]
+            .sort((a, b) => a[1].usageCount - b[1].usageCount);
+
+        const toRemove = entries.slice(0, entries.length - this.config.maxSize);
+        for (const [key] of toRemove) {
+            this.cache.delete(key);
+        }
+    }
+
+    // Propriété privée pour suivre la dernière clé utilisée
+    private _lastUsedKey?: K;
+}

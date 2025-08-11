@@ -1,0 +1,72 @@
+stateDiagram-v2
+    [*] --> ValidationInitiale
+    ValidationInitiale --> SystemeControleEthique
+    SystemeControleEthique --> SystemePrincipal
+
+    state "SystemePrincipal" as SP {
+        state "SystemePersonnalisation" as SysP {
+            state "AdaptationUtilisateur" as AU 
+            state "PersonnalisationAvancee" as PA
+            state "AdaptationAccessibilite" as AA
+            
+            AU --> PA
+            PA --> AA
+        }
+
+        state "SystemeMultilingue" as SM {
+            state "GestionVariantesLSF" as GV
+            state "TraductionCroisee" as TC
+            state "AdaptationCulturelle" as AC
+            
+            GV --> TC
+            TC --> AC
+        }
+
+        state "InteractionTempsReel" as ITR {
+            state "OptimisationLatence" as OL
+            state "FeedbackInstantane" as FI
+            state "SynchronisationMultimodale" as SMM
+            
+            OL --> FI
+            FI --> SMM
+        }
+
+        state "RealiteEtendue" as RE {
+            state "IntegrationAR" as IAR
+            state "ExperienceVR" as EVR
+            state "FusionRealites" as FR
+            
+            IAR --> EVR
+            EVR --> FR
+        }
+
+        state "ApprentissageAvance" as AAV {
+            state "ApprentissageRenforce" as AR
+            state "FeedbackUtilisateur" as FU
+            state "ValidationCommunautaire" as VC
+            
+            AR --> FU
+            FU --> VC
+        }
+
+        state "SystemeEmotionnelAvance" as SEA {
+            state "ReconnaissanceEmotions" as REC
+            state "ExpressionEmotionnelle" as EE
+            state "SynchronisationEmotionnelle" as SEM
+            
+            REC --> EE
+            EE --> SEM
+        }
+    }
+
+    state "AvatarSourd" as AS
+    state "AvatarEntendant" as AE
+
+    SysP --> AS
+    SysP --> AE
+    SM --> AS
+    ITR --> SEA
+    RE --> ITR
+    AAV --> SP
+    SEA --> AS
+    SEA --> AE

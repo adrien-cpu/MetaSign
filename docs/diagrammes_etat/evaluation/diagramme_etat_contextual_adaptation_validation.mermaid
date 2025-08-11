@@ -1,0 +1,45 @@
+stateDiagram-v2
+    [*] --> PréparationDesDonnées
+
+    PréparationDesDonnées --> VérificationCohérence : charger émotion et contexte
+    VérificationCohérence --> AnalyseDesModifications : valider logique adaptations
+    AnalyseDesModifications --> ContrôleAuthenticitéCulturelle : vérifier fidélité culturelle
+    ContrôleAuthenticitéCulturelle --> ÉvaluationPertinenceContextuelle : scorer alignement contexte
+    ÉvaluationPertinenceContextuelle --> CompilationDesRésultats : agréger scores et verdicts
+    CompilationDesRésultats --> TransmissionFeedback : log et feedback au système
+    TransmissionFeedback --> [*]
+
+    state VérificationCohérence {
+        [*] --> ValidationIntensité
+        ValidationIntensité --> VérificationTypeEmotion
+        VérificationTypeEmotion --> VérificationComposantsEmotion
+        VérificationComposantsEmotion --> [*]
+    }
+
+    state AnalyseDesModifications {
+        [*] --> AnalyseGestuelle
+        AnalyseGestuelle --> AnalyseFaciale
+        AnalyseFaciale --> AnalysePosturale
+        AnalysePosturale --> [*]
+    }
+
+    state ContrôleAuthenticitéCulturelle {
+        [*] --> AlignementAvecNormesCulturelles
+        AlignementAvecNormesCulturelles --> RespectDesSignesTraditionnels
+        RespectDesSignesTraditionnels --> SensibilitéContextuelle
+        SensibilitéContextuelle --> [*]
+    }
+
+    state ÉvaluationPertinenceContextuelle {
+        [*] --> PertinenceSociale
+        PertinenceSociale --> PertinenceNarrative
+        PertinenceNarrative --> PertinenceTemporelle
+        PertinenceTemporelle --> [*]
+    }
+
+    state TransmissionFeedback {
+        [*] --> LogDiagnostic
+        LogDiagnostic --> RecommandationsIA
+        RecommandationsIA --> HistorisationValidation
+        HistorisationValidation --> [*]
+    }

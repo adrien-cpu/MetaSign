@@ -1,0 +1,158 @@
+```mermaid
+    %% Structure de base
+    [*] --> ValidationInitiale
+    ValidationInitiale --> SystemeControleEthique : Verification demarrage
+    SystemeControleEthique --> Linguistes : Autorisation validee
+
+    %% Système de Contrôle Éthique Principal
+    state "SystemeControleEthique" as SCE {
+        state "LoisAsimov" as LA {
+            ProtectionHumain --> ObeissanceOrdres
+            ObeissanceOrdres --> AutoProtection
+        }
+        state "ConformiteReglementaire" as CR {
+            ConformiteEuropeenne --> ConformiteRGPD
+            ReglesSecurite --> AuditsAutomatiques
+            ValidationEthique --> CertificationContinue
+        }
+        state "SupervisionMultiNiveau" as SM {
+            ControleCommunautaire --> ValidationExperts
+            ValidationExperts --> AutoritesCompetentes
+            SupervisionContinue --> AjustementComportement
+        }
+    }
+
+    %% Système IA Core Amélioré
+    state "SystemeIACore" as IACore {
+        state "IAReflexive" as IR {
+            AutoEvaluation --> OptimisationSysteme
+            OptimisationSysteme --> ApprentissageContinu
+        }
+        state "IAEmpathique" as IE {
+            AnalyseEmotions --> ComprehensionContexte
+            ComprehensionContexte --> AdaptationEmotionnelle
+        }
+        state "IACreative" as IC {
+            GenerationPatterns --> ValidationInnovation
+            ValidationInnovation --> IntegrationSysteme
+        }
+        state "IAMnemonique" as IM {
+            MemoireLongTerme --> AnalysePatterns
+            AnalysePatterns --> OptimisationApprentissage
+        }
+    }
+
+    %% Nouveau: Analyse Comportementale Avancée
+    state "AnalyseComportementale" as ACA {
+        state "PatternDetection" as PD {
+            TemporalDetection --> AccessDetection
+            AccessDetection --> ResourceDetection
+            ResourceDetection --> InteractionDetection
+        }
+        state "AnomalyManagement" as AM {
+            AnomalyIdentification --> SeverityClassification
+            SeverityClassification --> ResponseGeneration
+        }
+        state "ProfileAdaptation" as PA {
+            LearningPhase --> NormalPhase
+            NormalPhase --> ContinuousAdaptation
+        }
+    }
+
+    %% Nouveau composant: Validation Collaborative
+    state "ValidationCollaborative" as VC {
+        state "ClubsThematiques" as CT {
+            HistoireLSF --> ValidateurNatif
+            Etymologie --> ValidateurNatif
+            PratiquesCulturelles --> ValidateurNatif
+        }
+        state "ValidationCroisee" as VCr {
+            PropositionIA --> AvisExperts
+            AvisExperts --> IntegrationDonnees
+        }
+        state "MecanismeConsensus" as MC {
+            CollecteAvis --> CalculConsensus
+            CalculConsensus --> ValidationFinale
+        }
+    }
+
+    %% Nouveau composant: Apprentissage Observationnel
+    state "ApprentissageObservationnel" as AO {
+        state "CollecteInteractions" as CI {
+            CaptureTeams --> AnalyseContextuelle
+            AnalyseContextuelle --> ExtractionMotifs
+        }
+        state "TraitementVideos" as TV {
+            AnalyseVisuelle --> DetectionExpression
+            DetectionExpression --> ClassificationPatterns
+        }
+        state "ComparisonAvatarHumain" as CAH {
+            AnalyseEcarts --> OptimisationNaturalite
+        }
+    }
+
+    %% Nouveau: Gestion des variations dialectales
+    state "GestionVariantesDiatopiques" as GVD {
+        state "CartographieRegionale" as CR2 {
+            IdentificationVariantes --> ClassificationLocale
+            ClassificationLocale --> MappingRelationnel
+        }
+        state "AdaptationContextuelle" as AC {
+            DetectionOrigineSigneur --> SelectionVarianteAdaptee
+            SelectionVarianteAdaptee --> SubstitutionDynamique
+        }
+    }
+
+    %% Nouveau: Gestion de l'espace de signation
+    state "GestionEspaceSpatial" as GES {
+        state "ConstructionReferences" as CRef {
+            EtablissementPoints --> MaintienCoherence
+            ReactivationReferences --> ActualisationDynamique
+        }
+        state "CartographieMentale" as CM {
+            SuiviReferencesSpatiales --> ReutilisationCoherente
+            MecanismesPointages --> MemoireContextuelle
+        }
+    }
+
+    %% Niveaux de la Pyramide IA
+    state "PyramideIALSF" as PIR {
+        state "IA Exploratrices et Predictives" as IEP {
+            VeilleInnovation --> PredictionBesoins
+            PredictionBesoins --> AdaptationProactive
+        }
+        
+        state "IA Analystes" as IA2 {
+            SegmentationApprenants --> PersonnalisationRetours
+            AnalyseProgressions --> RecommandationsAdaptees
+        }
+        
+        state "IA Ethiciennes et Auditrices" as IEA {
+            AnalyseBiais --> GarantieEquite
+            AuditContinu --> RapportsConformite
+        }
+    }
+
+    %% Connexions principales entre composants
+    SCE --> IACore : Validation ethique
+    IACore --> Linguistes : Traitement cognitif
+    Linguistes --> ACA : Analyse comportement
+    
+    VC --> Linguistes : Enrichissement\nnormes
+    VC --> SCE : Validation\nethique communautaire
+    
+    AO --> IACore : Amelioration\npar observation
+    AO --> VC : Validation\npatterns observes
+    
+    GVD --> Linguistes : Enrichissement\ndialectal
+    GVD --> VC : Validation\nvariantes
+    
+    GES --> IACore : Structure\nspatiale
+    GES --> AO : Patrons\nspatiaux observes
+    
+    PIR --> SCE : Controle\nethique
+    PIR --> IACore : Capacites\ncognitives
+    ACA --> PIR : Insights\ncomportementaux
+    
+    ACA --> SCE : Alertes\nanomalie
+    ACA --> IACore : Adaptation\ncomportementale

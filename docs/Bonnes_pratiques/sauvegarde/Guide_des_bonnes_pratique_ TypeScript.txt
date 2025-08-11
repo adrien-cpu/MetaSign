@@ -1,0 +1,165 @@
+# Bonnes pratiques pour TypeScript : Guide d'instructions
+
+## 1. Gestion des erreurs et exceptions
+
+### Optional Catch Binding (ES2019+)
+- **À utiliser** : Quand vous interceptez une erreur mais n'avez pas besoin d'y accéder
+```typescript
+try {
+    riskyOperation();
+} catch {
+    // Ignorer complètement l'erreur
+}
+```
+
+### Utilisation du underscore (_) pour les variables d'erreur
+- **À utiliser** : Quand vous devez avoir un paramètre mais n'y accédez pas
+```typescript
+try {
+    riskyOperation();
+} catch (_) {
+    // Erreur explicitement ignorée mais doit être définie pour une raison quelconque
+    // Par exemple si d'autres outils d'analyse requièrent un paramètre
+}
+```
+
+## 2. Variables et paramètres non utilisés
+
+### Paramètres de fonction non utilisés
+- **À utiliser** : Le préfixe underscore pour les paramètres requis mais non utilisés
+```typescript
+function processData(data: string[], _options: Options): void {
+    // _options est requis par la signature d'API mais non utilisé dans l'implémentation
+}
+```
+
+### Déstructuration partielle
+- **À utiliser** : Quand vous extrayez uniquement certaines propriétés d'un objet
+```typescript
+const { name, age, _ignored, ...rest } = person;
+```
+
+## 3. Propriétés de classe et visibilité
+
+### Propriétés privées
+- **À utiliser** : Le modificateur `private` pour réellement masquer une propriété
+```typescript
+class User {
+    private id: string;
+    // Correctement encapsulé, ne sera pas accessible hors de la classe
+}
+```
+
+### Convention underscore préfixé (à éviter en TypeScript moderne)
+- **À éviter** : L'ancienne convention qui préfixait les propriétés "privées" avec _
+```typescript
+class User {
+    _id: string; // Ancienne convention, techniquement toujours accessible
+}
+```
+
+### Propriétés privées ECMAScript (alternative moderne)
+- **Alternative valide** : La nouvelle syntaxe JavaScript avec # pour les propriétés privées
+```typescript
+class User {
+    #id: string; // Réellement privée au niveau du langage
+}
+```
+
+## 4. Autres conventions importantes
+
+### Paramètres REST non utilisés
+- **À utiliser** : Pour capturer mais ignorer les arguments restants
+```typescript
+function takeFirst(first: string, ..._rest: string[]): string {
+    return first;
+}
+```
+
+### Valeur ignorée dans les boucles
+- **À utiliser** : Quand seul l'index est nécessaire
+```typescript
+for (const _ of items) {
+    // Ne s'intéresse pas à la valeur
+    count++;
+}
+
+// Ou avec forEach
+items.forEach((_, index) => {
+    // Ne s'intéresse qu'à l'index
+});
+```
+
+### Destructuration avec renommage
+- **À utiliser** : Pour éviter des collisions de noms
+```typescript
+const { prop: renamedProp, _ } = object;
+```
+
+## Résumé des règles essentielles
+
+1. **En TypeScript moderne, utilisez les modificateurs d'accès** (`private`, `protected`, `public`) plutôt que des conventions de nommage.
+
+2. **Utilisez `catch` sans paramètre** quand vous interceptez une erreur mais n'avez pas besoin d'y accéder.
+
+3. **Le underscore `_` pour les variables** indique intentionnellement que la variable est captée mais non utilisée.
+
+4. **Le underscore préfixé pour les propriétés de classe** est une ancienne convention qui doit être remplacée par `private` en TypeScript.
+
+5. **Ne confondez pas `_` pour variables non utilisées** et `_propertyName` qui était utilisé pour simuler des propriétés privées dans l'ancien JavaScript.
+
+
+# Règle de non-assignation d'undefined aux propriétés optionnelles
+
+C'est un excellent ajout pour les bonnes pratiques ! Voici comment je formulerais cette règle :
+
+## Règle de non-assignation d'undefined aux propriétés optionnelles
+
+### Description
+Avec `exactOptionalPropertyTypes: true`, TypeScript fait une distinction stricte entre une propriété optionnelle absente et une propriété présente mais définie comme `undefined`. Il est incorrect d'assigner explicitement `undefined` à une propriété optionnelle.
+
+### Incorrect ❌
+```typescript
+// Assigner directement undefined à une propriété optionnelle
+const data = {
+  id: 123,
+  details: undefined  // Erreur avec exactOptionalPropertyTypes: true
+};
+
+// Retourner un objet avec une propriété optionnelle qui pourrait être undefined
+function getData(): { id: number, details?: string } {
+  const details = condition ? "info" : undefined;
+  return { id: 123, details };  // Erreur potentielle
+}
+```
+
+### Correct ✅
+```typescript
+// Omettre complètement la propriété optionnelle quand elle n'est pas définie
+const data = {
+  id: 123
+  // 'details' est omis complètement au lieu d'être défini comme undefined
+};
+
+// Construction conditionnelle de l'objet
+function getData(): { id: number, details?: string } {
+  const result = { id: 123 };
+  if (condition) {
+    result.details = "info";
+  }
+  return result;
+}
+
+// Ou avec la syntaxe de propagation
+function getDataAlt(): { id: number, details?: string } {
+  return {
+    id: 123,
+    ...(condition ? { details: "info" } : {})
+  };
+}
+```
+
+### Explication
+Cette distinction existe car TypeScript considère qu'une propriété optionnelle (`prop?:`) représente conceptuellement une propriété qui peut être absente, pas une propriété qui peut être `undefined`. Assigner explicitement `undefined` contredit cette logique.
+
+Cette règle permet d'éviter des erreurs subtiles et de mieux exprimer l'intention du code : une propriété manquante est différente d'une propriété explicitement définie comme `undefined`.

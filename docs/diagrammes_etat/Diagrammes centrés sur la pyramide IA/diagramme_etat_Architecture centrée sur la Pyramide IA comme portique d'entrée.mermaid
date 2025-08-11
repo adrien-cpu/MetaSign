@@ -1,0 +1,131 @@
+stateDiagram-v2
+    %% Points d'entrée
+    [*] --> RequeteUtilisateur
+    RequeteUtilisateur --> PyramideIA
+    EntreesDonnees --> PyramideIA
+    FeedbackUtilisateur --> PyramideIA
+    AnalyseContextuelle --> PyramideIA
+    
+    %% Structure de la Pyramide IA comme portique central
+    state "PyramideIA" as PYR {
+        state "Niveau 1: IA Exploratrices et Predictives" as N1 {
+            VeilleInnovation --> PredictionBesoins
+            PredictionBesoins --> TransmissionN2
+        }
+        
+        state "Niveau 2: IA Collectrices et Filtrantes" as N2 {
+            ReceptionN1 --> CollecteDonnees
+            CollecteDonnees --> FiltragePertinence
+            FiltragePertinence --> TransmissionN3
+        }
+        
+        state "Niveau 3: IA Preparatrices" as N3 {
+            ReceptionN2 --> PreparationDonnees
+            PreparationDonnees --> TransformationContextuelle
+            TransformationContextuelle --> TransmissionN4
+        }
+        
+        state "Niveau 4: IA Spectatrices et Utilisatrices" as N4 {
+            ReceptionN3 --> EvaluationUsage
+            EvaluationUsage --> OptimisationExperience
+            OptimisationExperience --> TransmissionN5
+        }
+        
+        state "Niveau 5: IA Gestionnaires d'Anomalies" as N5 {
+            ReceptionN4 --> DetectionProblemes
+            DetectionProblemes --> ResolutionAutomatique
+            ResolutionAutomatique --> TransmissionN6
+        }
+        
+        state "Niveau 6: IA Analystes" as N6 {
+            ReceptionN5 --> AnalyseApprofondie
+            AnalyseApprofondie --> RecommandationsPersonnalisees
+            RecommandationsPersonnalisees --> TransmissionN7
+        }
+        
+        state "Niveau 7: IA Mentor et Apprentis" as N7 {
+            ReceptionN6 --> TutoratPersonnalise
+            TutoratPersonnalise --> AdaptationNiveau
+            AdaptationNiveau --> TransmissionN8
+        }
+        
+        state "Niveau 8: IA Generatives" as N8 {
+            ReceptionN7 --> CreationContenu
+            CreationContenu --> PersonnalisationExpressive
+            PersonnalisationExpressive --> TransmissionN9
+        }
+        
+        state "Niveau 9: IA Ethiciennes et Auditrices" as N9 {
+            ReceptionN8 --> VerificationEthique
+            VerificationEthique --> AuditContinueQualite
+            AuditContinueQualite --> TransmissionSortie
+        }
+        
+        %% Connexions verticales explicites entre niveaux
+        TransmissionN2 --> ReceptionN2
+        TransmissionN3 --> ReceptionN3
+        TransmissionN4 --> ReceptionN4
+        TransmissionN5 --> ReceptionN5
+        TransmissionN6 --> ReceptionN6
+        TransmissionN7 --> ReceptionN7
+        TransmissionN8 --> ReceptionN8
+        TransmissionN9 --> ReceptionN9
+    }
+    
+    %% Sorties de la pyramide vers les manifestations
+    state "SystemesManifestations" as SM {
+        state "AvatarLSF" as ALSF {
+            ConfigurationExpressive --> RenderingVisuel
+            RenderingVisuel --> TransmissionUtilisateur
+        }
+        
+        state "ExtensionsWebStreaming" as EWS {
+            IntegrationNavigateurs --> IntegrationPlateformes
+            IntegrationPlateformes --> ExperienceUtilisateur
+        }
+        
+        state "ContenusEducatifs" as CE {
+            MaterialPedagogique --> ExercicesAdaptatifs
+            ExercicesAdaptatifs --> EvaluationsPersonnalisees
+        }
+        
+        state "ApplicationsMobiles" as AM {
+            InterfaceUtilisateur --> InteractionsTempsReel
+            InteractionsTempsReel --> NotificationsContextuelles
+        }
+        
+        state "EnvironnementsImmersifs" as EI {
+            ExperiencesAR --> ExperiencesVR
+            ExperiencesVR --> SimulationsInteractives
+        }
+        
+        state "MetaSign" as MS {
+            TraductionEvenementsPublics --> MediasDirect
+            MediasDirect --> DiffusionAccessible
+        }
+    }
+    
+    %% Connexion entre la pyramide et les manifestations
+    PYR --> SM: Sortie processée
+    
+    %% Connexions spécifiques du dernier niveau vers les manifestations
+    TransmissionSortie --> ALSF: Expression LSF
+    TransmissionSortie --> EWS: Intégration web
+    TransmissionSortie --> CE: Contenu éducatif
+    TransmissionSortie --> AM: Expérience mobile
+    TransmissionSortie --> EI: Expérience immersive
+    TransmissionSortie --> MS: Traduction publique
+    
+    %% Systèmes complémentaires
+    state "SystemesSupport" as SS {
+        state "SystemeControleEthique" as SCE
+        state "FeedbackInterne" as FI
+        state "MonitoringPerformance" as MP
+        state "ValidationCollaborative" as VC
+    }
+    
+    %% Connexions bidirectionnelles avec les systèmes de support
+    PYR <--> SS: Validation & Feedback
+    
+    %% Boucle de retour
+    SM --> FeedbackUtilisateur: Expérience utilisateur

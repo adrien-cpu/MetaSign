@@ -1,0 +1,100 @@
+stateDiagram-v2
+    %% Composants clés de l'architecture existante (simplifiés)
+    state "OrchestrateurCentral" as OC
+    state "SystemeIACore" as IAC
+    state "SystemeExpressions" as SE
+    state "ValidationCollaborative" as VC
+    state "SystemeControleEthique" as SCE
+    state "Linguistes" as LIN
+    state "FeedbackUtilisateurs" as FU
+    state "ApprentissageObservationnel" as AO
+    
+    %% Structure simplifiée de la Pyramide IA
+    state "PyramideIALSF" as PIR {
+        state "Niveau 1: IA Exploratrices et Predictives" as N1 {
+            VeilleInnovation --> PredictionBesoins
+        }
+        
+        state "Niveau 2: IA Collectrices et Filtrantes" as N2 {
+            CollecteDonnees --> FiltragePertinence
+        }
+        
+        state "Niveau 3: IA Preparatrices" as N3 {
+            PreparationDonnees --> TransformationContextuelle
+        }
+        
+        state "Niveau 4: IA Spectatrices et Utilisatrices" as N4 {
+            EvaluationUsage --> OptimisationExperience
+        }
+        
+        state "Niveau 5: IA Gestionnaires d'Anomalies" as N5 {
+            DetectionProblemes --> ResolutionAutomatique
+        }
+        
+        state "Niveau 6: IA Analystes" as N6 {
+            AnalyseApprofondie --> RecommandationsPersonnalisees
+        }
+        
+        state "Niveau 7: IA Mentor et Apprentis" as N7 {
+            TutoratPersonnalise --> AdaptationNiveau
+        }
+        
+        state "Niveau 8: IA Generatives" as N8 {
+            CreationContenu --> PersonnalisationExpressive
+        }
+        
+        state "Niveau 9: IA Ethiciennes et Auditrices" as N9 {
+            VerificationEthique --> AuditContinueQualite
+        }
+    }
+    
+    %% Liaisons avec l'Orchestrateur Central
+    OC --> PIR: Distribution requetes
+    PIR --> OC: Resultats traitement
+    
+    %% Intégration avec les systèmes principaux
+    N1 --> IAC: Innovations et predictions
+    N2 --> IAC: Donnees filtrees
+    N3 --> LIN: Transformation donnees
+    N4 --> FU: Optimisation experience
+    N5 --> SCE: Alertes anomalies
+    N6 --> IAC: Insights analytiques
+    N7 --> SE: Adaptation pedagogique
+    N8 --> SE: Contenu personnalise
+    N9 --> SCE: Verification ethique
+    
+    %% Flux bidirectionnels
+    IAC --> PIR: Capacites cognitives
+    SE --> PIR: Expressions et emotions
+    VC --> PIR: Validation humaine
+    AO --> PIR: Apprentissage continu
+    SCE --> PIR: Garde-fous ethiques
+    
+    %% Connexions inter-niveaux pyramide
+    N1 --> N2: Orientations collection
+    N2 --> N3: Donnees a transformer
+    N3 --> N4: Experience a optimiser
+    N4 --> N5: Problemes detectes
+    N5 --> N6: Anomalies pour analyse
+    N6 --> N7: Insights pour tutorat
+    N7 --> N8: Besoins contenu personnalise
+    N8 --> N9: Contenu pour validation
+    
+    %% Système de feedback interne (connexion)
+    state "SystemeFeedbackInterne" as SFI
+    PIR --> SFI: Auto-evaluation complete
+    SFI --> PIR: Plans amelioration
+    
+    %% Les applications concrètes
+    state "ApplicationsConcretes" as AC {
+        state "EnseignementMatieres" as EM
+        state "ApprentissageLSF" as AL
+        state "CommunicationQuotidienne" as CQ
+        state "ProductionContenuEducatif" as PCE
+    }
+    
+    PIR --> AC: Application pratique
+    N7 --> EM: Pedagogie adaptee
+    N7 --> AL: Methodes apprentissage
+    N8 --> PCE: Creation contenu
+    N4 --> CQ: Optimisation communication

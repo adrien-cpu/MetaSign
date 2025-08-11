@@ -1,0 +1,75 @@
+Unused dependencies
+* @next-auth/prisma-adapter
+* @radix-ui/react-label
+* @radix-ui/react-progress
+* @radix-ui/react-slider
+* @radix-ui/react-tooltip
+* class-variance-authority
+* faiss-node
+* next-themes
+* react-dnd
+* react-dnd-html5-backend
+* socket.io
+* sonner
+Unused devDependencies
+* @types/jest
+* depcheck
+* dependency-cruiser
+* jest
+* madge
+* postcss
+* ts-jest
+* ts-prune
+* typedoc
+* unimported
+Missing dependencies
+* @radix-ui/react-separator: ./src/components/ui/separator.tsx
+* @ai-types/lsf: ./src/components/lsf/ProsodicPatternsViewer.tsx
+* @ai/systems: ./src/components/lsf/ProsodicPatternsViewer.tsx
+* date-fns: ./src/app/modules/protected/admin/optimization/components/alerts/AlertCard.tsx
+* src: ./src/app/modules/protected/admin/db/semantic-db.tsx
+* @ai/base: ./src/ai/validation/ValidationCollaborative.ts
+* @ai/coordinators: ./src/ai/validation/ValidationCollaborative.ts
+* @ai/utils: ./src/ai/validation/ValidationCollaborative.ts
+* @ai/validation: ./src/ai/validation/ValidationCollaborative.ts
+* @ai/spatial: ./src/ai/types/lsf.ts
+* @ai-types/feedback: ./src/ai/types/feedback/expression.ts
+* @ai-types/systems: ./src/ai/types/feedback/validators/interfaces/ISpatialValidator.ts
+* @api/core: ./src/ai/systems/SystemeExpressions.ts
+* @api/common: ./src/ai/systems/SystemeExpressions.ts
+* @ai/performance: ./src/ai/systems/integration/MistralTransitionAdapter.ts
+* @ai-types/expressions: ./src/ai/systems/expressions/ExpressionPipeline.ts
+* jest-extended: ./src/ai/systems/expressions/situations/educational/special_needs/tracking/__tests__/customMatchers.ts
+* @ai-types/adaptation-types: ./src/ai/systems/expressions/situations/educational/special_needs/adaptations/AdvancedFeaturesAdapter.ts
+* @spatial/types: ./src/ai/systems/expressions/prosodic/LSFProsodicPatterns.ts
+* @ai/specialized: ./src/ai/systems/expressions/emotions/LSFContextualEmotionSystem.ts
+* @ai/emotions: ./src/ai/systems/expressions/emotions/LSFEmotionSystem.ts
+* @ai-types/lsf-complex-emotions.types: ./src/ai/systems/expressions/cultural/LSFComplexEmotions.ts
+* @ai-types/cultural-test-types: ./src/ai/systems/expressions/cultural/__tests__/utils/CulturalTestUtilities.ts
+* @spatial/cache: ./src/ai/specialized/spatial/SpatialStructureManager.ts
+* @ai/ethics: ./src/ai/specialized/emotional/VocalEmotionValidator.ts
+* @spatial/reference: ./src/ai/spatial/GestionEspaceSpatial.ts
+* @spatial/validation: ./src/ai/spatial/GestionEspaceSpatial.ts
+* @ai/api: ./src/ai/security/types/features.ts
+* @ai/security: ./src/ai/security/core/SecurityCore.ts
+* @ai/pyramid: ./src/ai/pyramid/PyramideIACore.test.ts
+* @ai/types: ./src/ai/pyramid/types.ts
+* @ai-types/cache: ./src/ai/performance/cache/MultiLevelCache.ts
+* @ai-types/index: ./src/ai/multimodal/fusion/ModalityFusionEngine.ts
+* @ai-types/model-integration: ./src/ai/integration/SystemeIntegrationMistral.ts
+* @ai/feedback: ./src/ai/feedback/validators/types.ts
+* @ai-types/base: ./src/ai/ethics/core/SystemeControleEthique.ts
+* @ai/cultural: ./src/ai/cultural/GestionVariantesDiatopiques.ts
+* @ai/multimodal: ./src/ai/coordinators/RouterMultimodal.ts
+* @ai/monitoring: ./src/ai/coordinators/RouterMultimodal.ts
+* @ai-types/monitoring: ./src/ai/coordinators/RouterMultimodal.ts
+* @ai/learning: ./src/ai/coordinators/SystemeOrchestrateurCentral.ts
+* @ai-types/orchestration.types: ./src/ai/coordinators/interfaces/IOrchestrator.ts
+* @ai-types/conversational: ./src/ai/conversational/SystemeConversationnelAvance.ts
+* @ai-types/IAState: ./src/ai/base/IACore.ts
+* @security/types: ./src/ai/api/security/types/perimeter-types.ts
+* @ethics/core: ./src/ai/api/security/perimeter/validation/PerimeterValidation.ts
+* @security/audit: ./src/ai/api/security/intelligence/SecurityThreatIntelligence.ts
+* @api/security: ./src/ai/api/core/middleware/tests/IntrusionDetectionMiddleware.test.ts
+* @security/authentication: ./src/ai/api/core/middleware/__tests__/SecurityMiddleware.test.ts
+* express: ./examples/express-integration.ts

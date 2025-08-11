@@ -1,0 +1,123 @@
+stateDiagram-v2
+    [*] --> ValidationInitiale
+    ValidationInitiale --> SystemeControleEthique: Verification
+    SystemeControleEthique --> SystemePrincipal: Autorisation validee
+
+    state "SystemePrincipal" as SP {
+        state "SystemePersonnalisation" as SysP {
+            state "AdaptationUtilisateur" as AU {
+                PreferencesPersonnelles --> StyleSignature
+                StyleSignature --> AdaptationVisuelle
+                AdaptationVisuelle --> ValidationPreferences
+            }
+            state "PersonnalisationAvancee" as PA {
+                ApprentissagePreferences --> OptimisationStyle
+                OptimisationStyle --> ValidationPersonnalisation
+            }
+            state "AdaptationAccessibilite" as AA {
+                DetectionBesoins --> ConfigurationAccessible
+                ConfigurationAccessible --> ValidationAcces
+            }
+        }
+
+        state "SystemeMultilingue" as SM {
+            state "GestionVariantesLSF" as GV {
+                LSFRegional --> VariantesInternationales
+                VariantesInternationales --> AdaptationLocale
+            }
+            state "TraductionCroisee" as TC {
+                LSFversASL --> LSFversBSL
+                TraductionContextuelle --> ValidationCulturelle
+            }
+            state "AdaptationCulturelle" as AC {
+                ContexteCulturel --> AjustementLocal
+                AjustementLocal --> ValidationAuthentique
+            }
+        }
+
+        state "InteractionTempsReel" as ITR {
+            state "OptimisationLatence" as OL {
+                ReductionDelai --> ValidationFluidite
+                ValidationFluidite --> AjustementDynamique
+            }
+            state "FeedbackInstantane" as FI {
+                AnalyseReponse --> AdaptationImmediate
+                AdaptationImmediate --> ValidationUtilisateur
+            }
+            state "SynchronisationMultimodale" as SMM {
+                SyncGestes --> SyncExpressions
+                SyncExpressions --> ValidationGlobale
+            }
+        }
+
+        state "RealiteEtendue" as RE {
+            state "IntegrationAR" as IAR {
+                ProjectionHolographique --> InteractionSpatiale
+                InteractionSpatiale --> ValidationImmersive
+            }
+            state "ExperienceVR" as EVR {
+                EnvironnementVirtuel --> InteractionNaturelle
+                InteractionNaturelle --> ValidationPresence
+            }
+            state "FusionRealites" as FR {
+                IntegrationMixte --> OptimisationExperience
+                OptimisationExperience --> ValidationUtilisateur
+            }
+        }
+
+        state "ApprentissageAvance" as AAV {
+            state "ApprentissageRenforce" as AR {
+                CollecteDonnees --> AnalysePerformance
+                AnalysePerformance --> OptimisationContinue
+            }
+            state "FeedbackUtilisateur" as FU {
+                CollecteRetours --> AnalyseQualitative
+                AnalyseQualitative --> AmeliorationSysteme
+            }
+            state "ValidationCommunautaire" as VC {
+                RetourCommunaute --> IntegrationFeedback
+                IntegrationFeedback --> ValidationAmelioration
+            }
+        }
+
+        state "SystemeEmotionnelAvance" as SEA {
+            state "ReconnaissanceEmotions" as REC {
+                AnalyseContextuelle --> DetectionEmotions
+                DetectionEmotions --> AdaptationExpression
+            }
+            state "ExpressionEmotionnelle" as EE {
+                SynthesiseEmotion --> IntegrationNaturelle
+                IntegrationNaturelle --> ValidationAuthenticite
+            }
+            state "SynchronisationEmotionnelle" as SEM {
+                AdaptationContexte --> SyncMultimodale
+                SyncMultimodale --> ValidationCoherence
+            }
+        }
+    }
+
+    %% Avatars avec personnalisation
+    state "AvatarSourd" as AS {
+        ApparencePersonnalisee --> StyleSignatureAdapte
+        StyleSignatureAdapte --> ExpressionNaturelle
+    }
+    
+    state "AvatarEntendant" as AE {
+        AdaptationStyle --> ExpressionOrale
+        ExpressionOrale --> SynchronisationGlobale
+    }
+
+    %% Interconnexions principales
+    SysP --> AS: Personnalisation
+    SysP --> AE: Adaptation style
+    SM --> AS: Variantes LSF
+    ITR --> SEA: Synchronisation
+    RE --> ITR: Immersion
+    AAV --> SP: Amelioration continue
+    SEA --> AS: Expression emotionnelle
+    SEA --> AE: Adaptation emotions
+
+    note right of SysP: Personnalisation: Preferences utilisateur, Accessibilite, Style signature
+    note right of ITR: Temps Reel: Latence minimale, Feedback instantane, Synchronisation parfaite
+    note right of SEA: Emotions Avancees: Reconnaissance, Expression naturelle, Synchronisation
+    note right of RE: Realite Etendue: AR/VR integree, Interaction naturelle, Experience immersive

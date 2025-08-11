@@ -1,0 +1,18 @@
+/home/adrien/mes_projets/metasign/node_modules/@ts-morph/common/dist/ts-morph-common.js:1897
+            throw this.getFileNotFoundErrorIfNecessary(err, filePath);
+            ^
+
+FileNotFoundError: File not found: /home/adrien/mes_projets/metasign/src/ai/tsconfig.json
+    at RealFileSystemHost.getFileNotFoundErrorIfNecessary (/home/adrien/mes_projets/metasign/node_modules/@ts-morph/common/dist/ts-morph-common.js:1955:50)
+    at RealFileSystemHost.readFileSync (/home/adrien/mes_projets/metasign/node_modules/@ts-morph/common/dist/ts-morph-common.js:1897:24)
+    at TransactionalFileSystem.readFileSync (/home/adrien/mes_projets/metasign/node_modules/@ts-morph/common/dist/ts-morph-common.js:2431:32)
+    at TsConfigResolver.getTsConfigFileJson (/home/adrien/mes_projets/metasign/node_modules/@ts-morph/common/dist/ts-morph-common.js:2985:38)
+    at TsConfigResolver.decorator (/home/adrien/mes_projets/metasign/node_modules/@ts-morph/common/dist/ts-morph-common.js:2811:46)
+    at TsConfigResolver.parseJsonConfigFileContent (/home/adrien/mes_projets/metasign/node_modules/@ts-morph/common/dist/ts-morph-common.js:2981:70)
+    at TsConfigResolver.decorator (/home/adrien/mes_projets/metasign/node_modules/@ts-morph/common/dist/ts-morph-common.js:2811:46)
+    at TsConfigResolver.getCompilerOptions (/home/adrien/mes_projets/metasign/node_modules/@ts-morph/common/dist/ts-morph-common.js:2950:21)
+    at TsConfigResolver.decorator (/home/adrien/mes_projets/metasign/node_modules/@ts-morph/common/dist/ts-morph-common.js:2811:46)
+    at getTsConfigCompilerOptions (/home/adrien/mes_projets/metasign/node_modules/ts-morph/dist/ts-morph.js:20009:111) {
+  path: '/home/adrien/mes_projets/metasign/src/ai/tsconfig.json',
+  code: 'ENOENT'
+}

@@ -1,0 +1,42 @@
+Voir les fichiers qui ont plus de 500 lignes
+
+find ./src -name "*.ts" -type f | while read file; do
+    count=$(grep -Ev '^\s*(//|/\*|\*|\*/|$)' "$file" | wc -l);
+    [ "$count" -gt 500 ] && printf "%-50s → %5d lignes\n" "$file" "$count";
+done | sort -nrk3
+
+Voir les erreurs de typescript
+npx tsc --noEmit --Watch
+
+Voir les erreurs de Eslint
+npm run lint
+
+unimported (spécial fichiers inutilisés) 🔥🔥🔥 (très recommandé !)
+unimported est très efficace pour trouver tous les fichiers inutilisés.
+npx unimported
+
+
+ ts-prune (pour TypeScript) 🔥 (recommandé)
+Un excellent outil qui détecte les exports inutilisés en TypeScript.
+npx ts-prune
+
+
+depcheck (JavaScript/TypeScript) 🔥 (utile)
+Vérifie les dépendances et fichiers inutilisés.
+npx depcheck
+
+madge (visualisation et analyse) 📈
+madge analyse les dépendances de tes modules. Il permet de générer des graphiques visuels très utiles.
+npx madge --orphans ./src
+
+
+ génère une image avec les dépendances visuelles.)
+npx madge --extensions ts,tsx --exclude='(test|spec)\.tsx?' --image deps.png ./src
+
+
+Commande pour lister les fichiers "orphelins" uniquement :
+npx madge --orphans --extensions ts,tsx ./src
+
+Générer un rapport HTML interactif:
+npx depcruise --include-only "^src" --output-type html ./src > dependencies.html
+

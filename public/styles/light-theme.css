@@ -1,0 +1,256 @@
+/* light-theme.css */
+:root {
+  --color-primary-light: #d8dadd;
+  --background-light: #e2e8f0;
+  --text-light: #000000;
+  --title-font-size-adjust: 0.700;
+  --description-font-size-adjust: 0.600;
+
+  /* Par défaut : thème clair */
+  --primary-color: var(--color-primary-light);
+  --background-color: var(--background-light);
+  --text-color: var(--text-light);
+  --text-title: var(--title-font-size-adjust);
+  --text-description: var(--description-font-size-adjust);
+  --shadow-color: var(--shadow-color);
+  --aply_shadow: var(--shadow);
+}
+
+body {
+  background: var(--background-color);
+  color: var(--text-color);
+}
+
+/* styles.css */
+.overlay {
+  position: fixed;
+  top: 64px;
+  bottom: 64px;
+  right: 0;
+  width: 256px;
+  background-color: #1f2937;
+  color: white;
+  z-index: 50;
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+.overlay.open {
+  transform: translateX(0);
+}
+
+.input {
+  padding: 0.5rem 1rem;
+  /* px-4 py-2 */
+  border: 1px solid #6b7280;
+  /* border-gray-400 */
+  border-radius: 0.5rem;
+  /* rounded-lg */
+  background-color: white;
+  /* bg-white */
+  color: black;
+  /* text-black */
+  outline: none;
+  /* focus:outline-none */
+}
+
+.input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px #3b82f6;
+  /* focus:ring-2 focus:ring-blue-500 */
+}
+
+/* Styles pour les placeholders */
+input::placeholder,
+textarea::placeholder {
+  color: #031636;
+  /* Couleur du texte du placeholder */
+  opacity: 1;
+  /* Opacité du texte du placeholder */
+  font-size: 1rem;
+  /* Taille de la police du placeholder */
+  font-style: italic;
+  /* Style de la police du placeholder */
+}
+
+/* Styles pour les placeholders lorsque le champ est focalisé */
+input:focus::placeholder,
+textarea:focus::placeholder {
+  color: #6b7280;
+  /* Couleur du texte du placeholder lorsque le champ est focalisé */
+}
+
+/* Styles globaux pour les tuiles */
+.tile {
+  background: var(--primary-color);
+  /* bg-slate-200 */
+  border-bottom: 2px solid var(--primary-color);
+  /* bottom-2 border-white */
+  color: var(--text-color);
+  /* text-black */
+  margin: 0.5rem 1.25rem;
+  /* my-2 mx-5 */
+  padding: 2.5rem 2.5rem 2.5rem;
+  /* px-10 py-10 pb-10 */
+  border-radius: 0.75rem;
+  /* rounded-lg */
+  box-shadow: 0 4px 6px rgba(137, 136, 136, 0.366);
+  /* shadow-md */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  /* items-start */
+  min-width: 100px;
+  /* min-w-[100px] */
+  min-height: 300px;
+  /* min-h-[300px] */
+  width: 100%;
+  /* w-full*/
+  height: 100%;
+  /* w-full*/
+  transition: transform 0.2s ease-in-out;
+  /* transition-transform */
+  position: relative;
+  overflow: hidden;
+}
+
+/* Conteneur du titre et de l'icône */
+.tile-header {
+  display: flex;
+  /* flex */
+  align-items: center;
+  /* items-center */
+  gap: 0.5rem;
+  /* gap-2 */
+}
+
+/* Style du texte descriptif */
+.tile-description {
+  color: var(--text-color);
+  /* text-black */
+  font-size-adjust: var(--text-description);
+  /* text-sm */
+  margin-top: 0.5rem;
+  /* mt-2 */
+}
+
+/* Style pour le titre des tuiles */
+.tile-title {
+  color: #facc15;
+  /* text-yellow-400 */
+  font-weight: bold;
+  /* font-bold */
+  font-size-adjust: var(--text-title);
+  /* text-lg */
+}
+
+.tile:hover {
+  transform: scale(1.05);
+}
+
+/* Style pour l'icône */
+.tile-icon {
+  height: 2rem;
+  /* h-6 */
+  width: 2rem;
+  /* w-6 */
+  margin-right: 0.5rem;
+  /* mr-2 */
+}
+
+.tile:hover .tile-icon {
+  color: #fbd38d;
+  /* text-yellow-300 */
+}
+
+.tile-sub {
+  background: white;
+  /* bg-white */
+  color: var(--text-color);
+  /* text-black */
+  padding: 0.75rem;
+  /* p-3 */
+  border-radius: 0.75rem;
+  /* rounded-lg */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* shadow-md */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: auto;
+  /* gap-0.5 */
+}
+
+/* Pied de tile */
+.tile-footer {
+  background: transparent;
+  /* bg-transparent */
+  color: var(--text-color);
+  /* text-black */
+  padding: 0.25rem;
+  /* p-1 */
+}
+
+/* Layout Wrapper Styling */
+.LayoutWrapper {
+  background: none;
+  color: var(--text-color);
+  max-width: 80rem;
+  margin: auto;
+  padding-top: 30px;
+  /* Remplace auto par une valeur fixe */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 120px);
+  margin-top: 0px;
+  margin-bottom: 0px;
+  z-index: 30;
+  padding: 30px;
+  border-radius: 1rem;
+}
+
+/* Card Styling */
+.card {
+  margin: auto;
+  background: var(--primary-color);
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(137, 136, 136, 0.366);
+  padding: 1.5rem;
+  max-width: 48rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card-header {
+
+  color: var(--text-color);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.card-title {
+  color: var(--text-color);
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.card-content {
+  color: var(--text-color);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.card-footer {
+  background: transparent;
+  color: var(--text-color);
+  padding: 1rem;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
