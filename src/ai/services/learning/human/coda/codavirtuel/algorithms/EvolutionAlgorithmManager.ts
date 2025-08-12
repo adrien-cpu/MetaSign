@@ -13,7 +13,9 @@ import type {
     EvolutionEventType,
     EvolutionFactors,
     EvolutionMetrics,
-    EvolutionEvent
+    EvolutionEvent,
+    LearningExperience,
+    EmotionalPattern
 } from '@/ai/services/learning/human/coda/codavirtuel/types/evolution.types';
 
 /**
@@ -132,14 +134,17 @@ export class EvolutionAlgorithmManager {
         this.algorithms.set('plateau_breakthrough', (factors, metrics) => {
             const recentImprovement = this.detectRecentImprovement(factors.recentExperiences);
             const adaptabilityFactor = metrics.adaptability * 0.2;
-            return recentImprovement && metrics.learningSpeed < 0.4 ? 0.25 + adaptabilityFactor : 0;
+            const lowSpeedPenalty = metrics.learningSpeed < 0.4 ? 1.0 : 0.8;
+            return recentImprovement ? (0.25 + adaptabilityFactor) * lowSpeedPenalty : 0;
         });
 
         // Algorithme pour la maîtrise de compétences
         this.algorithms.set('skill_mastery', (factors, metrics) => {
             const masteryCount = factors.memoryMetrics.strongestConcepts.length;
             const efficiencyBonus = metrics.lsfCommunicationEfficiency > 0.7 ? 0.05 : 0;
-            return masteryCount > 5 ? Math.min(0.2, masteryCount * 0.02 + efficiencyBonus) : 0;
+            const confidenceMultiplier = Math.max(0.5, metrics.globalConfidence);
+            const baseScore = masteryCount > 5 ? Math.min(0.2, masteryCount * 0.02 + efficiencyBonus) : 0;
+            return baseScore * confidenceMultiplier;
         });
 
         // Algorithme pour l'augmentation de confiance
@@ -147,9 +152,12 @@ export class EvolutionAlgorithmManager {
             const positiveExperiences = factors.recentExperiences.filter(exp => exp.successRate > 0.7).length;
             const positiveFeedback = factors.feedbackHistory.filter(fb => fb.type === 'positive').length;
             const socialBonus = factors.socialInteractions.length > 0 ? 0.05 : 0;
+            const currentConfidenceModifier = metrics.globalConfidence < 0.5 ? 1.2 : 1.0; // Bonus si confiance faible
 
-            return positiveExperiences > 3 || positiveFeedback > 2 ?
+            const baseBoost = positiveExperiences > 3 || positiveFeedback > 2 ?
                 Math.min(0.25, positiveExperiences * 0.05 + positiveFeedback * 0.03 + socialBonus) : 0;
+
+            return baseBoost * currentConfidenceModifier;
         });
 
         // Algorithme pour l'amélioration de l'adaptabilité
@@ -158,16 +166,22 @@ export class EvolutionAlgorithmManager {
             const challengeOvercome = factors.recentExperiences.some(exp =>
                 exp.challenges.length > 0 && exp.successRate > 0.5
             );
+            const currentAdaptability = metrics.adaptability;
+            const growthPotential = Math.max(0.2, 1 - currentAdaptability); // Plus de potentiel si adaptabilité faible
 
-            return diverseMethods > 2 && challengeOvercome ? Math.min(0.2, diverseMethods * 0.05) : 0;
+            const baseIncrease = diverseMethods > 2 && challengeOvercome ? Math.min(0.2, diverseMethods * 0.05) : 0;
+            return baseIncrease * growthPotential;
         });
 
         // Algorithme pour la croissance émotionnelle
         this.algorithms.set('emotional_growth', (factors, metrics) => {
             const emotionalDiversity = this.calculateEmotionalDiversity(factors.emotionalPatterns);
-            const resilienceImprovement = metrics.emotionalResilience > 0.6 ? 0.05 : 0;
+            const currentResilience = metrics.emotionalResilience;
+            const resilienceBonus = currentResilience > 0.6 ? 0.05 : 0;
+            const growthModifier = currentResilience < 0.5 ? 1.3 : 1.0; // Plus de croissance si résilience faible
 
-            return emotionalDiversity > 0.5 ? Math.min(0.15, emotionalDiversity + resilienceImprovement) : 0;
+            const baseGrowth = emotionalDiversity > 0.5 ? Math.min(0.15, emotionalDiversity + resilienceBonus) : 0;
+            return baseGrowth * growthModifier;
         });
 
         // Algorithme pour l'éveil culturel
@@ -175,26 +189,41 @@ export class EvolutionAlgorithmManager {
             const culturalExposure = factors.recentExperiences.filter(exp =>
                 exp.concept.includes('culture') || exp.concept.includes('communauté')
             ).length;
+            const currentCulturalProgress = metrics.culturalProgress;
+            const progressMultiplier = currentCulturalProgress < 0.3 ? 1.5 : 1.0; // Bonus pour débutants
+            const curiosityBonus = metrics.intellectualCuriosity > 0.7 ? 0.1 : 0;
 
-            return culturalExposure > 0 && metrics.culturalProgress < 0.5 ?
-                Math.min(0.3, culturalExposure * 0.1) : 0;
+            const baseAwakening = culturalExposure > 0 && currentCulturalProgress < 0.5 ?
+                Math.min(0.3, culturalExposure * 0.1 + curiosityBonus) : 0;
+
+            return baseAwakening * progressMultiplier;
         });
 
         // Algorithme pour le développement de préférences
         this.algorithms.set('method_preference', (factors, metrics) => {
             const preferredMethods = this.identifyPreferredMethods(factors.recentExperiences);
             const consistencyScore = this.calculateMethodConsistency(factors.recentExperiences);
+            const adaptabilityFactor = metrics.adaptability > 0.6 ? 1.0 : 1.2; // Bonus si peu adaptable
+            const learningSpeedBonus = metrics.learningSpeed > 0.5 ? 0.02 : 0;
 
-            return preferredMethods.length > 0 && consistencyScore > 0.6 ?
-                Math.min(0.1, consistencyScore * 0.2) : 0;
+            const basePreference = preferredMethods.length > 0 && consistencyScore > 0.6 ?
+                Math.min(0.1, consistencyScore * 0.2 + learningSpeedBonus) : 0;
+
+            return basePreference * adaptabilityFactor;
         });
 
         // Algorithme pour la construction de résilience
         this.algorithms.set('resilience_build', (factors, metrics) => {
             const challengeRecovery = this.calculateChallengeRecovery(factors.recentExperiences);
+            const currentResilience = metrics.emotionalResilience;
             const adaptabilityBonus = metrics.adaptability > 0.5 ? 0.02 : 0;
+            const confidenceSupport = metrics.globalConfidence > 0.6 ? 0.03 : 0;
+            const growthPotential = Math.max(0.3, 1 - currentResilience);
 
-            return challengeRecovery > 0.7 ? Math.min(0.15, challengeRecovery + adaptabilityBonus) : 0;
+            const baseResilience = challengeRecovery > 0.7 ?
+                Math.min(0.15, challengeRecovery + adaptabilityBonus + confidenceSupport) : 0;
+
+            return baseResilience * growthPotential;
         });
 
         // Algorithme pour l'éveil de curiosité
@@ -203,9 +232,15 @@ export class EvolutionAlgorithmManager {
             const questioningBehavior = factors.feedbackHistory.filter(fb =>
                 fb.content.includes('?') || fb.content.includes('pourquoi')
             ).length;
+            const currentCuriosity = metrics.intellectualCuriosity;
+            const learningSpeedBonus = metrics.learningSpeed > 0.4 ? 0.05 : 0;
+            const culturalBonus = metrics.culturalProgress > 0.3 ? 0.03 : 0;
+            const growthModifier = currentCuriosity < 0.6 ? 1.2 : 1.0;
 
-            return explorationRate > 0.3 || questioningBehavior > 0 ?
-                Math.min(0.2, explorationRate + questioningBehavior * 0.05) : 0;
+            const baseCuriosity = explorationRate > 0.3 || questioningBehavior > 0 ?
+                Math.min(0.2, explorationRate + questioningBehavior * 0.05 + learningSpeedBonus + culturalBonus) : 0;
+
+            return baseCuriosity * growthModifier;
         });
 
         this.logger.info('Algorithmes d\'évolution initialisés', {
@@ -244,7 +279,7 @@ export class EvolutionAlgorithmManager {
      * Calcule le taux de réussite moyen des expériences récentes
      * @private
      */
-    private calculateAverageSuccessRate(experiences: readonly any[]): number {
+    private calculateAverageSuccessRate(experiences: readonly LearningExperience[]): number {
         if (experiences.length === 0) return 0;
         return experiences.reduce((sum, exp) => sum + exp.successRate, 0) / experiences.length;
     }
@@ -253,7 +288,7 @@ export class EvolutionAlgorithmManager {
      * Détecte une amélioration récente dans les expériences
      * @private
      */
-    private detectRecentImprovement(experiences: readonly any[]): boolean {
+    private detectRecentImprovement(experiences: readonly LearningExperience[]): boolean {
         if (experiences.length < 2) return false;
 
         const sortedExperiences = [...experiences].sort((a, b) =>
@@ -275,7 +310,7 @@ export class EvolutionAlgorithmManager {
      * Calcule la diversité émotionnelle
      * @private
      */
-    private calculateEmotionalDiversity(patterns: readonly any[]): number {
+    private calculateEmotionalDiversity(patterns: readonly EmotionalPattern[]): number {
         if (patterns.length === 0) return 0;
 
         const uniqueEmotions = new Set(patterns.map(p => p.type));
@@ -286,7 +321,7 @@ export class EvolutionAlgorithmManager {
      * Identifie les méthodes préférées
      * @private
      */
-    private identifyPreferredMethods(experiences: readonly any[]): string[] {
+    private identifyPreferredMethods(experiences: readonly LearningExperience[]): string[] {
         const methodCounts = new Map<string, number>();
 
         experiences.forEach(exp => {
@@ -296,7 +331,7 @@ export class EvolutionAlgorithmManager {
 
         const totalExperiences = experiences.length;
         return Array.from(methodCounts.entries())
-            .filter(([_, count]) => count / totalExperiences > 0.3)
+            .filter(([, count]) => count / totalExperiences > 0.3)
             .map(([method]) => method);
     }
 
@@ -304,7 +339,7 @@ export class EvolutionAlgorithmManager {
      * Calcule la cohérence des méthodes utilisées
      * @private
      */
-    private calculateMethodConsistency(experiences: readonly any[]): number {
+    private calculateMethodConsistency(experiences: readonly LearningExperience[]): number {
         if (experiences.length === 0) return 0;
 
         const methodCounts = new Map<string, number>();
@@ -321,7 +356,7 @@ export class EvolutionAlgorithmManager {
      * Calcule la capacité de récupération face aux défis
      * @private
      */
-    private calculateChallengeRecovery(experiences: readonly any[]): number {
+    private calculateChallengeRecovery(experiences: readonly LearningExperience[]): number {
         const challengingExperiences = experiences.filter(exp => exp.challenges.length > 0);
         if (challengingExperiences.length === 0) return 0;
 
@@ -333,7 +368,7 @@ export class EvolutionAlgorithmManager {
      * Calcule le taux d'exploration
      * @private
      */
-    private calculateExplorationRate(experiences: readonly any[]): number {
+    private calculateExplorationRate(experiences: readonly LearningExperience[]): number {
         if (experiences.length === 0) return 0;
 
         const uniqueConcepts = new Set(experiences.map(exp => exp.concept));

@@ -361,4 +361,335 @@ export class EvolutionPredictor {
             .filter(event => event.affectedMetric === metric)
             .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
-        if
+        if (relevantEvents.length < 2) {
+            return null;
+        }
+
+        // Calculer la tendance linéaire
+        const firstEvent = relevantEvents[0];
+        const lastEvent = relevantEvents[relevantEvents.length - 1];
+
+        const timeDiff = lastEvent.timestamp.getTime() - firstEvent.timestamp.getTime();
+        const valueDiff = lastEvent.newValue - firstEvent.previousValue;
+
+        if (timeDiff === 0) {
+            return null;
+        }
+
+        // Tendance par heure
+        const trend = (valueDiff / timeDiff) * (60 * 60 * 1000);
+
+        // Calculer la confiance basée sur la cohérence des changements
+        const confidence = this.calculateTrendConfidence(relevantEvents);
+
+        return {
+            metric,
+            currentValue: lastEvent.newValue,
+            trend,
+            confidence,
+            dataPoints: relevantEvents.length
+        };
+    }
+
+    /**
+     * Calcule la confiance dans une tendance
+     * @private
+     */
+    private calculateTrendConfidence(events: readonly EvolutionEvent[]): number {
+        if (events.length < 2) {
+            return 0;
+        }
+
+        let consistentChanges = 0;
+        let totalChanges = 0;
+
+        for (let i = 1; i < events.length; i++) {
+            const prevChange = events[i - 1].newValue - events[i - 1].previousValue;
+            const currentChange = events[i].newValue - events[i].previousValue;
+
+            // Vérifier si les changements vont dans la même direction
+            if ((prevChange > 0 && currentChange > 0) || (prevChange < 0 && currentChange < 0) ||
+                (prevChange === 0 && currentChange === 0)) {
+                consistentChanges++;
+            }
+            totalChanges++;
+        }
+
+        const consistency = totalChanges > 0 ? consistentChanges / totalChanges : 0;
+
+        // Ajuster selon le nombre de points de données
+        const dataQualityFactor = Math.min(1, events.length / 5);
+
+        return consistency * dataQualityFactor;
+    }
+
+    /**
+     * Génère des prédictions à partir des tendances
+     * @private
+     */
+    private generatePredictions(
+        trends: Map<keyof EvolutionMetrics, MetricTrend>,
+        parameters: PredictionParameters
+    ): EvolutionPrediction[] {
+        const predictions: EvolutionPrediction[] = [];
+
+        trends.forEach((trend, metric) => {
+            const prediction = this.createPredictionFromTrend(trend, parameters.timeHorizon);
+
+            // Appliquer le lissage
+            const smoothedConfidence = this.applyConfidenceSmoothing(
+                prediction.confidence,
+                parameters.trendSmoothingFactor
+            );
+
+            const smoothedPrediction: EvolutionPrediction = {
+                ...prediction,
+                confidence: smoothedConfidence,
+                predictedValue: Math.max(
+                    parameters.minPredictionValue,
+                    Math.min(parameters.maxPredictionValue, prediction.predictedValue)
+                )
+            };
+
+            predictions.push(smoothedPrediction);
+        });
+
+        return predictions;
+    }
+
+    /**
+     * Crée une prédiction à partir d'une tendance
+     * @private
+     */
+    private createPredictionFromTrend(trend: MetricTrend, timeHorizon: number): EvolutionPrediction {
+        const predictedChange = trend.trend * timeHorizon;
+        const predictedValue = Math.max(0, Math.min(1, trend.currentValue + predictedChange));
+
+        // Facteurs influençants basés sur la tendance
+        const influencingFactors = this.deriveInfluencingFactorsFromTrend(trend);
+
+        // Ajuster la confiance selon l'horizon temporel
+        const timeHorizonFactor = Math.max(0.1, 1 - (timeHorizon / 168)); // Diminue sur 1 semaine
+        const adjustedConfidence = trend.confidence * timeHorizonFactor;
+
+        return {
+            metric: trend.metric,
+            predictedValue,
+            confidence: adjustedConfidence,
+            influencingFactors,
+            timeHorizon
+        };
+    }
+
+    /**
+     * Dérive les facteurs influençants à partir d'une tendance
+     * @private
+     */
+    private deriveInfluencingFactorsFromTrend(trend: MetricTrend): readonly string[] {
+        const factors: string[] = [];
+
+        // Analyser la direction de la tendance
+        if (trend.trend > 0.01) {
+            factors.push('Tendance positive forte');
+        } else if (trend.trend > 0) {
+            factors.push('Tendance positive modérée');
+        } else if (trend.trend < -0.01) {
+            factors.push('Tendance négative forte');
+        } else if (trend.trend < 0) {
+            factors.push('Tendance négative modérée');
+        } else {
+            factors.push('Tendance stable');
+        }
+
+        // Analyser la qualité des données
+        if (trend.dataPoints >= 10) {
+            factors.push('Données historiques riches');
+        } else if (trend.dataPoints >= 5) {
+            factors.push('Données historiques modérées');
+        } else {
+            factors.push('Données historiques limitées');
+        }
+
+        // Analyser la confiance
+        if (trend.confidence > 0.8) {
+            factors.push('Confiance élevée dans la tendance');
+        } else if (trend.confidence > 0.6) {
+            factors.push('Confiance modérée dans la tendance');
+        } else {
+            factors.push('Confiance faible dans la tendance');
+        }
+
+        // Analyser la valeur actuelle
+        if (trend.currentValue > 0.8) {
+            factors.push('Niveau actuel élevé');
+        } else if (trend.currentValue < 0.3) {
+            factors.push('Niveau actuel faible - potentiel d\'amélioration');
+        }
+
+        return factors;
+    }
+
+    /**
+     * Applique un lissage à la confiance
+     * @private
+     */
+    private applyConfidenceSmoothing(confidence: number, smoothingFactor: number): number {
+        // Applique un lissage exponentiel pour éviter les fluctuations extrêmes
+        const smoothed = confidence * smoothingFactor + (1 - smoothingFactor) * 0.5;
+        return Math.max(0, Math.min(1, smoothed));
+    }
+
+    /**
+     * Nettoie le cache des tendances obsolètes
+     * @private
+     */
+    private cleanupCache(): void {
+        const now = Date.now();
+        const studentsToRemove: string[] = [];
+
+        this.lastTrendCalculation.forEach((timestamp, studentId) => {
+            if (now - timestamp.getTime() > this.cacheValidityMs * 2) {
+                studentsToRemove.push(studentId);
+            }
+        });
+
+        studentsToRemove.forEach(studentId => {
+            this.trendCache.delete(studentId);
+            this.lastTrendCalculation.delete(studentId);
+        });
+
+        if (studentsToRemove.length > 0) {
+            this.logger.debug('Cache nettoyé', {
+                removedEntries: studentsToRemove.length
+            });
+        }
+    }
+
+    /**
+     * Démarre le processus de nettoyage automatique du cache
+     * @private
+     */
+    private startCacheCleanup(): void {
+        setInterval(() => {
+            this.cleanupCache();
+        }, this.cacheValidityMs); // Nettoyer toutes les 30 minutes
+    }
+
+    /**
+     * Analyse l'exactitude des prédictions précédentes par rapport aux résultats réels
+     * 
+     * @method analyzePredictionAccuracyOverTime
+     * @param {string} studentId - ID de l'IA-élève
+     * @param {readonly EvolutionPrediction[]} historicalPredictions - Prédictions historiques
+     * @param {EvolutionMetrics} actualMetrics - Métriques réelles observées
+     * @returns {Record<keyof EvolutionMetrics, number>} Précision par métrique
+     * @public
+     */
+    public analyzePredictionAccuracyOverTime(
+        studentId: string,
+        historicalPredictions: readonly EvolutionPrediction[],
+        actualMetrics: EvolutionMetrics
+    ): Record<keyof EvolutionMetrics, number> {
+        const accuracyByMetric: Partial<Record<keyof EvolutionMetrics, number>> = {};
+
+        // Grouper les prédictions par métrique
+        const predictionsByMetric = new Map<keyof EvolutionMetrics, EvolutionPrediction[]>();
+
+        historicalPredictions.forEach(prediction => {
+            if (!predictionsByMetric.has(prediction.metric)) {
+                predictionsByMetric.set(prediction.metric, []);
+            }
+            predictionsByMetric.get(prediction.metric)!.push(prediction);
+        });
+
+        // Calculer la précision pour chaque métrique
+        predictionsByMetric.forEach((predictions, metric) => {
+            const actualValue = actualMetrics[metric];
+
+            const totalAccuracy = predictions.reduce((sum, prediction) => {
+                const error = Math.abs(actualValue - prediction.predictedValue);
+                const maxPossibleError = Math.max(actualValue, prediction.predictedValue, 0.1);
+                const accuracy = Math.max(0, 1 - (error / maxPossibleError));
+                return sum + accuracy;
+            }, 0);
+
+            accuracyByMetric[metric] = predictions.length > 0 ? totalAccuracy / predictions.length : 0;
+        });
+
+        this.logger.debug('Analyse précision prédictions par métrique', {
+            studentId,
+            metricsAnalyzed: Object.keys(accuracyByMetric).length
+        });
+
+        return accuracyByMetric as Record<keyof EvolutionMetrics, number>;
+    }
+
+    /**
+     * Optimise automatiquement les paramètres de prédiction basés sur l'historique
+     * 
+     * @method optimizePredictionParameters
+     * @param {string} studentId - ID de l'IA-élève
+     * @param {Record<keyof EvolutionMetrics, number>} accuracyHistory - Historique de précision
+     * @returns {Partial<PredictionParameters>} Paramètres optimisés
+     * @public
+     */
+    public optimizePredictionParameters(
+        studentId: string,
+        accuracyHistory: Record<keyof EvolutionMetrics, number>
+    ): Partial<PredictionParameters> {
+        const averageAccuracy = Object.values(accuracyHistory).reduce((sum, acc) => sum + acc, 0) /
+            Object.values(accuracyHistory).length;
+
+        // Créer directement l'objet avec les valeurs optimisées
+        let optimizedParams: Partial<PredictionParameters>;
+
+        // Ajuster les paramètres basés sur la précision
+        if (averageAccuracy > 0.8) {
+            // Excellente précision : paramètres permissifs
+            optimizedParams = {
+                confidenceThreshold: 0.5,
+                trendSmoothingFactor: 0.8,
+                timeHorizon: 48
+            };
+        } else if (averageAccuracy < 0.6) {
+            // Précision faible : paramètres conservateurs
+            optimizedParams = {
+                confidenceThreshold: 0.8,
+                trendSmoothingFactor: 0.6,
+                timeHorizon: 12
+            };
+        } else {
+            // Précision moyenne : paramètres standards
+            optimizedParams = {
+                confidenceThreshold: 0.7,
+                trendSmoothingFactor: 0.7,
+                timeHorizon: 24
+            };
+        }
+
+        this.logger.info('Paramètres prédiction optimisés', {
+            studentId,
+            averageAccuracy: averageAccuracy.toFixed(3),
+            optimizedParams
+        });
+
+        return optimizedParams;
+    }
+
+    /**
+     * Nettoie les ressources et arrête les processus automatiques
+     * 
+     * @method shutdown
+     * @returns {void}
+     * @public
+     */
+    public shutdown(): void {
+        // Nettoyer les caches
+        this.trendCache.clear();
+        this.lastTrendCalculation.clear();
+
+        this.logger.info('🛑 Prédicteur d\'évolution arrêté');
+    }
+}
+}
+}
