@@ -5,9 +5,9 @@
 /* dark-theme.css */
 :root {
   /* Thème dark */
-  --color-primary-dark: linear-gradient(to bottom right, #1e293b, #0d253f, #1f2937);
+  --color-primary-dark: #feffff;
   --background-dark: #031022f0;
-  --text-dark: #f8efef;
+  --text-dark: #100202;
   --title-font-size-adjust: 0.700;
   --description-font-size-adjust: 0.600;
 

@@ -352,13 +352,16 @@ export class EvolutionPredictor {
     /**
      * Calcule la tendance pour une métrique spécifique
      * @private
+     * @param {keyof EvolutionMetrics} metricKey - La métrique à analyser
+     * @param {readonly EvolutionEvent[]} history - Historique des événements
+     * @returns {MetricTrend | null} La tendance calculée ou null si impossible
      */
     private calculateMetricTrend(
-        metric: keyof EvolutionMetrics,
+        metricKey: keyof EvolutionMetrics,
         history: readonly EvolutionEvent[]
     ): MetricTrend | null {
         const relevantEvents = history
-            .filter(event => event.affectedMetric === metric)
+            .filter(event => event.affectedMetric === metricKey)
             .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
         if (relevantEvents.length < 2) {
@@ -383,7 +386,7 @@ export class EvolutionPredictor {
         const confidence = this.calculateTrendConfidence(relevantEvents);
 
         return {
-            metric,
+            metric: metricKey,
             currentValue: lastEvent.newValue,
             trend,
             confidence,
@@ -690,6 +693,4 @@ export class EvolutionPredictor {
 
         this.logger.info('🛑 Prédicteur d\'évolution arrêté');
     }
-}
-}
 }

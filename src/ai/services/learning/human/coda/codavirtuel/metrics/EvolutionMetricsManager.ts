@@ -107,22 +107,30 @@ export class EvolutionMetricsManager {
      */
     public updateStudentMetrics(
         studentId: string,
-        updates: Partial<EvolutionMetrics>,
+        updates: Partial<Record<keyof EvolutionMetrics, number>>,
         context?: string
     ): EvolutionMetrics {
-        const currentMetrics = this.studentMetrics.get(studentId) || this.createInitialMetrics();
-        const newMetrics = this.mergeMetrics(currentMetrics, updates);
-        const validatedMetrics = this.validateMetrics(newMetrics);
+        // Récupérer les métriques actuelles ou créer des métriques initiales
+        const existingMetrics = this.studentMetrics.get(studentId);
 
-        // Sauvegarder les anciennes métriques dans l'historique
-        this.saveToHistory(studentId, currentMetrics, context || 'Mise à jour standard');
+        if (existingMetrics) {
+            // Sauvegarder les anciennes métriques dans l'historique
+            this.saveToHistory(studentId, existingMetrics, context || 'Mise à jour standard');
+        }
+
+        // Utiliser les métriques existantes ou créer des métriques initiales
+        const metrics = existingMetrics || this.createInitialMetrics();
+
+        // Fusionner et valider les métriques
+        const newMetrics = this.mergeMetrics(metrics, updates);
+        const validatedMetrics = this.validateMetrics(newMetrics);
 
         // Mettre à jour avec les nouvelles métriques
         this.studentMetrics.set(studentId, validatedMetrics);
 
         this.logger.debug('Métriques mises à jour', {
             studentId,
-            changedMetrics: this.getChangedMetrics(currentMetrics, validatedMetrics),
+            changedMetrics: this.getChangedMetrics(metrics, validatedMetrics),
             context
         });
 
@@ -142,18 +150,23 @@ export class EvolutionMetricsManager {
         const currentMetrics = this.studentMetrics.get(studentId) || this.createInitialMetrics();
         const personality = this.personalityProfiles.get(studentId);
 
+        // Créer un objet pour les mises à jour
+        const updatesObj: Record<string, number> = {};
+
         // Appliquer le changement principal
-        const primaryUpdate: Partial<EvolutionMetrics> = {
-            [event.affectedMetric]: event.newValue
-        };
+        updatesObj[event.affectedMetric] = event.newValue;
 
         // Appliquer les effets secondaires selon la personnalité
         const secondaryEffects = this.calculateSecondaryEffects(event, personality);
-        const allUpdates = { ...primaryUpdate, ...secondaryEffects };
+
+        // Fusionner les effets secondaires
+        Object.entries(secondaryEffects).forEach(([key, value]) => {
+            updatesObj[key] = value;
+        });
 
         return this.updateStudentMetrics(
             studentId,
-            allUpdates,
+            updatesObj,
             `Événement: ${event.eventType} (${event.trigger})`
         );
     }
@@ -233,19 +246,19 @@ export class EvolutionMetricsManager {
             return this.createEmptyTrends();
         }
 
-        const trends: Record<keyof EvolutionMetrics, number> = {} as any;
+        const trends = this.createEmptyTrends();
         const firstEntry = recentHistory[0];
         const lastEntry = recentHistory[recentHistory.length - 1];
         const timeDiff = lastEntry.timestamp.getTime() - firstEntry.timestamp.getTime();
 
         if (timeDiff === 0) {
-            return this.createEmptyTrends();
+            return trends;
         }
 
         // Calculer la tendance pour chaque métrique
-        for (const metric of Object.keys(firstEntry.metrics) as Array<keyof EvolutionMetrics>) {
-            const valueDiff = lastEntry.metrics[metric] - firstEntry.metrics[metric];
-            trends[metric] = valueDiff / (timeDiff / (24 * 60 * 60 * 1000)); // Tendance par jour
+        for (const metricKey of Object.keys(firstEntry.metrics) as Array<keyof EvolutionMetrics>) {
+            const valueDiff = lastEntry.metrics[metricKey] - firstEntry.metrics[metricKey];
+            trends[metricKey] = valueDiff / (timeDiff / (24 * 60 * 60 * 1000)); // Tendance par jour
         }
 
         return trends;
@@ -280,6 +293,7 @@ export class EvolutionMetricsManager {
     /**
      * Crée des métriques initiales pour un nouvel étudiant
      * @private
+     * @returns {EvolutionMetrics} Métriques initiales
      */
     private createInitialMetrics(): EvolutionMetrics {
         return {
@@ -297,31 +311,91 @@ export class EvolutionMetricsManager {
     /**
      * Fusionne les métriques actuelles avec les mises à jour
      * @private
+     * @param {EvolutionMetrics} current - Métriques actuelles
+     * @param {Record<string, number>} updates - Mises à jour à appliquer
+     * @returns {EvolutionMetrics} Métriques fusionnées
      */
-    private mergeMetrics(current: EvolutionMetrics, updates: Partial<EvolutionMetrics>): EvolutionMetrics {
-        return { ...current, ...updates };
+    private mergeMetrics(
+        current: EvolutionMetrics,
+        updates: Record<string, number>
+    ): EvolutionMetrics {
+        // Créer une copie des métriques actuelles
+        const resultObj: EvolutionMetrics = { ...current };
+
+        // Créer un objet pour stocker les résultats temporaires
+        const tempObj: Record<string, number> = {
+            learningSpeed: resultObj.learningSpeed,
+            knowledgeRetention: resultObj.knowledgeRetention,
+            adaptability: resultObj.adaptability,
+            emotionalResilience: resultObj.emotionalResilience,
+            intellectualCuriosity: resultObj.intellectualCuriosity,
+            lsfCommunicationEfficiency: resultObj.lsfCommunicationEfficiency,
+            globalConfidence: resultObj.globalConfidence,
+            culturalProgress: resultObj.culturalProgress
+        };
+
+        // Appliquer les mises à jour sur l'objet temporaire
+        Object.entries(updates).forEach(([key, value]) => {
+            if (key in tempObj && value !== undefined) {
+                tempObj[key] = value;
+            }
+        });
+
+        // Reconstruire l'objet de métriques à partir de l'objet temporaire
+        const mergedMetrics: EvolutionMetrics = {
+            learningSpeed: tempObj.learningSpeed,
+            knowledgeRetention: tempObj.knowledgeRetention,
+            adaptability: tempObj.adaptability,
+            emotionalResilience: tempObj.emotionalResilience,
+            intellectualCuriosity: tempObj.intellectualCuriosity,
+            lsfCommunicationEfficiency: tempObj.lsfCommunicationEfficiency,
+            globalConfidence: tempObj.globalConfidence,
+            culturalProgress: tempObj.culturalProgress
+        };
+
+        return mergedMetrics;
     }
 
     /**
      * Valide que toutes les métriques sont dans les seuils acceptables
      * @private
+     * @param {EvolutionMetrics} metricsToValidate - Métriques à valider
+     * @returns {EvolutionMetrics} Métriques validées
      */
-    private validateMetrics(metrics: EvolutionMetrics): EvolutionMetrics {
-        const validated: EvolutionMetrics = {} as EvolutionMetrics;
+    private validateMetrics(metricsToValidate: EvolutionMetrics): EvolutionMetrics {
+        // Créer un objet vide pour les métriques validées
+        const resultObj: Record<string, number> = {};
 
-        for (const [key, value] of Object.entries(metrics)) {
-            const metricKey = key as keyof EvolutionMetrics;
+        // Appliquer les limites pour chaque métrique
+        for (const metricKey of Object.keys(this.validationThresholds) as Array<keyof EvolutionMetrics>) {
+            const value = metricsToValidate[metricKey];
             const threshold = this.validationThresholds[metricKey];
 
-            validated[metricKey] = Math.max(threshold.min, Math.min(threshold.max, value));
+            // Limiter la valeur entre min et max
+            resultObj[metricKey] = Math.max(threshold.min, Math.min(threshold.max, value));
         }
 
-        return validated;
+        // Convertir en objet typé EvolutionMetrics de manière sûre
+        const validatedMetrics: EvolutionMetrics = {
+            learningSpeed: resultObj.learningSpeed,
+            knowledgeRetention: resultObj.knowledgeRetention,
+            adaptability: resultObj.adaptability,
+            emotionalResilience: resultObj.emotionalResilience,
+            intellectualCuriosity: resultObj.intellectualCuriosity,
+            lsfCommunicationEfficiency: resultObj.lsfCommunicationEfficiency,
+            globalConfidence: resultObj.globalConfidence,
+            culturalProgress: resultObj.culturalProgress
+        };
+
+        return validatedMetrics;
     }
 
     /**
      * Sauvegarde les métriques dans l'historique
      * @private
+     * @param {string} studentId - ID de l'IA-élève
+     * @param {EvolutionMetrics} metrics - Métriques à sauvegarder
+     * @param {string} context - Contexte de la sauvegarde
      */
     private saveToHistory(studentId: string, metrics: EvolutionMetrics, context: string): void {
         if (!this.metricsHistory.has(studentId)) {
@@ -344,14 +418,17 @@ export class EvolutionMetricsManager {
     /**
      * Identifie les métriques qui ont changé
      * @private
+     * @param {EvolutionMetrics} oldMetrics - Anciennes métriques
+     * @param {EvolutionMetrics} newMetrics - Nouvelles métriques
+     * @returns {string[]} Liste des noms de métriques qui ont changé
      */
     private getChangedMetrics(oldMetrics: EvolutionMetrics, newMetrics: EvolutionMetrics): string[] {
         const changed: string[] = [];
         const threshold = 0.001; // Seuil de détection de changement
 
-        for (const key of Object.keys(oldMetrics) as Array<keyof EvolutionMetrics>) {
-            if (Math.abs(oldMetrics[key] - newMetrics[key]) > threshold) {
-                changed.push(key);
+        for (const metricKey of Object.keys(oldMetrics) as Array<keyof EvolutionMetrics>) {
+            if (Math.abs(oldMetrics[metricKey] - newMetrics[metricKey]) > threshold) {
+                changed.push(metricKey);
             }
         }
 
@@ -361,77 +438,89 @@ export class EvolutionMetricsManager {
     /**
      * Calcule les effets secondaires d'un événement selon la personnalité
      * @private
+     * @param {EvolutionEvent} event - Événement à analyser
+     * @param {AIPersonalityProfile | undefined} personality - Profil de personnalité
+     * @returns {Record<string, number>} Effets secondaires calculés
      */
     private calculateSecondaryEffects(
         event: EvolutionEvent,
         personality?: AIPersonalityProfile
-    ): Partial<EvolutionMetrics> {
+    ): Record<string, number> {
+        // Créer un objet vide pour stocker les effets
+        const effectsObj: Record<string, number> = {};
+
         if (!personality) {
-            return {};
+            return effectsObj;
         }
 
-        const effects: Partial<EvolutionMetrics> = {};
         const baseImpact = event.impact * 0.1; // Effets secondaires plus faibles
 
         // Effets basés sur le style d'apprentissage
         if (personality.learningStyle === 'visual' && event.eventType === 'skill_mastery') {
-            effects.adaptability = baseImpact;
+            effectsObj['adaptability'] = baseImpact;
         }
 
         if (personality.learningStyle === 'social' && event.eventType === 'confidence_boost') {
-            effects.emotionalResilience = baseImpact;
+            effectsObj['emotionalResilience'] = baseImpact;
         }
 
         // Effets basés sur les tendances émotionnelles
         if (personality.emotionalTendencies.includes('optimiste') && event.eventType === 'breakthrough') {
-            effects.intellectualCuriosity = baseImpact;
+            effectsObj['intellectualCuriosity'] = baseImpact;
         }
 
         if (personality.emotionalTendencies.includes('persévérant') && event.eventType === 'resilience_build') {
-            effects.globalConfidence = baseImpact;
+            effectsObj['globalConfidence'] = baseImpact;
         }
 
-        return effects;
+        return effectsObj;
     }
 
     /**
      * Calcule les mises à jour graduelles basées sur les facteurs
      * @private
+     * @param {EvolutionMetrics} currentMetrics - Métriques actuelles
+     * @param {EvolutionFactors} factors - Facteurs d'évolution
+     * @param {number} evolutionRate - Taux d'évolution
+     * @returns {Record<string, number>} Mises à jour calculées
      */
     private calculateGradualUpdates(
         currentMetrics: EvolutionMetrics,
         factors: EvolutionFactors,
         evolutionRate: number
-    ): Partial<EvolutionMetrics> {
-        const updates: Partial<EvolutionMetrics> = {};
+    ): Record<string, number> {
+        // Créer un objet vide pour stocker les mises à jour
+        const updatesObj: Record<string, number> = {};
 
         // Amélioration basée sur le temps d'apprentissage
         if (factors.totalLearningTime > 0) {
             const timeBonus = Math.min(evolutionRate, factors.totalLearningTime / 10000);
-            updates.knowledgeRetention = timeBonus;
+            updatesObj['knowledgeRetention'] = timeBonus;
         }
 
         // Amélioration basée sur les expériences positives
         const positiveExperiences = factors.recentExperiences.filter(exp => exp.successRate > 0.6);
         if (positiveExperiences.length > 0) {
             const experienceBonus = Math.min(evolutionRate, positiveExperiences.length * 0.005);
-            updates.globalConfidence = experienceBonus;
+            updatesObj['globalConfidence'] = experienceBonus;
         }
 
         // Amélioration basée sur les interactions sociales
         if (factors.socialInteractions.length > 0) {
             const socialBonus = Math.min(evolutionRate, factors.socialInteractions.length * 0.003);
-            updates.emotionalResilience = socialBonus;
+            updatesObj['emotionalResilience'] = socialBonus;
         }
 
-        return updates;
+        return updatesObj;
     }
 
     /**
      * Crée un objet de tendances vide
      * @private
+     * @returns {Record<keyof EvolutionMetrics, number>} Tendances vides initialisées à 0
      */
     private createEmptyTrends(): Record<keyof EvolutionMetrics, number> {
+        // Créer un objet avec la structure complète d'EvolutionMetrics, toutes les valeurs à 0
         return {
             learningSpeed: 0,
             knowledgeRetention: 0,
