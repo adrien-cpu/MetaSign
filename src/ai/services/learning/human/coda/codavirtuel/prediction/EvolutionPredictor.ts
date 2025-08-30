@@ -436,7 +436,7 @@ export class EvolutionPredictor {
     ): EvolutionPrediction[] {
         const predictions: EvolutionPrediction[] = [];
 
-        trends.forEach((trend, metric) => {
+        trends.forEach((trend) => {
             const prediction = this.createPredictionFromTrend(trend, parameters.timeHorizon);
 
             // Appliquer le lissage
@@ -606,18 +606,17 @@ export class EvolutionPredictor {
         });
 
         // Calculer la précision pour chaque métrique
-        predictionsByMetric.forEach((predictions, metric) => {
+        for (const [metric, predictions] of predictionsByMetric) {
             const actualValue = actualMetrics[metric];
-
             const totalAccuracy = predictions.reduce((sum, prediction) => {
                 const error = Math.abs(actualValue - prediction.predictedValue);
                 const maxPossibleError = Math.max(actualValue, prediction.predictedValue, 0.1);
                 const accuracy = Math.max(0, 1 - (error / maxPossibleError));
                 return sum + accuracy;
             }, 0);
-
             accuracyByMetric[metric] = predictions.length > 0 ? totalAccuracy / predictions.length : 0;
-        });
+        }
+
 
         this.logger.debug('Analyse précision prédictions par métrique', {
             studentId,

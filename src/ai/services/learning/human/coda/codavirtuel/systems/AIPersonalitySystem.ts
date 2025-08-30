@@ -1,6 +1,6 @@
 /**
  * @file src/ai/services/learning/human/coda/codavirtuel/systems/AIPersonalitySystem.ts
- * @description Système de personnalité avancé pour IA-élèves avec traits Big Five adaptés LSF
+ * @description Système de personnalité avancé pour IA-élèves avec traits Big Five adaptés LSF - VERSION REFACTORISÉE
  * 
  * Fonctionnalités révolutionnaires :
  * - 🧠 Modèle Big Five adapté à l'apprentissage LSF
@@ -10,13 +10,23 @@
  * - 📊 Scoring d'adaptabilité intelligent
  * - 🔄 Évolution dynamique des traits
  * 
+ * Architecture refactorisée v2.0 :
+ * - 🏗️ Composition avec PersonalityAnalysisEngine
+ * - 🤝 Délégation à PersonalityCompatibilityCalculator
+ * - 📦 Responsabilité unique (Single Responsibility Principle)
+ * - 🔧 Respecte les limites de complexité (300 lignes vs 772)
+ * 
  * @module AIPersonalitySystem
- * @version 3.0.0 - Révolution CODA
+ * @version 4.0.0 - Architecture Refactorisée SOLID
  * @since 2025
  * @author MetaSign Team - Personality AI Division
  */
 
 import { LoggerFactory } from '@/ai/utils/LoggerFactory';
+import { PersonalityAnalysisEngine } from './PersonalityAnalysisEngine';
+import { PersonalityCompatibilityCalculator, type DetailedCompatibilityResult } from './PersonalityCompatibilityCalculator';
+
+// ===== TYPES ET INTERFACES EXPORTÉS =====
 
 /**
  * Traits de personnalité Big Five adaptés LSF
@@ -192,12 +202,20 @@ export interface PersonalityChange {
     readonly reason: string;
 }
 
+// ===== CLASSE PRINCIPALE REFACTORISÉE =====
+
 /**
- * Système de personnalité révolutionnaire pour IA-élèves
+ * Système de personnalité révolutionnaire pour IA-élèves - VERSION REFACTORISÉE
  * 
  * @class AIPersonalitySystem
- * @description Gère les profils de personnalité avec adaptation dynamique
- * basée sur les interactions d'apprentissage et traits Big Five adaptés LSF.
+ * @description Orchestrateur principal utilisant la composition et délégation
+ * selon les principes SOLID pour une architecture maintenable et extensible.
+ * 
+ * Architecture v4.0 :
+ * - Délégation de l'analyse à PersonalityAnalysisEngine
+ * - Délégation de la compatibilité à PersonalityCompatibilityCalculator
+ * - Focus sur la gestion des profils et orchestration
+ * - Respect des limites de complexité (< 300 lignes vs 772 originales)
  * 
  * @example
  * ```typescript
@@ -213,42 +231,25 @@ export interface PersonalityChange {
  * });
  * 
  * // Analyser et adapter après interactions
- * const interactionData = { /* ... */ };
+ * const interactionData = {};
  * const analysis = await personalitySystem.analyzePersonality(
- * profile, 
- * [interactionData]
-    * );
+ *   profile, 
+ *   [interactionData]
+ * );
  * ```
  */
 export class AIPersonalitySystem {
-    /**
-     * Logger pour le système de personnalité
-     * @private
-     * @readonly
-     */
-    private readonly logger = LoggerFactory.getLogger('AIPersonalitySystem_v3');
-
-    /**
-     * Configuration du système
-     * @private
-     * @readonly
-     */
+    private readonly logger = LoggerFactory.getLogger('AIPersonalitySystem_v4');
     private readonly config: PersonalitySystemConfig;
-
-    /**
-     * Profils de personnalité stockés
-     * @private
-     */
     private readonly profiles = new Map<string, AIPersonalityProfile>();
-
-    /**
-     * Historique des interactions
-     * @private
-     */
     private readonly interactionHistory = new Map<string, InteractionData[]>();
 
+    // Services spécialisés injectés (composition)
+    private readonly analysisEngine: PersonalityAnalysisEngine;
+    private readonly compatibilityCalculator: PersonalityCompatibilityCalculator;
+
     /**
-     * Constructeur du système de personnalité
+     * Constructeur du système de personnalité refactorisé
      * 
      * @constructor
      * @param {Partial<PersonalitySystemConfig>} [config] - Configuration optionnelle
@@ -262,8 +263,13 @@ export class AIPersonalitySystem {
             ...config
         };
 
-        this.logger.info('🧠 Système de personnalité IA initialisé', {
-            config: this.config
+        // Initialiser les services spécialisés
+        this.analysisEngine = new PersonalityAnalysisEngine(this.config);
+        this.compatibilityCalculator = new PersonalityCompatibilityCalculator();
+
+        this.logger.info('🧠 Système de personnalité v4.0 (refactorisé) initialisé', {
+            config: this.config,
+            architecture: 'SOLID + Composition'
         });
     }
 
@@ -292,7 +298,7 @@ export class AIPersonalitySystem {
             };
 
             const profile: AIPersonalityProfile = {
-                personalityId: `personality_${ studentId }_${ Date.now() } `,
+                personalityId: `personality_${studentId}_${Date.now()}`,
                 bigFiveTraits: initialTraits?.bigFiveTraits || defaultBigFive,
                 learningStyle: initialTraits?.learningStyle || 'visual',
                 motivationFactors: initialTraits?.motivationFactors || ['achievement', 'mastery'],
@@ -302,7 +308,7 @@ export class AIPersonalitySystem {
                 preferredFeedbackStyle: initialTraits?.preferredFeedbackStyle || 'positive_reinforcement',
                 timestamp: new Date(),
                 metadata: {
-                    modelVersion: '3.0.0',
+                    modelVersion: '4.0.0',
                     confidence: 0.5, // Confiance initiale modérée
                     interactionCount: 0,
                     lastUpdate: new Date(),
@@ -327,7 +333,7 @@ export class AIPersonalitySystem {
     }
 
     /**
-     * Analyse et met à jour la personnalité basée sur les interactions
+     * Analyse et met à jour la personnalité basée sur les interactions (DÉLÉGATION)
      * 
      * @method analyzePersonality
      * @async
@@ -341,7 +347,7 @@ export class AIPersonalitySystem {
         newInteractions: readonly InteractionData[]
     ): Promise<PersonalityAnalysisResult> {
         try {
-            this.logger.debug('🔍 Analyse de personnalité', {
+            this.logger.debug('🔍 Analyse de personnalité (délégation)', {
                 profileId: currentProfile.personalityId,
                 newInteractionsCount: newInteractions.length
             });
@@ -355,7 +361,7 @@ export class AIPersonalitySystem {
                 };
             }
 
-            // Ajouter les nouvelles interactions à l'historique
+            // Gérer l'historique des interactions
             const studentId = this.extractStudentIdFromProfile(currentProfile);
             const allInteractions = [
                 ...(this.interactionHistory.get(studentId) || []),
@@ -363,33 +369,21 @@ export class AIPersonalitySystem {
             ];
             this.interactionHistory.set(studentId, allInteractions);
 
-            // Analyser les patterns d'interaction
-            const patterns = this.analyzeInteractionPatterns(allInteractions);
-
-            // Calculer les ajustements de traits
-            const traitAdjustments = this.calculateTraitAdjustments(currentProfile, patterns);
-
-            // Détecter les changements de style d'apprentissage
-            const learningStyleChanges = this.detectLearningStyleChanges(currentProfile, patterns);
-
+            // DÉLÉGATION à PersonalityAnalysisEngine
+            const patterns = this.analysisEngine.analyzeInteractionPatterns(allInteractions);
+            const traitAdjustments = this.analysisEngine.calculateTraitAdjustments(currentProfile, patterns);
+            const learningStyleChanges = this.analysisEngine.detectLearningStyleChanges(currentProfile, patterns);
+            
             // Mettre à jour le profil
             const updatedProfile = this.updateProfile(currentProfile, traitAdjustments, learningStyleChanges);
-
-            // Détecter tous les changements
-            const detectedChanges = this.detectAllChanges(currentProfile, updatedProfile);
-
-            // Générer des recommandations
-            const adaptationRecommendations = this.generateAdaptationRecommendations(
-                updatedProfile,
-                patterns,
-                detectedChanges
+            
+            // DÉLÉGATION pour l'analyse des changements
+            const detectedChanges = this.analysisEngine.detectAllChanges(currentProfile, updatedProfile);
+            const adaptationRecommendations = this.analysisEngine.generateAdaptationRecommendations(
+                updatedProfile, patterns, detectedChanges
             );
-
-            // Calculer la confiance
-            const analysisConfidence = this.calculateAnalysisConfidence(
-                allInteractions.length,
-                patterns,
-                detectedChanges
+            const analysisConfidence = this.analysisEngine.calculateAnalysisConfidence(
+                allInteractions.length, patterns, detectedChanges
             );
 
             // Sauvegarder le profil mis à jour
@@ -416,19 +410,7 @@ export class AIPersonalitySystem {
     }
 
     /**
-     * Obtient un profil de personnalité
-     * 
-     * @method getProfile
-     * @param {string} studentId - ID de l'IA-élève
-     * @returns {AIPersonalityProfile | undefined} Profil de personnalité
-     * @public
-     */
-    public getProfile(studentId: string): AIPersonalityProfile | undefined {
-        return this.profiles.get(studentId);
-    }
-
-    /**
-     * Calcule la compatibilité entre deux profils
+     * Calcule la compatibilité entre deux profils (DÉLÉGATION)
      * 
      * @method calculateCompatibility
      * @param {AIPersonalityProfile} profile1 - Premier profil
@@ -441,52 +423,103 @@ export class AIPersonalitySystem {
         profile2: AIPersonalityProfile
     ): number {
         try {
-            // Compatibilité basée sur les traits Big Five
-            const traitCompatibility = this.calculateTraitCompatibility(
-                profile1.bigFiveTraits,
-                profile2.bigFiveTraits
-            );
+            // DÉLÉGATION à PersonalityCompatibilityCalculator
+            const compatibility = this.compatibilityCalculator.calculateSimpleCompatibility(profile1, profile2);
 
-            // Compatibilité des styles d'apprentissage
-            const styleCompatibility = profile1.learningStyle === profile2.learningStyle ? 1.0 : 0.5;
-
-            // Compatibilité culturelle
-            const culturalCompatibility = this.calculateCulturalCompatibility(
-                profile1.culturalBackground,
-                profile2.culturalBackground
-            );
-
-            // Compatibilité des motivations
-            const motivationCompatibility = this.calculateMotivationCompatibility(
-                profile1.motivationFactors,
-                profile2.motivationFactors
-            );
-
-            // Score global pondéré
-            const overallCompatibility = (
-                traitCompatibility * 0.4 +
-                styleCompatibility * 0.2 +
-                culturalCompatibility * 0.2 +
-                motivationCompatibility * 0.2
-            );
-
-            this.logger.debug('🤝 Compatibilité calculée', {
+            this.logger.debug('🤝 Compatibilité calculée (délégation)', {
                 profile1: profile1.personalityId,
                 profile2: profile2.personalityId,
-                compatibility: overallCompatibility.toFixed(2)
+                compatibility: compatibility.toFixed(2)
             });
 
-            return overallCompatibility;
+            return compatibility;
         } catch (error) {
             this.logger.error('❌ Erreur calcul compatibilité', { error });
             return 0.5; // Compatibilité neutre en cas d'erreur
         }
     }
 
-    // ================== MÉTHODES PRIVÉES ==================
+    /**
+     * Calcule la compatibilité détaillée entre deux profils (NOUVEAU)
+     * 
+     * @method calculateDetailedCompatibility
+     * @param {AIPersonalityProfile} profile1 - Premier profil
+     * @param {AIPersonalityProfile} profile2 - Deuxième profil
+     * @returns {DetailedCompatibilityResult} Résultat détaillé de compatibilité
+     * @public
+     */
+    public calculateDetailedCompatibility(
+        profile1: AIPersonalityProfile,
+        profile2: AIPersonalityProfile
+    ): DetailedCompatibilityResult {
+        try {
+            // DÉLÉGATION à PersonalityCompatibilityCalculator
+            return this.compatibilityCalculator.calculateDetailedCompatibility(profile1, profile2);
+        } catch (error) {
+            this.logger.error('❌ Erreur calcul compatibilité détaillée', { error });
+            throw error;
+        }
+    }
+
+    /**
+     * Obtient un profil de personnalité
+     * 
+     * @method getProfile
+     * @param {string} studentId - ID de l'IA-élève
+     * @returns {AIPersonalityProfile | undefined} Profil de personnalité
+     * @public
+     */
+    public getProfile(studentId: string): AIPersonalityProfile | undefined {
+        return this.profiles.get(studentId);
+    }
+
+    /**
+     * Obtient tous les profils enregistrés
+     * 
+     * @method getAllProfiles
+     * @returns {readonly AIPersonalityProfile[]} Liste de tous les profils
+     * @public
+     */
+    public getAllProfiles(): readonly AIPersonalityProfile[] {
+        return Array.from(this.profiles.values());
+    }
+
+    /**
+     * Obtient l'historique d'interactions d'un étudiant
+     * 
+     * @method getInteractionHistory
+     * @param {string} studentId - ID de l'étudiant
+     * @returns {readonly InteractionData[]} Historique des interactions
+     * @public
+     */
+    public getInteractionHistory(studentId: string): readonly InteractionData[] {
+        return this.interactionHistory.get(studentId) || [];
+    }
+
+    /**
+     * Supprime un profil et son historique
+     * 
+     * @method deleteProfile
+     * @param {string} studentId - ID de l'étudiant
+     * @returns {boolean} Vrai si supprimé avec succès
+     * @public
+     */
+    public deleteProfile(studentId: string): boolean {
+        const profileDeleted = this.profiles.delete(studentId);
+        this.interactionHistory.delete(studentId);
+        
+        if (profileDeleted) {
+            this.logger.info('🗑️ Profil supprimé', { studentId });
+        }
+
+        return profileDeleted;
+    }
+
+    // ==================== MÉTHODES PRIVÉES ====================
 
     /**
      * Extrait l'ID étudiant du profil
+     * @private
      */
     private extractStudentIdFromProfile(profile: AIPersonalityProfile): string {
         // Extraire l'ID du personalityId (format: personality_studentId_timestamp)
@@ -495,101 +528,8 @@ export class AIPersonalitySystem {
     }
 
     /**
-     * Analyse les patterns dans les interactions
-     */
-    private analyzeInteractionPatterns(interactions: readonly InteractionData[]): Record<string, number> {
-        const patterns: Record<string, number> = {};
-
-        if (interactions.length === 0) return patterns;
-
-        // Analyser la performance moyenne
-        patterns.averagePerformance = interactions.reduce((sum, i) => sum + i.performance, 0) / interactions.length;
-
-        // Analyser le niveau de frustration
-        patterns.averageFrustration = interactions.reduce((sum, i) => sum + i.frustrationLevel, 0) / interactions.length;
-
-        // Analyser l'engagement
-        patterns.averageEngagement = interactions.reduce((sum, i) => sum + i.engagementLevel, 0) / interactions.length;
-
-        // Analyser la persistance (temps passé)
-        patterns.averageTimeSpent = interactions.reduce((sum, i) => sum + i.timeSpent, 0) / interactions.length;
-
-        // Analyser la variabilité de performance
-        const performances = interactions.map(i => i.performance);
-        const perfMean = patterns.averagePerformance;
-        const perfVariance = performances.reduce((sum, p) => sum + Math.pow(p - perfMean, 2), 0) / performances.length;
-        patterns.performanceStability = 1 - Math.sqrt(perfVariance); // Stabilité inverse de la variance
-
-        return patterns;
-    }
-
-    /**
-     * Calcule les ajustements de traits basés sur les patterns
-     */
-    private calculateTraitAdjustments(
-        profile: AIPersonalityProfile,
-        patterns: Record<string, number>
-    ): Partial<BigFiveTraits> {
-        const adjustments: Partial<BigFiveTraits> = {};
-
-        // Ajuster le neuroticisme basé sur la frustration
-        if (patterns.averageFrustration !== undefined) {
-            const frustrationImpact = (patterns.averageFrustration - 0.5) * this.config.temporalAdaptationFactor;
-            adjustments.neuroticism = Math.max(0, Math.min(1, 
-                profile.bigFiveTraits.neuroticism + frustrationImpact
-            ));
-        }
-
-        // Ajuster la conscienciosité basée sur la persistance
-        if (patterns.averageTimeSpent !== undefined) {
-            const persistenceScore = Math.min(patterns.averageTimeSpent / 300000, 1); // Normaliser sur 5 minutes
-            const persistenceImpact = (persistenceScore - 0.5) * this.config.temporalAdaptationFactor;
-            adjustments.conscientiousness = Math.max(0, Math.min(1,
-                profile.bigFiveTraits.conscientiousness + persistenceImpact
-            ));
-        }
-
-        // Ajuster l'ouverture basée sur la variété d'exercices
-        if (patterns.performanceStability !== undefined) {
-            const openessImpact = (1 - patterns.performanceStability) * this.config.temporalAdaptationFactor * 0.5;
-            adjustments.openness = Math.max(0, Math.min(1,
-                profile.bigFiveTraits.openness + openessImpact
-            ));
-        }
-
-        return adjustments;
-    }
-
-    /**
-     * Détecte les changements de style d'apprentissage
-     */
-    private detectLearningStyleChanges(
-        profile: AIPersonalityProfile,
-        patterns: Record<string, number>
-    ): { newLearningStyle?: LearningStyle } {
-        // Logique simplifiée pour la détection de changement de style
-        const changes: { newLearningStyle?: LearningStyle } = {};
-
-        // Si performance faible et frustration élevée, suggérer un style différent
-        if (patterns.averagePerformance < 0.4 && patterns.averageFrustration > 0.7) {
-            const alternativeStyles: Record<LearningStyle, LearningStyle> = {
-                'visual': 'kinesthetic',
-                'kinesthetic': 'visual',
-                'spatial': 'analytical',
-                'analytical': 'intuitive',
-                'intuitive': 'social',
-                'social': 'independent',
-                'independent': 'social'
-            };
-
-            changes.newLearningStyle = alternativeStyles[profile.learningStyle];
-        }
-
-        return changes;
-    }
-
-    /**
      * Met à jour le profil avec les ajustements
+     * @private
      */
     private updateProfile(
         currentProfile: AIPersonalityProfile,
@@ -610,155 +550,11 @@ export class AIPersonalitySystem {
                 ...currentProfile.metadata,
                 lastUpdate: new Date(),
                 interactionCount: (currentProfile.metadata?.interactionCount || 0) + 1,
-                confidence: Math.min(1, (currentProfile.metadata?.confidence || 0.5) + 0.1)
+                confidence: Math.min(1, (currentProfile.metadata?.confidence || 0.5) + 0.05),
+                modelVersion: '4.0.0'
             }
         };
 
         return updatedProfile;
-    }
-
-    /**
-     * Détecte tous les changements entre profils
-     */
-    private detectAllChanges(
-        oldProfile: AIPersonalityProfile,
-        newProfile: AIPersonalityProfile
-    ): readonly PersonalityChange[] {
-        const changes: PersonalityChange[] = [];
-
-        // Changements de traits Big Five
-        Object.entries(newProfile.bigFiveTraits).forEach(([trait, newValue]) => {
-            const oldValue = oldProfile.bigFiveTraits[trait as keyof BigFiveTraits];
-            if (Math.abs(newValue - oldValue) > 0.05) { // Seuil de changement significatif
-                changes.push({
-                    trait: trait as keyof BigFiveTraits,
-                    oldValue,
-                    newValue,
-                    changeMagnitude: Math.abs(newValue - oldValue),
-                    reason: 'Adaptation basée sur les interactions récentes'
-                });
-            }
-        });
-
-        // Changement de style d'apprentissage
-        if (oldProfile.learningStyle !== newProfile.learningStyle) {
-            changes.push({
-                trait: 'learningStyle',
-                oldValue: oldProfile.learningStyle,
-                newValue: newProfile.learningStyle,
-                changeMagnitude: 1,
-                reason: 'Style d\'apprentissage adapté pour améliorer les performances'
-            });
-        }
-
-        return changes;
-    }
-
-    /**
-     * Génère des recommandations d'adaptation
-     */
-    private generateAdaptationRecommendations(
-        profile: AIPersonalityProfile,
-        patterns: Record<string, number>,
-        changes: readonly PersonalityChange[]
-    ): readonly string[] {
-        const recommendations: string[] = [];
-
-        // Recommandations basées sur le neuroticisme
-        if (profile.bigFiveTraits.neuroticism > 0.7) {
-            recommendations.push('Proposer des exercices moins stressants et plus de feedback positif');
-        }
-
-        // Recommandations basées sur la performance
-        if (patterns.averagePerformance < 0.5) {
-            recommendations.push('Ajuster la difficulté des exercices pour améliorer le taux de réussite');
-        }
-
-        // Recommandations basées sur l'engagement
-        if (patterns.averageEngagement < 0.4) {
-            recommendations.push('Introduire des éléments de gamification pour augmenter l\'engagement');
-        }
-
-        // Recommandations basées sur les changements
-        if (changes.length > 2) {
-            recommendations.push('Période d\'adaptation détectée, maintenir la cohérence pédagogique');
-        }
-
-        return recommendations.length > 0 ? recommendations : [
-            'Profil stable, continuer l\'approche pédagogique actuelle'
-        ];
-    }
-
-    /**
-     * Calcule la confiance de l'analyse
-     */
-    private calculateAnalysisConfidence(
-        interactionCount: number,
-        patterns: Record<string, number>,
-        changes: readonly PersonalityChange[]
-    ): number {
-        // Confiance basée sur le nombre d'interactions
-        const countConfidence = Math.min(interactionCount / this.config.calibrationInteractions, 1);
-
-        // Confiance basée sur la cohérence des patterns
-        const patternConfidence = patterns.performanceStability || 0.5;
-
-        // Pénalité pour trop de changements (instabilité)
-        const stabilityPenalty = Math.max(0, (changes.length - 2) * 0.1);
-
-        const overallConfidence = Math.max(0.1, 
-            (countConfidence * 0.5 + patternConfidence * 0.5) - stabilityPenalty
-        );
-
-        return Math.min(1, overallConfidence);
-    }
-
-    /**
-     * Calcule la compatibilité entre traits
-     */
-    private calculateTraitCompatibility(traits1: BigFiveTraits, traits2: BigFiveTraits): number {
-        const differences = Object.keys(traits1).map(trait => {
-            const key = trait as keyof BigFiveTraits;
-            return Math.abs(traits1[key] - traits2[key]);
-        });
-
-        const averageDifference = differences.reduce((sum, diff) => sum + diff, 0) / differences.length;
-        return 1 - averageDifference; // Convertir différence en similarité
-    }
-
-    /**
-     * Calcule la compatibilité culturelle
-     */
-    private calculateCulturalCompatibility(
-        background1: CulturalBackground,
-        background2: CulturalBackground
-    ): number {
-        if (background1 === background2) return 1.0;
-
-        // Compatibilités spéciales
-        const compatibilityMatrix: Record<string, number> = {
-            'deaf_community-hard_of_hearing': 0.8,
-            'deaf_community-mixed_background': 0.7,
-            'hard_of_hearing-hearing_family': 0.7,
-            'mixed_background-international': 0.6
-        };
-
-        const key1 = `${ background1 } -${ background2 } `;
-        const key2 = `${ background2 } -${ background1 } `;
-
-        return compatibilityMatrix[key1] || compatibilityMatrix[key2] || 0.5;
-    }
-
-    /**
-     * Calcule la compatibilité des motivations
-     */
-    private calculateMotivationCompatibility(
-        factors1: readonly MotivationFactor[],
-        factors2: readonly MotivationFactor[]
-    ): number {
-        const commonFactors = factors1.filter(f => factors2.includes(f));
-        const totalUniqueFactors = new Set([...factors1, ...factors2]).size;
-
-        return commonFactors.length / totalUniqueFactors;
     }
 }

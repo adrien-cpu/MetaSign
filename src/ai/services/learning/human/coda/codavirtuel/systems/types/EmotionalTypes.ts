@@ -37,9 +37,9 @@ export type EmotionIntensity = number;
  */
 export type TransitionCurve =
     | 'linear'        // Transition linéaire
-    | 'ease_in'       // Accélération graduelle
-    | 'ease_out'      // Décélération graduelle
-    | 'ease_in_out'   // Courbe S
+    | 'easeIn'        // Accélération graduelle
+    | 'easeOut'       // Décélération graduelle
+    | 'easeInOut'     // Courbe S
     | 'bounce'        // Rebond (pour surprise)
     | 'elastic';      // Élastique (pour excitation)
 
@@ -47,12 +47,12 @@ export type TransitionCurve =
  * Types de patterns émotionnels
  */
 export type PatternType =
-    | 'learning_cycle'     // Cycle d'apprentissage
-    | 'frustration_spiral' // Spirale de frustration
-    | 'confidence_build'   // Construction de confiance
+    | 'learningCycle'      // Cycle d'apprentissage
+    | 'frustrationSpiral'  // Spirale de frustration
+    | 'confidenceBuild'    // Construction de confiance
     | 'breakthrough'       // Moment de révélation
-    | 'plateau_stagnation' // Stagnation sur plateau
-    | 'recovery_bounce';   // Récupération après échec
+    | 'plateauStagnation'  // Stagnation sur plateau
+    | 'recoveryBounce';    // Récupération après échec
 
 /**
  * Types de transitions émotionnelles

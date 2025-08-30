@@ -1,29 +1,162 @@
-// src/ai/learning/adapters/strategies/AdaptationStrategy.ts
-
-import { LearningContext, UserProfile } from '@ai/learning/types';
-import { Adaptation } from '@ai/learning/types/AdaptedContent';
-
 /**
- * Définition des niveaux de priorité pour les adaptations
+ * @file src/ai/services/learning/machine/adaptative/strategies/AdaptationStrategy.ts
+ * @description Système révolutionnaire de stratégies d'adaptation machine learning
+ * 
+ * Fonctionnalités avancées :
+ * - 🎯 Stratégies d'adaptation intelligentes et contextuelles
+ * - 📊 Évaluation prédictive d'impact des adaptations
+ * - ⚖️ Système de priorités avec résolution de conflits
+ * - 🧠 Analyse comportementale et émotionnelle
+ * - 📈 Métadonnées détaillées pour chaque adaptation
+ * - 🔄 Adaptation continue basée sur l'engagement
+ * - 🎛️ Seuils configurables et validation contextuelle
+ * 
+ * @module AdaptationStrategy
+ * @version 3.0.0 - Machine Learning Revolution
+ * @since 2025
+ * @author MetaSign Team - Adaptive Learning Division
  */
-export type AdaptationPriority = 'very_low' | 'low' | 'medium' | 'high' | 'very_high';
+
+// ==================== INTERFACES TEMPORAIRES ====================
+// TODO: Remplacer par les vrais imports depuis @ai/learning/types quand disponibles
 
 /**
- * Seuils d'application des stratégies en fonction des métriques
+ * Contexte d'apprentissage avec métriques comportementales en temps réel
+ * 
+ * @interface LearningContext
+ * @description Capture l'état actuel de l'apprenant et son environnement
+ * d'apprentissage pour permettre aux stratégies d'adaptation de prendre
+ * des décisions éclairées
+ * 
+ * @example
+ * ```typescript
+ * const context: LearningContext = {
+ *   currentEngagement: 0.7,     // 70% d'engagement
+ *   currentFrustration: 0.2,    // 20% de frustration
+ *   completionRate: 0.65,       // 65% de complétion
+ *   performanceTrend: 0.1,      // Tendance positive
+ *   hasError: false
+ * };
+ * ```
+ */
+interface LearningContext {
+    readonly currentEngagement?: number;
+    readonly currentFrustration?: number;
+    readonly completionRate?: number;
+    readonly performanceTrend?: number;
+    readonly hasError?: boolean;
+    readonly [key: string]: unknown;
+}
+
+/**
+ * Profil utilisateur enrichi avec préférences d'apprentissage personnalisées
+ * 
+ * @interface UserProfile
+ * @description Profil comportemental de l'apprenant incluant ses préférences
+ * d'adaptativité et métadonnées personnelles
+ * 
+ * @example
+ * ```typescript
+ * const profile: UserProfile = {
+ *   userId: 'user_12345',
+ *   preferences: {
+ *     adaptivityLevel: 0.8,      // Forte préférence pour l'adaptation
+ *     learningStyle: 'visual',
+ *     pacePreference: 'moderate'
+ *   }
+ * };
+ * ```
+ */
+interface UserProfile {
+    readonly userId: string;
+    readonly preferences?: {
+        readonly adaptivityLevel?: number;
+        readonly [key: string]: unknown;
+    };
+    readonly [key: string]: unknown;
+}
+
+/**
+ * Structure flexible d'adaptation générée par une stratégie intelligente
+ * 
+ * @interface Adaptation
+ * @description Résultat d'une stratégie d'adaptation contenant les ajustements
+ * recommandés et leurs métadonnées associées
+ * 
+ * @example
+ * ```typescript
+ * const adaptation: Adaptation = {
+ *   type: 'difficulty-adjustment',
+ *   adjustmentFactor: 0.8,
+ *   reason: 'Performance en baisse détectée',
+ *   metadata: {
+ *     predictedEffectiveness: 0.75,
+ *     influencingFactors: ['Faible engagement']
+ *   }
+ * };
+ * ```
+ */
+interface Adaptation {
+    readonly type: string;
+    readonly [key: string]: unknown;
+}
+
+/**
+ * Niveaux de priorité hiérarchiques pour les stratégies d'adaptation
+ * 
+ * @description Détermine l'ordre d'application en cas de conflit entre stratégies
+ * 
+ * - `veryLow`: Adaptations optionnelles, faible impact
+ * - `low`: Adaptations recommandées, impact modéré
+ * - `medium`: Adaptations standard, équilibre impact/coût
+ * - `high`: Adaptations importantes, fort impact prédit
+ * - `veryHigh`: Adaptations critiques, impact maximal
+ */
+export type AdaptationPriority = 'veryLow' | 'low' | 'medium' | 'high' | 'veryHigh';
+
+/**
+ * Seuils d'activation pour l'application des stratégies d'adaptation
+ * 
+ * @interface StrategyThresholds
+ * @description Définit les plages de valeurs d'engagement et frustration
+ * dans lesquelles une stratégie est applicable et efficace
+ * 
+ * @example
+ * ```typescript
+ * const thresholds: StrategyThresholds = {
+ *   minEngagement: 0.2,  // Appliquer si engagement >= 20%
+ *   maxEngagement: 0.8,  // Appliquer si engagement <= 80%
+ *   minFrustration: 0.0, // Appliquer si frustration >= 0%
+ *   maxFrustration: 0.6  // Appliquer si frustration <= 60%
+ * };
+ * ```
  */
 export interface StrategyThresholds {
-    /** Seuil minimal d'engagement pour appliquer la stratégie */
+    /** Seuil minimal d'engagement pour appliquer la stratégie (0-1) */
     minEngagement: number;
-    /** Seuil maximal d'engagement pour appliquer la stratégie */
+    /** Seuil maximal d'engagement pour appliquer la stratégie (0-1) */
     maxEngagement: number;
-    /** Seuil minimal de frustration pour appliquer la stratégie */
+    /** Seuil minimal de frustration pour appliquer la stratégie (0-1) */
     minFrustration: number;
-    /** Seuil maximal de frustration pour appliquer la stratégie */
+    /** Seuil maximal de frustration pour appliquer la stratégie (0-1) */
     maxFrustration: number;
 }
 
 /**
- * Métadonnées d'une adaptation
+ * Métadonnées riches d'une adaptation pour traçabilité et optimisation
+ * 
+ * @interface AdaptationMetadata
+ * @description Capture les informations contextuelles, prédictions
+ * et historique pour affiner les stratégies futures
+ * 
+ * @example
+ * ```typescript
+ * const metadata: AdaptationMetadata = {
+ *   predictedEffectiveness: 0.78,
+ *   influencingFactors: ['Faible engagement', 'Difficulté élevée'],
+ *   intensityReasoning: 'Intensité 85% basée sur profil utilisateur'
+ * };
+ * ```
  */
 export interface AdaptationMetadata {
     /** Pourcentage d'efficacité prévu (0-1) */
@@ -43,21 +176,53 @@ export interface AdaptationMetadata {
 }
 
 /**
- * Interface définissant une stratégie d'adaptation
+ * Interface principale pour toutes les stratégies d'adaptation intelligentes
+ * 
+ * @interface IAdaptationStrategy
+ * @description Contrat pour implémenter des stratégies d'adaptation
+ * contextuelles avec évaluation prédictive et métadonnées enrichies
+ * 
+ * Responsabilités clés :
+ * - Application adaptive basée sur le contexte
+ * - Évaluation de l'applicabilité en temps réel
+ * - Prédiction d'impact comportemental
+ * - Génération de métadonnées traçables
+ * 
+ * @example
+ * ```typescript
+ * class MyStrategy implements IAdaptationStrategy {
+ *   readonly type = 'difficulty-adjustment';
+ *   readonly priority = 'high';
+ *   readonly description = 'Ajuste la difficulté selon performance';
+ * 
+ *   apply(context: LearningContext): Adaptation {
+ *     // Logique d'adaptation
+ *     return { type: 'adjust', value: 0.7 };
+ *   }
+ * }
+ * ```
  */
 export interface IAdaptationStrategy {
     /**
-     * Type d'adaptation produit par cette stratégie
+     * Identifiant unique du type d'adaptation produit par cette stratégie
+     * 
+     * @example 'difficulty-adjustment', 'pace-modification', 'content-variation'
      */
     readonly type: string;
 
     /**
-     * Priorité de la stratégie (utilisée pour résoudre les conflits)
+     * Niveau de priorité hiérarchique de la stratégie
+     * 
+     * @description Utilisé pour résoudre les conflits entre stratégies concurrentes.
+     * Les stratégies à priorité plus élevée sont appliquées en premier.
      */
     readonly priority: AdaptationPriority;
 
     /**
-     * Description de la stratégie
+     * Description lisible par l'humain de la stratégie et de son objectif
+     * 
+     * @description Utilisée pour le debugging, les logs et la documentation
+     * des décisions d'adaptation prises par le système
      */
     readonly description: string;
 
@@ -100,7 +265,44 @@ export interface IAdaptationStrategy {
 }
 
 /**
- * Classe de base abstraite pour les stratégies d'adaptation
+ * Classe de base abstraite révolutionnaire pour stratégies d'adaptation ML
+ * 
+ * @abstract BaseAdaptationStrategy
+ * @implements {IAdaptationStrategy}
+ * @description Fournit une implémentation robuste des fonctionnalités communes :
+ * - Gestion des seuils d'application
+ * - Calcul d'intensité adaptatif
+ * - Évaluation d'impact prédictif
+ * - Génération de métadonnées enrichies
+ * 
+ * Avantages de l'héritage :
+ * - Logique de base réutilisable
+ * - Validation contextuelle extensible
+ * - Algorithmes d'évaluation optimisés
+ * - Facteurs d'influence automatisés
+ * 
+ * @example
+ * ```typescript
+ * class DifficultyStrategy extends BaseAdaptationStrategy {
+ *   constructor() {
+ *     super(
+ *       'difficulty-adjustment',
+ *       'high',
+ *       'Ajuste la difficulté selon la performance',
+ *       { minEngagement: 0.3, maxFrustration: 0.7 }
+ *     );
+ *   }
+ * 
+ *   apply(context: LearningContext): Adaptation {
+ *     const intensity = this.calculateIntensity(context);
+ *     return {
+ *       type: this.type,
+ *       adjustmentFactor: intensity,
+ *       metadata: this.generateMetadata(context)
+ *     };
+ *   }
+ * }
+ * ```
  */
 export abstract class BaseAdaptationStrategy implements IAdaptationStrategy {
     /**
@@ -109,12 +311,22 @@ export abstract class BaseAdaptationStrategy implements IAdaptationStrategy {
     protected readonly thresholds: StrategyThresholds;
 
     /**
-     * Crée une nouvelle stratégie d'adaptation
+     * Constructeur de stratégie d'adaptation avec configuration avancée
      * 
-     * @param type Type d'adaptation produit par cette stratégie
-     * @param priority Priorité de la stratégie (défaut: 'medium')
-     * @param description Description de la stratégie
-     * @param thresholds Seuils d'application (optionnel, valeurs par défaut appliquées)
+     * @constructor
+     * @param {string} type - Identifiant unique du type d'adaptation
+     * @param {AdaptationPriority} [priority='medium'] - Niveau de priorité hiérarchique
+     * @param {string} [description=''] - Description lisible de la stratégie
+     * @param {Partial<StrategyThresholds>} [thresholds] - Seuils personnalisés d'activation
+     * 
+     * @description Initialise une stratégie avec des paramètres par défaut
+     * optimisés pour la plupart des contextes d'apprentissage
+     * 
+     * Seuils par défaut (universellement applicables) :
+     * - `minEngagement`: 0.0 (aucun minimum)
+     * - `maxEngagement`: 1.0 (aucun maximum)
+     * - `minFrustration`: 0.0 (aucun minimum)
+     * - `maxFrustration`: 1.0 (aucun maximum)
      */
     constructor(
         public readonly type: string,
@@ -207,11 +419,28 @@ export abstract class BaseAdaptationStrategy implements IAdaptationStrategy {
     }
 
     /**
-     * Calcule l'intensité d'une adaptation en fonction du contexte et du profil
+     * Algorithme sophistiqué de calcul d'intensité adaptive
      * 
-     * @param context Contexte d'apprentissage actuel
-     * @param profile Profil de l'utilisateur 
-     * @returns Valeur d'intensité entre 0.1 et 0.9
+     * @method calculateIntensity
+     * @protected
+     * @param {LearningContext} context - Contexte d'apprentissage en cours
+     * @param {UserProfile} [profile] - Profil comportemental utilisateur
+     * @returns {number} Intensité optimisée dans [0.1, 0.9]
+     * 
+     * @description Combine de multiples facteurs pour déterminer l'intensité :
+     * 
+     * **Facteurs principaux :**
+     * - Niveau d'adaptativité préféré par l'utilisateur
+     * - État d'engagement actuel de l'apprenant
+     * - Niveau de frustration détecté
+     * - Vitesse de progression mesurée
+     * 
+     * **Algorithme de fusion :**
+     * ```
+     * intensité = base * (0.5 + adaptativité) * facteurs_contextuels
+     * ```
+     * 
+     * Bornes de sécurité : [0.1, 0.9] pour éviter les adaptations trop faibles ou agressives
      */
     protected calculateIntensity(context: LearningContext, profile?: UserProfile): number {
         const baseIntensity = 0.5;
@@ -241,11 +470,14 @@ export abstract class BaseAdaptationStrategy implements IAdaptationStrategy {
      * Valide les conditions spécifiques au contexte pour l'applicabilité de la stratégie
      * Peut être surchargée par les classes dérivées pour ajouter une logique spécifique
      * 
-     * @param _context Contexte d'apprentissage à valider
+     * @param _context Contexte d'apprentissage à valider (non utilisé dans l'implémentation par défaut)
      * @returns Si le contexte satisfait aux conditions spécifiques
      */
-    protected validateContextSpecificConditions(_context: LearningContext): boolean {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    protected validateContextSpecificConditions(_context?: LearningContext): boolean {
         // Par défaut, aucune condition supplémentaire
+        // Le paramètre _context est préfixé avec _ pour indiquer qu'il n'est pas utilisé
+        // mais peut être utilisé par les classes dérivées
         return true;
     }
 

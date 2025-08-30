@@ -36,7 +36,6 @@ import { CECRLCODAEvaluator } from './evaluators/CECRLCODAEvaluator';
 // Import des types harmonisés (types manquants ajoutés)
 import type {
     ComprehensiveAIStatus,
-    ComprehensiveAIReaction,
     CODAPersonalityType,
     CulturalEnvironment,
     CECRLLevel,
@@ -52,10 +51,8 @@ import type {
 
 // Import des types système spécifiques (nouveaux types corrigés)
 import type {
-    CODASessionState,
-    AIEvolutionConfig,
     EmotionalConfig
-} from './types/CODASystemTypes';
+} from './types/config';
 
 /**
  * Interface pour les options révolutionnaires du système CODA v4.0
@@ -203,8 +200,7 @@ export class ReverseApprenticeshipSystem {
             evolutionConfig: {
                 enableAutoOptimization: true,
                 baseEvolutionRate: 0.1
-                // learningRate supprimé car non supporté
-            } satisfies AIEvolutionConfig
+            }
         });
 
         this.codaEvaluator = new CECRLCODAEvaluator({
@@ -225,7 +221,6 @@ export class ReverseApprenticeshipSystem {
 
         this.businessLogic = new CODABusinessLogic(
             this.codaEvaluator,
-            this.typeConverter,
             this.options
         );
 
@@ -307,7 +302,13 @@ export class ReverseApprenticeshipSystem {
         aiProgress: ComprehensiveAIStatus;
         teachingEvaluation: MentorEvaluation;
     }> {
-        return await this.sessionOrchestrator.endTeachingSession(mentorId, teachingSessionId);
+        const result = await this.sessionOrchestrator.endTeachingSession(mentorId, teachingSessionId);
+        
+        return {
+            sessionSummary: result.sessionSummary,
+            aiProgress: this.getAIStudentStatus(mentorId) || {} as ComprehensiveAIStatus,
+            teachingEvaluation: result.mentorEvaluation
+        };
     }
 
     /**
@@ -352,7 +353,7 @@ export class ReverseApprenticeshipSystem {
      * Initialise un profil utilisateur (API legacy)
      */
     public async initializeUserProfile(userId: string, initialLevel?: string): Promise<UserReverseProfile> {
-        return await this.legacyService.initializeUserProfile(userId, initialLevel);
+        return await this.legacyService.initializeUserProfile(userId, initialLevel as CECRLLevel | undefined);
     }
 
     /**
@@ -452,8 +453,4 @@ export class ReverseApprenticeshipSystem {
     }
 }
 
-// Export des types pour compatibilité (conflits d'export résolus)
-export type {
-    CODARevolutionaryOptions,
-    CODASystemStatistics
-};
+// Export des types pour compatibilité

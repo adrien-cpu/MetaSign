@@ -151,6 +151,9 @@ export class AIEvolutionSystem {
             ...config
         };
 
+        // Valider la configuration
+        this.validateConfig();
+
         // Initialiser les composants spécialisés
         this.algorithmManager = new EvolutionAlgorithmManager();
         this.metricsManager = new EvolutionMetricsManager();

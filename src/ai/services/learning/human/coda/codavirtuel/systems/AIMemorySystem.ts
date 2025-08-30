@@ -59,8 +59,8 @@ export interface LearningMemory {
 export type MemoryType =
     | 'sensory'          // Mémoire sensorielle (très courte)
     | 'working'          // Mémoire de travail
-    | 'short_term'       // Mémoire à court terme
-    | 'long_term'        // Mémoire à long terme
+    | 'shortTerm'        // Mémoire à court terme
+    | 'longTerm'         // Mémoire à long terme
     | 'episodic'         // Mémoire épisodique (événements)
     | 'semantic'         // Mémoire sémantique (connaissances)
     | 'procedural';      // Mémoire procédurale (compétences)
@@ -154,12 +154,12 @@ export interface RecallResult {
  * 
  * // Stocker un nouveau souvenir
  * const memory = await memorySystem.storeMemory(
- *   'basic_greeting', 'Comment signer "bonjour"', 'semantic', 0.9
+ *   'basicGreeting', 'Comment signer "bonjour"', 'semantic', 0.9
  * );
  * 
  * // Rappeler des souvenirs
  * const recalled = await memorySystem.recallMemories({
- *   context: 'greeting_lesson',
+ *   context: 'greetingLesson',
  *   cues: ['salutation', 'politesse'],
  *   minStrength: 0.5
  * });
@@ -171,7 +171,7 @@ export class AIMemorySystem {
      * @private
      * @readonly
      */
-    private readonly logger = LoggerFactory.getLogger('AIMemorySystem_v3');
+    private readonly logger = LoggerFactory.getLogger('AIMemorySystemV3');
 
     /**
      * Configuration du système
@@ -362,10 +362,10 @@ export class AIMemorySystem {
             }
 
             // Découvrir de nouvelles associations
-            const discoveries = this.findNewAssociations(recalledMemories, parameters.cues);
+            const discoveries = this.findNewAssociations();
 
             // Générer des suggestions de révision
-            const reviewSuggestions = this.generateReviewSuggestions(studentId, recalledMemories);
+            const reviewSuggestions = this.generateReviewSuggestions();
 
             const recallTime = Date.now() - startTime;
             const confidence = this.calculateRecallConfidence(scoredMemories);
@@ -527,8 +527,8 @@ export class AIMemorySystem {
      */
     private generateMemoryId(studentId: string, concept: string): string {
         const timestamp = Date.now();
-        const hash = this.simpleHash(`${studentId}_${concept}_${timestamp}`);
-        return `mem_${hash}`;
+        const hash = this.simpleHash(`${studentId}-${concept}-${timestamp}`);
+        return `mem-${hash}`;
     }
 
     /**
@@ -604,8 +604,8 @@ export class AIMemorySystem {
         const multipliers: Record<MemoryType, number> = {
             'sensory': 0.1,
             'working': 0.2,
-            'short_term': 0.5,
-            'long_term': 2.0,
+            'shortTerm': 0.5,
+            'longTerm': 2.0,
             'episodic': 1.5,
             'semantic': 1.8,
             'procedural': 2.5
@@ -690,11 +690,11 @@ export class AIMemorySystem {
         };
     }
 
-    private findNewAssociations(_memories: readonly LearningMemory[], _cues: readonly string[]): readonly string[] {
+    private findNewAssociations(): readonly string[] {
         return []; // Implémentation simplifiée
     }
 
-    private generateReviewSuggestions(_studentId: string, _memories: readonly LearningMemory[]): readonly string[] {
+    private generateReviewSuggestions(): readonly string[] {
         return []; // Implémentation simplifiée
     }
 
@@ -703,7 +703,7 @@ export class AIMemorySystem {
         return scoredMemories.reduce((sum, sm) => sum + sm.score, 0) / scoredMemories.length;
     }
 
-    private calculateDecayFactor(memory: LearningMemory, timeDelta: number): number {
+    private calculateDecayFactor(_memory: LearningMemory, timeDelta: number): number {
         const hours = timeDelta / (1000 * 60 * 60);
         return Math.exp(-this.config.naturalDecayRate * hours);
     }
@@ -730,7 +730,7 @@ export class AIMemorySystem {
 
     private countMemoriesByType(memories: LearningMemory[]): Readonly<Record<MemoryType, number>> {
         const counts: Record<MemoryType, number> = {
-            sensory: 0, working: 0, short_term: 0, long_term: 0,
+            sensory: 0, working: 0, shortTerm: 0, longTerm: 0,
             episodic: 0, semantic: 0, procedural: 0
         };
 
@@ -751,7 +751,7 @@ export class AIMemorySystem {
         return {
             ...memory,
             consolidationLevel: Math.min(1, memory.consolidationLevel + 0.2),
-            memoryType: memory.memoryType === 'short_term' ? 'long_term' : memory.memoryType
+            memoryType: memory.memoryType === 'shortTerm' ? 'longTerm' : memory.memoryType
         };
     }
 

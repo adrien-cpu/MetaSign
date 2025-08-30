@@ -20,7 +20,6 @@ import { LoggerFactory } from '@/ai/utils/LoggerFactory';
 import type {
     EmotionalState,
     EmotionalPattern,
-    PatternType,
     PrimaryEmotion
 } from '../types/EmotionalTypes';
 
@@ -91,7 +90,7 @@ export class EmotionalPatternDetector {
      * @private
      * @readonly
      */
-    private readonly logger = LoggerFactory.getLogger('EmotionalPatternDetector_v3');
+    private readonly logger = LoggerFactory.getLogger('EmotionalPatternDetectorV3');
 
     /**
      * Configuration du détecteur
@@ -211,7 +210,7 @@ export class EmotionalPatternDetector {
             const matches = this.findSequenceMatches(states, sequence as PrimaryEmotion[]);
             if (matches.length >= this.config.minFrequency) {
                 patterns.push({
-                    type: 'learning_cycle',
+                    type: 'learningCycle',
                     sequence: sequence as PrimaryEmotion[],
                     frequency: matches.length,
                     triggers: this.extractTriggers(matches),
@@ -240,7 +239,7 @@ export class EmotionalPatternDetector {
                 const frequency = this.countSimilarSequences(states, window);
                 if (frequency >= this.config.minFrequency) {
                     patterns.push({
-                        type: 'frustration_spiral',
+                        type: 'frustrationSpiral',
                         sequence: spiralIndicators as PrimaryEmotion[],
                         frequency,
                         triggers: window.map(s => s.trigger),
@@ -268,7 +267,7 @@ export class EmotionalPatternDetector {
             const matches = this.findConfidenceBuildingMatches(states, sequence as PrimaryEmotion[]);
             if (matches.length >= this.config.minFrequency) {
                 patterns.push({
-                    type: 'confidence_build',
+                    type: 'confidenceBuild',
                     sequence: sequence as PrimaryEmotion[],
                     frequency: matches.length,
                     triggers: this.extractTriggers(matches),
@@ -334,7 +333,7 @@ export class EmotionalPatternDetector {
                 if (plateauCount >= this.config.minSequenceLength) {
                     const plateauStates = states.slice(plateauStart, i);
                     patterns.push({
-                        type: 'plateau_stagnation',
+                        type: 'plateauStagnation',
                         sequence: plateauStates.map(s => s.primaryEmotion),
                         frequency: 1,
                         triggers: plateauStates.map(s => s.trigger),
@@ -359,7 +358,7 @@ export class EmotionalPatternDetector {
         const matches = this.findRecoveryMatches(states, recoverySequence);
         if (matches.length >= this.config.minFrequency) {
             patterns.push({
-                type: 'recovery_bounce',
+                type: 'recoveryBounce',
                 sequence: recoverySequence,
                 frequency: matches.length,
                 triggers: this.extractTriggers(matches),

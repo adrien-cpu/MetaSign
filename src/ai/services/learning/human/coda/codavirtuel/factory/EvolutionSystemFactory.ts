@@ -131,9 +131,7 @@ export class EvolutionSystemFactory {
      */
     public static createCustom(config: AIEvolutionSystemConfig): AIEvolutionSystem {
         this.validateConfig(config);
-
         this.logger.info('🏭 Création système évolution personnalisé', { config });
-
         return new AIEvolutionSystem(config);
     }
 
@@ -364,7 +362,8 @@ export class EvolutionSystemFactory {
      */
     private static generateAdaptiveConfig(learnerProfile: Record<string, unknown>): AIEvolutionSystemConfig {
         // Configuration de base
-        let config = { ...EVOLUTION_PRESETS.PRODUCTION };
+        const config = { ...EVOLUTION_PRESETS.PRODUCTION };
+
 
         // Adapter selon le niveau d'expérience
         const experienceLevel = learnerProfile.experienceLevel as string;

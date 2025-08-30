@@ -149,27 +149,24 @@ export class EvolutionMetricsManager {
     public applyEvolutionEvent(studentId: string, event: EvolutionEvent): EvolutionMetrics {
         const currentMetrics = this.studentMetrics.get(studentId) || this.createInitialMetrics();
         const personality = this.personalityProfiles.get(studentId);
-
+        this.logger.debug('Métriques actuelles avant application de l\'événement', { studentId, currentMetrics });
         // Créer un objet pour les mises à jour
         const updatesObj: Record<string, number> = {};
-
         // Appliquer le changement principal
         updatesObj[event.affectedMetric] = event.newValue;
-
         // Appliquer les effets secondaires selon la personnalité
         const secondaryEffects = this.calculateSecondaryEffects(event, personality);
-
         // Fusionner les effets secondaires
         Object.entries(secondaryEffects).forEach(([key, value]) => {
             updatesObj[key] = value;
         });
-
         return this.updateStudentMetrics(
             studentId,
             updatesObj,
             `Événement: ${event.eventType} (${event.trigger})`
         );
     }
+
 
     /**
      * Applique une évolution graduelle basée sur les facteurs
@@ -186,9 +183,11 @@ export class EvolutionMetricsManager {
         factors: EvolutionFactors,
         evolutionRate: number = 0.01
     ): EvolutionMetrics {
-        const currentMetrics = this.studentMetrics.get(studentId) || this.createInitialMetrics();
-        const gradualUpdates = this.calculateGradualUpdates(currentMetrics, factors, evolutionRate);
-
+        const gradualUpdates = this.calculateGradualUpdates(
+            this.studentMetrics.get(studentId) || this.createInitialMetrics(),
+            factors,
+            evolutionRate
+        );
         return this.updateStudentMetrics(
             studentId,
             gradualUpdates,

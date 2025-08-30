@@ -916,6 +916,8 @@ metasign/src/ai$ tree
 │   │   │   │   │   │   ├── types.ts
 │   │   │   │   │   │   └── utils
 │   │   │   │   │   │       └── preference-utils.ts
+│   │   │   │   │   ├── algorithms
+│   │   │   │   │   │   └── EvolutionAlgorithmManager.ts
 │   │   │   │   │   ├── evaluators
 │   │   │   │   │   │   ├── CECRLCODAEvaluator.ts
 │   │   │   │   │   │   ├── CECRLLevelEvaluator.ts
@@ -990,6 +992,8 @@ metasign/src/ai$ tree
 │   │   │   │   │   │   │   └── ExerciseGeneratorUtils.ts
 │   │   │   │   │   │   └── validation
 │   │   │   │   │   │       └── ExerciseValidator.ts
+│   │   │   │   │   ├── factory
+│   │   │   │   │   │   └── EvolutionSystemFactory.ts
 │   │   │   │   │   ├── index.ts
 │   │   │   │   │   ├── integration
 │   │   │   │   │   │   ├── LearningPyramidAIIntegration.ts
@@ -1008,6 +1012,10 @@ metasign/src/ai$ tree
 │   │   │   │   │   │   └── index.ts
 │   │   │   │   │   ├── managers
 │   │   │   │   │   │   └── CODASessionManager.ts
+│   │   │   │   │   ├── metrics
+│   │   │   │   │   │   └── EvolutionMetricsManager.ts
+│   │   │   │   │   ├── prediction
+│   │   │   │   │   │   └── EvolutionPredictor.ts
 │   │   │   │   │   ├── repositories
 │   │   │   │   │   │   └── UserReverseApprenticeshipRepository.ts
 │   │   │   │   │   ├── scenarios
@@ -1029,11 +1037,25 @@ metasign/src/ai$ tree
 │   │   │   │   │   │       ├── DifficultyTypes.ts
 │   │   │   │   │   │       └── ScenarioTypes.ts
 │   │   │   │   │   ├── services
+│   │   │   │   │   │   ├── CODAAnalyticsService.ts
 │   │   │   │   │   │   ├── CODABusinessLogic.ts
+│   │   │   │   │   │   ├── CODACompatibilityService.ts
+│   │   │   │   │   │   ├── CODAPredictiveService.ts
 │   │   │   │   │   │   ├── CODASessionOrchestrator.ts
+│   │   │   │   │   │   ├── CompatibilityAnalyzer.ts
 │   │   │   │   │   │   ├── IProfileService.ts
 │   │   │   │   │   │   ├── LegacyCompatibilityService.ts
-│   │   │   │   │   │   └── ProfileService.ts
+│   │   │   │   │   │   ├── ProfileService.ts
+│   │   │   │   │   │   ├── RelationalMetricsCalculator.ts
+│   │   │   │   │   │   ├── TeachingStyleAnalyzer.ts
+│   │   │   │   │   │   ├── compatibilityCalculator.ts
+│   │   │   │   │   │   ├── index.ts
+│   │   │   │   │   │   └── legacy
+│   │   │   │   │   │       ├── LegacyEvaluationManager.ts
+│   │   │   │   │   │       ├── LegacyExerciseManager.ts
+│   │   │   │   │   │       ├── LegacyProfileManager.ts
+│   │   │   │   │   │       ├── LegacyTypeConverter.ts
+│   │   │   │   │   │       └── MockServices.ts
 │   │   │   │   │   ├── simulation
 │   │   │   │   │   │   ├── ErrorSimulator.ts
 │   │   │   │   │   │   ├── catalogs
@@ -1117,7 +1139,18 @@ metasign/src/ai$ tree
 │   │   │   │   │   │   ├── README.md
 │   │   │   │   │   │   ├── __tests__
 │   │   │   │   │   │   │   ├── AIEmotionalSystem.test.ts
-│   │   │   │   │   │   │   └── Integration.test.ts
+│   │   │   │   │   │   │   ├── Integration.test.ts
+│   │   │   │   │   │   │   ├── IntegrationAdvanced.test.ts
+│   │   │   │   │   │   │   ├── IntegrationScenarios.test.ts
+│   │   │   │   │   │   │   ├── index.ts
+│   │   │   │   │   │   │   ├── jest.config.ts
+│   │   │   │   │   │   │   ├── setup
+│   │   │   │   │   │   │   │   └── testSetup.ts
+│   │   │   │   │   │   │   ├── types
+│   │   │   │   │   │   │   │   └── IntegrationTestTypes.ts
+│   │   │   │   │   │   │   └── utils
+│   │   │   │   │   │   │       ├── IntegrationTestFactory.ts
+│   │   │   │   │   │   │       └── IntegrationTestUtils.ts
 │   │   │   │   │   │   ├── benchmarks
 │   │   │   │   │   │   │   └── PerformanceBenchmarks.ts
 │   │   │   │   │   │   ├── config
@@ -1135,7 +1168,9 @@ metasign/src/ai$ tree
 │   │   │   │   │   │       └── EmotionalTypes.ts
 │   │   │   │   │   ├── types
 │   │   │   │   │   │   ├── CODASystemTypes.ts
+│   │   │   │   │   │   ├── CompatibilityTypes.ts
 │   │   │   │   │   │   ├── LSFBaseTypes.ts
+│   │   │   │   │   │   ├── evolution.types.ts
 │   │   │   │   │   │   └── index.ts
 │   │   │   │   │   ├── types.ts
 │   │   │   │   │   └── utils
@@ -2014,4 +2049,4 @@ metasign/src/ai$ tree
         ├── result-helpers.ts
         └── validation-helpers.ts
 
-584 directories, 1429 files
+592 directories, 1456 files

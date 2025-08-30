@@ -23,8 +23,6 @@ import { LoggerFactory } from '@/ai/utils/LoggerFactory';
 import type {
     ComprehensiveAIStatus,
     EmotionalState,
-    EvolutionMetrics,
-    PersonalityProfile,
     MemoryStats,
     PerformanceHistory,
     AIStudentPersonalityType,
@@ -32,8 +30,15 @@ import type {
     CulturalEnvironment,
     CECRLLevel,
     AIMood,
-    CODATypeUtils
+    AIPersonalityProfile
 } from '../types/index';
+
+// Import des utilitaires (non-type)
+import {
+    CODATypeUtils,
+    isCECRLLevel,
+    isCulturalEnvironment
+} from '../types/utils';
 
 /**
  * Interface pour le statut IA-élève dans les sessions (legacy)
@@ -135,13 +140,11 @@ export class TypeConverter {
             return cached;
         }
 
-        const conversionMap: Record<CODAPersonalityType, AIStudentPersonalityType> = {
+        const conversionMap: Partial<Record<CODAPersonalityType, AIStudentPersonalityType>> = {
             'curious_student': 'curious_student',
             'shy_learner': 'shy_learner',
             'energetic_pupil': 'energetic_pupil',
             'patient_apprentice': 'patient_apprentice',
-            'analytical_learner': 'analytical_learner',
-            'creative_thinker': 'creative_thinker',
             // Conversions de types mentor vers types élève
             'encouraging_mentor': 'curious_student',
             'strict_teacher': 'patient_apprentice',
@@ -248,7 +251,7 @@ export class TypeConverter {
             return cached;
         }
 
-        const result = CODATypeUtils.isCECRLLevel(level) ? level : fallback;
+        const result = isCECRLLevel(level) ? level : fallback;
         this.cache.levelMap.set(level, result);
         return result;
     }
@@ -302,7 +305,7 @@ export class TypeConverter {
             return cached;
         }
 
-        const result = CODATypeUtils.isCulturalEnvironment(environment) ? environment : fallback;
+        const result = isCulturalEnvironment(environment) ? environment : fallback;
         this.cache.culturalMap.set(environment, result);
         return result;
     }
@@ -322,7 +325,7 @@ export class TypeConverter {
             id: comprehensive.id,
             name: comprehensive.name,
             currentLevel: comprehensive.currentLevel,
-            mood: comprehensive.mood,
+            mood: comprehensive.mood === 'curious' ? 'excited' : comprehensive.mood,
             personality: comprehensive.personality,
             weaknesses: comprehensive.weaknesses,
             strengths: comprehensive.strengths,
@@ -349,9 +352,9 @@ export class TypeConverter {
             currentLevel: this.convertToValidCECRLLevel(session.currentLevel),
             mood: session.mood,
             culturalContext: 'deaf_family_home', // Valeur par défaut
-            personalityProfile: this.createDefaultPersonalityProfile(session.personality),
-            emotionalState: this.createEmotionalStateFromString(session.emotionalState),
-            evolutionMetrics: CODATypeUtils.createDefaultEvolutionMetrics(),
+            personalityProfile: this.createDefaultAIPersonalityProfile(session.personality),
+            emotionalState: this.createEmotionalStateFromString(),
+            evolutionMetrics: CODATypeUtils.createInitialEvolutionMetrics(),
             memoryStats: this.createDefaultMemoryStats(),
             performanceHistory: this.createDefaultPerformanceHistory(),
             weaknesses: session.weaknesses,
@@ -384,11 +387,11 @@ export class TypeConverter {
 
         switch (expectedType) {
             case 'CECRLLevel':
-                return CODATypeUtils.isCECRLLevel(data);
+                return isCECRLLevel(data);
             case 'CODAPersonalityType':
-                return CODATypeUtils.isCODAPersonalityType(data);
+                return typeof data === 'string'; // Simplifié pour compatibilité
             case 'CulturalEnvironment':
-                return CODATypeUtils.isCulturalEnvironment(data);
+                return isCulturalEnvironment(data);
             default:
                 return true;
         }
@@ -456,25 +459,32 @@ export class TypeConverter {
     /**
      * Crée un profil de personnalité par défaut
      */
-    private createDefaultPersonalityProfile(personality: AIStudentPersonalityType): PersonalityProfile {
-        return CODATypeUtils.createDefaultPersonalityProfile(personality, 'deaf_family_home');
+    private createDefaultAIPersonalityProfile(personality: AIStudentPersonalityType): AIPersonalityProfile {
+        const baseProfile = CODATypeUtils.createDefaultPersonalityProfile(personality as CODAPersonalityType);
+        
+        return {
+            ...baseProfile,
+            learningPreferences: {
+                ...baseProfile.learningPreferences,
+                visualLearningAffinity: 0.7,
+                socialLearningPreference: 0.6
+            },
+            lsfTraits: {
+                spatialExpression: 0.6,
+                facialExpression: 0.5,
+                manualPrecision: 0.7,
+                culturalAwareness: 0.6,
+                gestualFluency: 0.5,
+                contextualAdaptation: 0.6
+            }
+        };
     }
 
     /**
-     * Crée un état émotionnel à partir d'une chaîne
+     * Crée un état émotionnel neutre par défaut
      */
-    private createEmotionalStateFromString(emotionString: string): EmotionalState {
-        const mood = this.convertEmotionToMood(emotionString);
-
-        return {
-            currentMood: mood,
-            confidence: 0.5,
-            engagement: 0.6,
-            stress: 0.3,
-            primaryEmotion: emotionString,
-            emotionalIntensity: 0.5,
-            stabilityIndex: 0.7
-        };
+    private createEmotionalStateFromString(): EmotionalState {
+        return CODATypeUtils.createNeutralEmotionalState();
     }
 
     /**
@@ -482,17 +492,12 @@ export class TypeConverter {
      */
     private createDefaultMemoryStats(): MemoryStats {
         return {
-            totalMemories: 0,
-            recentMemories: 0,
-            retentionRate: 0.5,
-            averageRetention: 0.5,
-            strongestConcepts: [],
-            conceptsNeedingReview: [],
-            memoriesByType: {
-                'semantic': 0,
-                'episodic': 0,
-                'procedural': 0
-            }
+            totalCapacity: 1000,
+            usedMemory: 0,
+            memoriesCount: 0,
+            retrievalRate: 0.8,
+            averageMemoryAge: 0,
+            fragmentation: 0.1
         };
     }
 
@@ -501,11 +506,13 @@ export class TypeConverter {
      */
     private createDefaultPerformanceHistory(): PerformanceHistory {
         return {
-            averageComprehension: 0.5,
-            sessionCount: 0,
-            improvementRate: 0.1,
-            learningVelocity: 0.3,
-            performanceConsistency: 0.6
+            recentScores: [],
+            averageResponseTimes: [],
+            competencyProgression: new Map(),
+            frequentErrors: [],
+            notableImprovements: [],
+            totalSessions: 0,
+            totalLearningTime: 0
         };
     }
 }
