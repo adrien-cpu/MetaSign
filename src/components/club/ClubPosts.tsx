@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import type { ClubPost as PrismaClubPost } from '@prisma/client';
 
 /**
  * Interface pour un post de club
@@ -68,7 +69,6 @@ interface ClubPost {
 interface ClubPostsProps {
     clubId: string;
     isUserMember: boolean;
-    currentUserId: string;
     className?: string;
 }
 
@@ -88,7 +88,6 @@ interface CreatePostData {
 export function ClubPosts({
     clubId,
     isUserMember,
-    currentUserId,
     className = ''
 }: ClubPostsProps) {
 
@@ -140,7 +139,7 @@ export function ClubPosts({
             const result = await response.json();
 
             if (result.success) {
-                const newPosts = result.data.posts.map((post: any) => ({
+                const newPosts = result.data.posts.map((post: PrismaClubPost) => ({
                     ...post,
                     createdAt: new Date(post.createdAt),
                     updatedAt: new Date(post.updatedAt)

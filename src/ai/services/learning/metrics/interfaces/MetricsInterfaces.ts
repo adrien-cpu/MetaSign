@@ -351,3 +351,55 @@ export interface ILearningMetricsCollector {
         metadata?: Record<string, unknown>
     ): Promise<LearningMetric>;
 }
+
+/**
+ * Interface pour le tracker de progression
+ * @interface IProgressTracker
+ */
+export interface IProgressTracker {
+    /**
+     * Calcule le niveau de maîtrise d'un concept pour un utilisateur
+     * @param userId ID de l'utilisateur
+     * @param conceptId ID du concept
+     * @returns Niveau de maîtrise (0-1)
+     */
+    getConceptMastery(userId: string, conceptId: string): number;
+
+    /**
+     * Met à jour le niveau de maîtrise d'un concept pour un utilisateur
+     * @param userId ID de l'utilisateur
+     * @param conceptId ID du concept
+     * @param score Score obtenu
+     */
+    updateConceptMastery(userId: string, conceptId: string, score: number): void;
+
+    /**
+     * Calcule le niveau global de l'utilisateur
+     * @param userId ID de l'utilisateur
+     * @returns Niveau de l'utilisateur
+     */
+    calculateUserLevel(userId: string): number;
+
+    /**
+     * Calcule l'expérience totale d'un utilisateur
+     * @param userId ID de l'utilisateur
+     * @returns Expérience totale
+     */
+    calculateTotalExperience(userId: string): number;
+
+    /**
+     * Vérifie si l'utilisateur a une série de jours consécutifs de pratique
+     * @param userId ID de l'utilisateur
+     * @param days Nombre de jours
+     * @returns Vrai si l'utilisateur a la série
+     */
+    hasLearningStreak(userId: string, days: number): boolean;
+
+    /**
+     * Compte le nombre de révisions d'un concept
+     * @param userId ID de l'utilisateur
+     * @param conceptId ID du concept
+     * @returns Nombre de révisions
+     */
+    countConceptRevisions(userId: string, conceptId: string): number;
+}

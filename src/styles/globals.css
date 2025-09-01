@@ -8,7 +8,7 @@
   --color-primary-dark: #feffff;
   --background-dark: #031022f0;
   --text-dark: #100202;
-  --title-font-size-adjust: 0.700;
+  --title-font-size-adjust: 0.500;
   --description-font-size-adjust: 0.600;
 
   /* Par défaut : thème clair */
@@ -188,7 +188,7 @@ textarea:focus::placeholder {
 
 .card-title {
   color: var(--text-color);
-  font-size: 2rem;
+  font-size: 1rem;
   font-weight: bold;
   text-align: center;
 }

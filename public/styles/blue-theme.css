@@ -219,7 +219,7 @@ textarea:focus::placeholder {
 
 .card-title {
   color: var(--text-color);
-  font-size: 2rem;
+  font-size: 1rem;
   font-weight: bold;
   text-align: center;
 }

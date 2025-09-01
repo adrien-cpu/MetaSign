@@ -258,9 +258,8 @@ export class AlertingManager {
 
     /**
      * Notifie l'équipe d'astreinte
-     * @param _event Événement de changement d'état
      */
-    public notifyOncall(_event: HealthChangeEvent): void {
+    public notifyOncall(): void {
         this.logger.info(`Notification à l'équipe d'astreinte concernant un état malsain`);
 
         // Cette méthode pourrait être étendue pour des actions spécifiques:
@@ -271,9 +270,8 @@ export class AlertingManager {
 
     /**
      * Envoie une notification d'avertissement
-     * @param _event Événement de changement d'état
      */
-    public sendWarningNotification(_event: HealthChangeEvent): void {
+    public sendWarningNotification(): void {
         this.logger.info(`Système dégradé! Vérifier les composants affectés`);
 
         // Cette méthode pourrait être étendue pour des notifications moins urgentes:

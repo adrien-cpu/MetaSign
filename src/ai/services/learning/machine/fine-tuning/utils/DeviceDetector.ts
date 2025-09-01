@@ -2,7 +2,7 @@
 
 import * as os from 'os';
 import { execSync } from 'child_process';
-import { Logger } from '@ai/utils/Logger';
+import { Logger } from '../../../../../utils/Logger';
 
 /**
  * Informations sur le processeur
@@ -395,13 +395,13 @@ export class DeviceDetector {
                     // Vérifier si rocm-smi est disponible
                     execSync('which rocm-smi');
                     return true;
-                } catch (error) {
+                } catch {
                     return false;
                 }
             }
 
             return false;
-        } catch (error) {
+        } catch {
             return false;
         }
     }

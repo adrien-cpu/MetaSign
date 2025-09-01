@@ -2,7 +2,7 @@
 
 import { Worker } from 'worker_threads';
 import * as os from 'os';
-import { Logger } from '@ai/utils/Logger';
+import { Logger } from '../../../../../utils/Logger';
 import * as path from 'path';
 
 /**
@@ -48,7 +48,7 @@ interface ThreadPoolMetrics {
  */
 export class ThreadPool {
     private readonly logger = new Logger('ThreadPool');
-    private readonly workers: Worker[] = [];
+    private readonly workers: (Worker | null)[] = [];
     private readonly tasks: Task<unknown>[] = [];
     private readonly workerStatus: Map<number, { busy: boolean; taskId?: string }> = new Map();
     private readonly executionTimes: number[] = [];
@@ -132,8 +132,8 @@ export class ThreadPool {
 
             // Recréer le worker si le pool n'est pas en cours d'arrêt
             if (!this.isShutdown) {
-                this.workers[id].terminate();
-                this.workers[id] = null as any;
+                this.workers[id]?.terminate();
+                this.workers[id] = null;
                 this.workerStatus.delete(id);
 
                 setTimeout(() => {
@@ -215,14 +215,14 @@ export class ThreadPool {
      * @param priority Priorité de la tâche
      * @returns Promise avec le résultat de la fonction
      */
-    public run<T>(fn: (...args: any[]) => T, args: unknown[] = [], priority: number = 0): Promise<T> {
+    public run<T>(fn: (...args: unknown[]) => T, args: unknown[] = [], priority: number = 0): Promise<T> {
         if (this.isShutdown) {
             return Promise.reject(new Error('Thread pool is shut down'));
         }
 
         return new Promise<T>((resolve, reject) => {
             // Créer une tâche avec un ID unique
-            const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            const taskId = `task_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
 
             // Transformer la fonction en chaîne de caractères
             const fnString = fn.toString();
@@ -291,7 +291,7 @@ export class ThreadPool {
                 status.taskId = task.id;
 
                 // Envoyer la tâche au worker
-                this.workers[i].postMessage({
+                this.workers[i]?.postMessage({
                     type: 'execute_task',
                     taskId: task.id,
                     code: task.code,

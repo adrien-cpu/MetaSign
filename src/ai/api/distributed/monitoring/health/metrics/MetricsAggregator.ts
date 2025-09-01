@@ -109,7 +109,6 @@ export class MetricsAggregator {
      * Agrège les métriques pour réduire leur volume
      */
     public aggregateMetrics(): void {
-        const now = Date.now();
         const aggregationWindowMs = this.aggregationIntervalMinutes * 60 * 1000;
 
         // Pour chaque type de métrique

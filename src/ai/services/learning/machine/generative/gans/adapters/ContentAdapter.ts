@@ -1,22 +1,67 @@
 // src/ai/learning/integration/gans/adapters/ContentAdapter.ts
 
-import {
-    ContentType,
-    ContentParameters,
-    GANsGenerationResult,
-    GANsOperationMode,
-    LearnerProfile,
-    FeedbackData
-} from '@ai/learning/types/gans-integration.types';
-import { IMetricsCollector } from '@api/common/metrics/interfaces/IMetricsCollector';
+// Temporary type stubs - to be replaced with actual imports
+type ContentType = 'educationalExample' | 'learningPath' | 'practiceExercise' | 'visualExplanation' | 'conceptDiagram' | 'interactiveModule';
+type ContentDifficultyLevel = 'beginner' | 'intermediate' | 'advanced' | 'expert';
+type GANsOperationMode = 'local' | 'cloud' | 'hybrid' | 'auto';
 
-// Ajout des interfaces nécessaires
+interface ContentParameters {
+    topic: string;
+    difficultyLevel?: ContentDifficultyLevel;
+    detailLevel?: number;
+    concepts?: string[];
+    interactionType?: string;
+    learnerPreferences?: string[];
+    learningStyle?: 'visual' | 'auditory' | 'kinesthetic' | 'mixed';
+    baseStructure?: GeneratedContent;
+}
+
+interface LearnerProfile {
+    skillLevel: 'novice' | 'beginner' | 'intermediate' | 'advanced' | 'expert';
+    preferences: string[];
+    learningStyle?: 'visual' | 'auditory' | 'kinesthetic' | 'mixed';
+    previousPerformance?: number;
+}
+
+interface FeedbackData {
+    contentType: ContentType;
+    rating: number;
+    comments?: string;
+    userId: string;
+}
+
+interface GANsGenerationResult<T = GeneratedContent> {
+    contentType: ContentType;
+    content: T | null;
+    success: boolean;
+    error?: {
+        message: string;
+        details?: string;
+    };
+    metadata: {
+        generationTime: number;
+        operationMode: GANsOperationMode;
+        timestamp: number;
+        requestId: string;
+    };
+}
+
+// Stub for metrics collector
+interface IMetricsCollector {
+    recordMetric(name: string, value: number): void;
+}
+
 interface GeneratedContent {
     format: string;
     title: string;
     description?: string;
     elements: ContentElement[];
     metadata: ContentMetadata;
+    svgContent?: string;
+    interactiveElements?: InteractiveElement[];
+    annotations?: Annotation[];
+    generatedBy?: string;
+    difficulty?: string;
 }
 
 interface ContentElement {
@@ -35,11 +80,6 @@ interface ContentMetadata {
     optimizations?: string[];
 }
 
-interface VisualizationContent extends GeneratedContent {
-    svgContent: string;
-    interactiveElements?: InteractiveElement[];
-    annotations?: Annotation[];
-}
 
 interface InteractiveElement {
     id: string;
@@ -84,6 +124,7 @@ export class ContentAdapter {
     ) {
         this.metricsCollector = metricsCollector;
         this.cloudServiceUrl = cloudServiceUrl;
+        console.log(`ContentAdapter initialized with cloud service: ${cloudServiceUrl}`);
 
         // Initialize content generators for different content types
         this.localGenerators = new Map();
@@ -120,7 +161,7 @@ export class ContentAdapter {
                     content = await this.generateCloudContent(contentType, parameters, learnerProfile);
                     break;
 
-                case 'mixed':
+                case 'hybrid':
                     content = await this.generateMixedContent(contentType, parameters, learnerProfile);
                     break;
 
@@ -259,6 +300,8 @@ export class ContentAdapter {
         await new Promise(resolve => setTimeout(resolve, 500));
 
         // Simulate cloud response based on content type
+        // In a real implementation, payload would be sent to this.cloudServiceUrl
+        console.log('Payload that would be sent:', payload);
         return this.simulateCloudResponse(contentType, parameters);
     }
 
@@ -310,9 +353,9 @@ export class ContentAdapter {
                 description: `A visual explanation of ${topic} at ${difficultyLevel} level`,
                 svgContent: this.generatePlaceholderSVG(topic, difficultyLevel || 'intermediate', detailLevel || 5),
                 elements: [
-                    { id: 'title', type: 'text', content: topic },
-                    { id: 'main-diagram', type: 'diagram' },
-                    { id: 'annotations', type: 'annotations' }
+                    { id: 'title', type: 'text' as ContentElementType, content: topic },
+                    { id: 'main-diagram', type: 'diagram' as ContentElementType, content: {} },
+                    { id: 'annotations', type: 'annotations' as ContentElementType, content: {} }
                 ],
                 metadata: {
                     generationTime: 0,
@@ -325,7 +368,12 @@ export class ContentAdapter {
 
         // Practice exercise generator
         this.localGenerators.set('practiceExercise', async (params: ContentParameters) => {
-            const { topic, difficultyLevel, concepts } = params;
+            const { topic, difficultyLevel, concepts = [] } = params;
+            
+            // Use concepts to create more targeted questions
+            const questionPool = concepts.length > 0 
+                ? concepts.map(concept => `How does ${concept} relate to ${topic}?`)
+                : [`What is the main idea of ${topic}?`, `How would you apply ${topic}?`, `What are the benefits of ${topic}?`];
 
             // Generate practice exercises
             return {
@@ -336,7 +384,7 @@ export class ContentAdapter {
                     id: `ex-${i + 1}`,
                     type: 'assessment',
                     content: {
-                        question: `Practice question ${i + 1} about ${topic}`,
+                        question: questionPool[i % questionPool.length],
                         options: ['Option A', 'Option B', 'Option C', 'Option D'],
                         correctAnswer: `Option ${String.fromCharCode(65 + i % 4)}`,
                         explanation: `Explanation for question ${i + 1}`
@@ -363,7 +411,7 @@ export class ContentAdapter {
                 elements: [
                     ...Array(5).fill(0).map((_, i) => ({
                         id: `node-${i}`,
-                        type: 'diagram',
+                        type: 'diagram' as ContentElementType,
                         content: {
                             label: `Concept ${i + 1}`,
                             description: `Description of concept ${i + 1}`
@@ -376,7 +424,7 @@ export class ContentAdapter {
                         { from: 'node-2', to: 'node-4', label: 'constrains' }
                     ].map((edge, i) => ({
                         id: `edge-${i}`,
-                        type: 'diagram',
+                        type: 'diagram' as ContentElementType,
                         content: edge
                     }))
                 ],
@@ -393,6 +441,10 @@ export class ContentAdapter {
         // Interactive module generator
         this.localGenerators.set('interactiveModule', async (params: ContentParameters) => {
             const { topic, difficultyLevel, interactionType } = params;
+            
+            // Adjust complexity based on difficulty level
+            const complexityLevel = difficultyLevel === 'beginner' ? 1 : difficultyLevel === 'advanced' ? 3 : 2;
+            const interactionElements = Array(2 + complexityLevel).fill(0).map((_, i) => `Element ${i + 1}`);
 
             // Generate interactive module
             return {
@@ -409,13 +461,18 @@ export class ContentAdapter {
                         type: 'interactive',
                         content: {
                             type: interactionType || 'simulation',
+                            complexity: complexityLevel,
                             interactions: [
                                 {
                                     id: 'int-1',
                                     type: 'drag-drop',
-                                    elements: ['Element 1', 'Element 2', 'Element 3'],
-                                    targets: ['Target A', 'Target B', 'Target C'],
-                                    correctMapping: { 'Element 1': 'Target B', 'Element 2': 'Target A', 'Element 3': 'Target C' }
+                                    elements: interactionElements,
+                                    targets: Array(2 + complexityLevel).fill(0).map((_, i) => `Target ${String.fromCharCode(65 + i)}`),
+                                    correctMapping: Object.fromEntries(
+                                        interactionElements.map((elem, i) => 
+                                            [elem, `Target ${String.fromCharCode(65 + (i + 1) % interactionElements.length)}`]
+                                        )
+                                    )
                                 }
                             ]
                         }
@@ -498,7 +555,7 @@ export class ContentAdapter {
                     elements: [
                         ...Array(10).fill(0).map((_, i) => ({
                             id: `node-${i}`,
-                            type: 'diagram',
+                            type: 'diagram' as ContentElementType,
                             content: {
                                 label: `Advanced Concept ${i + 1}`,
                                 description: `Detailed description of concept ${i + 1} with examples and context`,
@@ -508,7 +565,7 @@ export class ContentAdapter {
                         })),
                         ...Array(15).fill(0).map((_, i) => ({
                             id: `edge-${i}`,
-                            type: 'diagram',
+                            type: 'diagram' as ContentElementType,
                             content: {
                                 from: `node-${i % 10}`,
                                 to: `node-${(i + 1 + Math.floor(i / 3)) % 10}`,

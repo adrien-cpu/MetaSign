@@ -31,9 +31,8 @@ export class MetricsCollector {
 
     /**
      * Ajoute une métrique spécifique
-     * @param _metric Métrique à ajouter
      */
-    public addMetric(_metric: Metric): void {
+    public addMetric(): void {
         // Implémentation factice pour démonstration
     }
 }

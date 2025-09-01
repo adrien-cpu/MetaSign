@@ -4,7 +4,7 @@
  * Agrégateur de paramètres de modèle optimisé pour différentes stratégies d'agrégation
  */
 
-import { Logger } from '@api/common/monitoring/LogService';
+import { Logger } from '../../../../utils/Logger';
 import { NodeTrainingResult, ModelParameters } from '../../types/DistributedTypes';
 import { AggregationStrategy } from '../types/aggregation.types';
 
@@ -207,33 +207,3 @@ export class ParameterAggregator {
         }
     }
 };
-                
-            case 'weighted_average':
-            case 'confidence_weighted':
-            case 'performance_based':
-            case 'trust_based':
-// Moyenne pondérée (standard)
-for (let i = 0; i < target.length; i++) {
-    target[i] += source[i] * weight;
-}
-break;
-                
-            case 'federated_average':
-// Moyenne fédérée (pondère par rapport à la taille du dataset)
-for (let i = 0; i < target.length; i++) {
-    target[i] += source[i] * weight;
-}
-break;
-                
-            case 'latency_optimized':
-// Optimisé pour la latence (vectorisation si disponible)
-if (target instanceof Float32Array && source instanceof Float32Array) {
-    for (let i = 0; i < target.length; i++) {
-        target[i] += source[i] * weight;
-    }
-} else {
-    for (let i = 0; i < target.length; i++) {
-        target[i] += source[i] * weight;
-    }
-}
-break

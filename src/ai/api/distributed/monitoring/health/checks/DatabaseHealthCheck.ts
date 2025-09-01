@@ -40,7 +40,7 @@ export interface DatabaseHealthCheckOptions {
     /** Requêtes personnalisées à exécuter pour la vérification */
     customQueries?: Array<{
         query: string;
-        params?: any[];
+        params?: (string | number | boolean | null | Date)[];
         description: string;
         expectedRows?: number;
         maxExecutionTime?: number;
@@ -73,7 +73,7 @@ export class DatabaseHealthCheck extends HealthCheckBase {
     /** Requêtes personnalisées à exécuter */
     private readonly customQueries: Array<{
         query: string;
-        params?: any[];
+        params?: (string | number | boolean | null | Date)[];
         description: string;
         expectedRows?: number;
         maxExecutionTime?: number;

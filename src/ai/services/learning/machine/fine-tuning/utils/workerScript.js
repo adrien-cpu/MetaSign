@@ -1,6 +1,6 @@
 // src/ai/learning/fine-tuning/utils/workerScript.js
 
-const { parentPort } = require('worker_threads');
+import { parentPort } from 'worker_threads';
 
 // S'assurer que le port parent est disponible
 if (!parentPort) {
@@ -65,7 +65,7 @@ process.on('uncaughtException', (error) => {
 });
 
 // Gérer les rejets de promesses non gérés
-process.on('unhandledRejection', (reason, promise) => {
+process.on('unhandledRejection', (reason) => {
     console.error('Unhandled rejection in worker:', reason);
 
     // Informer le parent

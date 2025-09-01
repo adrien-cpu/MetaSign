@@ -1,23 +1,48 @@
-// src/ai/learning/models/PredictiveModels.ts
+// src/ai/services/learning/machine/metrics/RecommendationEngine.ts
 
 import {
     UserFeatures,
-    PredictionResult,
-    UserInteractionHistory,
     EngagementPrediction,
-    FrustrationPrediction,
-    DifficultyCurve,
-    OptimalPathPrediction,
-    ModelTrainingStats
+    FrustrationPrediction
 } from '../../types/prediction-types';
 import { LoggerFactory } from '@ai/utils/LoggerFactory';
+
+// Types locaux manquants
+interface UserInteractionHistory {
+    userId: string;
+    timestamp: string;
+    sessionDuration: number;
+    sessionCount: number;
+    completionRate: number;
+    averageScore: number;
+    interactionRate: number;
+    pauseFrequency: number;
+    observedEngagement?: number;
+    observedFrustration?: number;
+    errorRate?: number;
+    timePerTaskTrend?: number;
+    clickFrequency?: number;
+    helpRequests?: number;
+    taskAbandonment?: number;
+    navigationPatternScore?: number;
+    inputRevisions?: number;
+}
+
+interface ModelTrainingStats {
+    trainedAt: Date;
+    sampleSize: number;
+    accuracy: number;
+    userCount: number;
+    convergenceIterations: number;
+    meanSquaredError: number;
+}
 
 /**
  * Modèles prédictifs pour l'adaptation dynamique de l'expérience d'apprentissage.
  * Ce module comprend plusieurs modèles spécialisés qui analysent les comportements
  * passés pour anticiper les besoins futurs et adapter l'expérience en conséquence.
  * 
- * @module PredictiveModels
+ * @module RecommendationEngine
  */
 
 /**
@@ -349,7 +374,6 @@ export class EngagementPredictionModel {
 export class FrustrationPredictionModel {
     private readonly logger = LoggerFactory.getLogger('FrustrationPredictionModel');
     private modelState: Map<string, number[]> = new Map();
-    private lastTrainingDate?: Date;
     private readonly frustrationIndicators = [
         'repeated_errors',
         'increasing_time_per_task',
@@ -481,7 +505,6 @@ export class FrustrationPredictionModel {
                 this.modelState.set(userId, coefficients);
             }
 
-            this.lastTrainingDate = new Date();
             this.logger.info('Frustration model training completed', {
                 usersProcessed: userGroups.size
             });

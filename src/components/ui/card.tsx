@@ -14,7 +14,7 @@ export const Card = React.forwardRef<
 
   useEffect(() => {
     const handleStorageChange = () => {
-      const savedPreferences = JSON.parse(localStorage.getItem("userPreferences") || "{}");
+      const savedPreferences = JSON.parse(localStorage.getItem("userPreferences") || "{}") as { showCards?: boolean };
       setShowCards(savedPreferences.showCards !== false);
     };
 

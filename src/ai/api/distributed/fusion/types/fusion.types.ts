@@ -4,7 +4,7 @@
  * @description Types pour la fusion de résultats dans un système distribué
  * Types pour le système de fusion
  */
-import { ProcessingResult, DistributedResult, ResultMetadata } from '@distributed/types/DistributedTypes';
+import { ProcessingResult, DistributedResult } from '@distributed/types/DistributedTypes';
 
 /**
  * Type pour les stratégies de fusion

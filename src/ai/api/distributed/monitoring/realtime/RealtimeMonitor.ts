@@ -3,11 +3,12 @@
  * Coordonne plusieurs moniteurs spécialisés pour CPU, mémoire et réseau
  */
 import { EventEmitter } from 'events';
+import * as os from 'os';
 import { CPURealtimeMonitor } from './CPURealtimeMonitor';
 import { MemoryRealtimeMonitor } from './MemoryRealtimeMonitor';
 import { NetworkRealtimeMonitor } from './NetworkRealtimeMonitor';
 import { MetricsProcessor } from '../metrics/MetricsProcessor';
-import { Logger } from '@common/monitoring/LogService';
+import { Logger } from '../../../utils/Logger';
 import {
     MonitoringConfig,
     CPUMetrics,
@@ -294,8 +295,8 @@ export class RealtimeMonitor extends EventEmitter {
                     network: networkMetrics,
                     system: {
                         uptime: process.uptime(),
-                        hostname: require('os').hostname(),
-                        load: require('os').loadavg()
+                        hostname: os.hostname(),
+                        load: os.loadavg()
                     }
                 };
 
@@ -402,8 +403,8 @@ export class RealtimeMonitor extends EventEmitter {
                 network: networkMetrics,
                 system: {
                     uptime: process.uptime(),
-                    hostname: require('os').hostname(),
-                    load: require('os').loadavg()
+                    hostname: os.hostname(),
+                    load: os.loadavg()
                 }
             };
 

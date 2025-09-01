@@ -1,25 +1,28 @@
 // src/ai/services/learning/machine/metrics/ProgressTracker.ts
 
-// Types locaux pour l'engagement
-type UserState = 'neutral' | 'engaged' | 'frustrated' | 'bored' | 'distracted' | 'overwhelmed';
+// Temporary type stubs - to be replaced with actual imports when files are created
+type UserState = 'engaged' | 'distracted' | 'frustrated' | 'bored' | 'overwhelmed' | 'neutral';
 
 interface EngagementSignals {
     timestamp: number;
     mouseMovements?: number;
     keystrokes?: number;
     clickEvents?: number;
-    focusState?: boolean;
     scrollEvents?: number;
-    idleTime?: number;
+    focusState?: boolean;
+    timeOnTask?: number;
+    errorRate?: number;
+    responseTime?: number;
 }
 
 interface FrustrationIndicators {
-    level: number;
+    level: number; // 0-1 scale
     sources: string[];
+    patterns: string[];
 }
 
 interface CognitiveLoadEstimate {
-    level: number;
+    level: number; // 0-1 scale
     factors: string[];
 }
 
@@ -32,7 +35,8 @@ interface AttentionMetrics {
 interface RecommendedAction {
     type: string;
     priority: number;
-    description: string;
+    message: string;
+    actionData?: Record<string, unknown>;
 }
 
 interface EngagementAnalysis {
@@ -52,40 +56,83 @@ interface EngagementAnalysis {
     error?: string;
 }
 
-// Interface basique pour le collecteur de métriques
+// Stub interfaces for dependencies
 interface IMetricsCollector {
     recordMetric(name: string, value: number): void;
 }
 
-
-// Implémentations basiques des analyseurs
 class FrustrationDetector {
-    detectFrustration(): FrustrationIndicators {
+    detectFrustration(signals: EngagementSignals[], contextData?: Record<string, unknown>): FrustrationIndicators {
+        // Stub implementation
+        console.log('Detecting frustration with context:', contextData);
+        const recentErrors = signals.filter(s => s.errorRate && s.errorRate > 0.1).length;
+        const frustrationLevel = Math.min(recentErrors / 5, 1);
+        
         return {
-            level: 0.2,
-            sources: []
+            level: frustrationLevel,
+            sources: recentErrors > 2 ? ['repeated_errors', 'slow_progress'] : [],
+            patterns: []
         };
     }
 }
 
 class CognitiveLoadEstimator {
-    estimateCognitiveLoad(): CognitiveLoadEstimate {
+    estimateCognitiveLoad(signals: EngagementSignals[], contextData?: Record<string, unknown>): CognitiveLoadEstimate {
+        // Stub implementation
+        console.log('Estimating cognitive load with context:', contextData);
+        const avgResponseTime = signals
+            .filter(s => s.responseTime)
+            .reduce((sum, s) => sum + (s.responseTime || 0), 0) / signals.length || 1000;
+            
+        const loadLevel = Math.min(avgResponseTime / 3000, 1); // Normalize to 0-1
+        
         return {
-            level: 0.5,
-            factors: []
+            level: loadLevel,
+            factors: loadLevel > 0.7 ? ['high_response_time', 'complex_task'] : []
         };
     }
 }
 
 class EngagementCalculator {
-    calculateEngagementLevel(): number {
-        return 0.7;
+    calculateEngagementLevel(signals: EngagementSignals[], contextData?: Record<string, unknown>): number {
+        // Stub implementation based on activity level
+        console.log('Calculating engagement with context:', contextData);
+        const totalActivity = signals.reduce((sum, s) => {
+            return sum + (s.mouseMovements || 0) + (s.keystrokes || 0) + (s.clickEvents || 0);
+        }, 0);
+        
+        return Math.min(totalActivity / (signals.length * 10), 1); // Normalize to 0-1
     }
 }
 
 class RecommendationGenerator {
-    generateRecommendations(): RecommendedAction[] {
-        return [];
+    generateRecommendations(
+        engagementLevel: number,
+        frustration: FrustrationIndicators,
+        cognitiveLoad: CognitiveLoadEstimate,
+        attention: AttentionMetrics,
+        contextData?: Record<string, unknown>
+    ): RecommendedAction[] {
+        console.log('Generating recommendations with context:', contextData);
+        const recommendations: RecommendedAction[] = [];
+        
+        if (frustration.level > 0.7) {
+            recommendations.push({
+                type: 'reduce_difficulty',
+                priority: 1,
+                message: 'Consider reducing task complexity due to high frustration'
+            });
+        }
+        
+        if (engagementLevel < 0.3) {
+            recommendations.push({
+                type: 'increase_engagement',
+                priority: 2,
+                message: 'Add interactive elements to boost engagement'
+            });
+        }
+        
+        return recommendations;
     }
 }
 
@@ -124,8 +171,6 @@ export class EngagementMonitor {
 
     /**
      * Adds new engagement signals for a specific user
-     * @param userId Unique identifier for the user
-     * @param signals Engagement signals to add
      */
     public addSignals(userId: string, signals: EngagementSignals): void {
         this.metricsCollector.recordMetric('engagement_monitor.signals_received', 1);
@@ -136,10 +181,7 @@ export class EngagementMonitor {
 
         const userSignals = this.signalBuffer.get(userId);
         if (userSignals) {
-            // Add new signals
             userSignals.push(signals);
-
-            // Remove signals outside the analysis window
             const cutoffTime = Date.now() - this.analysisWindow;
             while (userSignals.length > 0 && userSignals[0].timestamp < cutoffTime) {
                 userSignals.shift();
@@ -149,41 +191,40 @@ export class EngagementMonitor {
 
     /**
      * Analyzes the current engagement state for a specific user
-     * @param userId Unique identifier for the user
      */
     public analyzeEngagement(
-        userId: string
+        userId: string,
+        contextData?: {
+            currentActivity?: string;
+            difficulty?: number;
+            learningStyle?: string;
+            previousPerformance?: Record<string, number>;
+        }
     ): EngagementAnalysis {
         this.metricsCollector.recordMetric('engagement_monitor.analysis_started', 1);
         const analysisStart = performance.now();
 
         try {
             const userSignals = this.signalBuffer.get(userId) || [];
-
-            // Log signal count for monitoring
             this.metricsCollector.recordMetric('engagement_monitor.signals_processed', userSignals.length);
 
-            // Skip detailed analysis if no signals are available
             if (userSignals.length === 0) {
-                return this.createDefaultAnalysis(userId);
+                return this.createDefaultAnalysis(userId, contextData);
             }
 
-            // Process engagement indicators
-            const engagementLevel = this.engagementCalculator.calculateEngagementLevel();
-
-            // Detect frustration indicators
-            const frustrationIndicators = this.frustrationDetector.detectFrustration();
-
-            // Estimate cognitive load
-            const cognitiveLoad = this.cognitiveLoadEstimator.estimateCognitiveLoad();
-
-            // Calculate attention metrics
+            const engagementLevel = this.engagementCalculator.calculateEngagementLevel(userSignals, contextData);
+            const frustrationIndicators = this.frustrationDetector.detectFrustration(userSignals, contextData);
+            const cognitiveLoad = this.cognitiveLoadEstimator.estimateCognitiveLoad(userSignals, contextData);
             const attentionMetrics = this.calculateAttentionMetrics(userSignals);
 
-            // Generate recommended actions based on the analysis
-            const recommendedActions = this.recommendationGenerator.generateRecommendations();
+            const recommendedActions = this.recommendationGenerator.generateRecommendations(
+                engagementLevel,
+                frustrationIndicators,
+                cognitiveLoad,
+                attentionMetrics,
+                contextData
+            );
 
-            // Create the complete analysis result
             const result: EngagementAnalysis = {
                 userId,
                 timestamp: Date.now(),
@@ -207,7 +248,6 @@ export class EngagementMonitor {
         } catch (error) {
             this.metricsCollector.recordMetric('engagement_monitor.analysis_error', 1);
 
-            // Return a minimal analysis in case of error
             return {
                 userId,
                 timestamp: Date.now(),
@@ -228,8 +268,7 @@ export class EngagementMonitor {
     }
 
     /**
-     * Clears stored signals for a user, typically when they end a session
-     * @param userId Unique identifier for the user
+     * Clears stored signals for a user
      */
     public clearUserData(userId: string): void {
         this.signalBuffer.delete(userId);
@@ -239,12 +278,15 @@ export class EngagementMonitor {
      * Creates a default analysis when no signals are available
      */
     private createDefaultAnalysis(
-        userId: string
+        userId: string,
+        contextData?: Record<string, unknown>
     ): EngagementAnalysis {
+        console.log('Creating default analysis for user:', userId, 'with context:', contextData);
+        
         return {
             userId,
             timestamp: Date.now(),
-            engagementLevel: 0.5, // Neutral engagement
+            engagementLevel: 0.5,
             frustrationLevel: 0,
             frustrationSources: [],
             cognitiveLoad: { level: 0.5, factors: [] },
@@ -253,23 +295,18 @@ export class EngagementMonitor {
             timeInSession: 0,
             interactionFrequency: 0,
             recommendedActions: [],
-            confidence: 0.1, // Very low confidence due to no data
+            confidence: 0.1,
             analysisTimeMs: 0
         };
     }
 
-    /**
-     * Calculates attention metrics from engagement signals
-     */
     private calculateAttentionMetrics(signals: EngagementSignals[]): AttentionMetrics {
-        // Extract focus-related signals
         const focusEvents = signals.filter(s => s.focusState !== undefined);
 
         if (focusEvents.length === 0) {
             return { focusDuration: 0, distractionCount: 0, attentionShifts: 0 };
         }
 
-        // Calculate total focus duration
         let focusDuration = 0;
         let distractionCount = 0;
         let attentionShifts = 0;
@@ -279,17 +316,14 @@ export class EngagementMonitor {
             const currentEvent = focusEvents[i];
             const nextEvent = i < focusEvents.length - 1 ? focusEvents[i + 1] : null;
 
-            // Count focus/unfocus transitions
             if (lastFocusState !== undefined && lastFocusState !== currentEvent.focusState) {
                 attentionShifts++;
             }
 
-            // Count distractions (transitions from focused to unfocused)
             if (lastFocusState === true && currentEvent.focusState === false) {
                 distractionCount++;
             }
 
-            // Calculate duration if we have a pair of events
             if (nextEvent && currentEvent.focusState) {
                 focusDuration += nextEvent.timestamp - currentEvent.timestamp;
             }
@@ -304,46 +338,34 @@ export class EngagementMonitor {
         };
     }
 
-    /**
-     * Determines the overall user state based on engagement analysis
-     */
     private determineUserState(
         engagementLevel: number,
         frustration: FrustrationIndicators,
         cognitiveLoad: CognitiveLoadEstimate
     ): UserState {
-        // High frustration overrides other states
         if (frustration.level > 0.7) {
             return 'frustrated';
         }
 
-        // Cognitive overload
         if (cognitiveLoad.level > 0.8) {
             return 'overwhelmed';
         }
 
-        // Very low cognitive load might indicate boredom
         if (cognitiveLoad.level < 0.3 && engagementLevel < 0.4) {
             return 'bored';
         }
 
-        // High engagement and appropriate cognitive load is optimal
         if (engagementLevel > 0.7 && cognitiveLoad.level >= 0.4 && cognitiveLoad.level <= 0.7) {
             return 'engaged';
         }
 
-        // Low engagement but not frustrated or bored might be distracted
         if (engagementLevel < 0.4 && frustration.level < 0.4) {
             return 'distracted';
         }
 
-        // Default state
         return 'neutral';
     }
 
-    /**
-     * Calculates the total time in the current session
-     */
     private calculateSessionTime(signals: EngagementSignals[]): number {
         if (signals.length === 0) {
             return 0;
@@ -355,9 +377,6 @@ export class EngagementMonitor {
         return lastTimestamp - firstTimestamp;
     }
 
-    /**
-     * Calculates the frequency of interactions per minute
-     */
     private calculateInteractionFrequency(signals: EngagementSignals[]): number {
         const sessionTimeMinutes = this.calculateSessionTime(signals) / (1000 * 60);
 
@@ -365,7 +384,6 @@ export class EngagementMonitor {
             return 0;
         }
 
-        // Count interaction events
         const interactionCount = signals.filter(s =>
             s.mouseMovements !== undefined ||
             s.keystrokes !== undefined ||
@@ -375,14 +393,8 @@ export class EngagementMonitor {
         return interactionCount / sessionTimeMinutes;
     }
 
-    /**
-     * Calculates confidence in the analysis based on available data
-     */
     private calculateConfidence(signalCount: number): number {
-        // More signals = higher confidence, up to a point
         const baseConfidence = Math.min(signalCount / 20, 1) * 0.8;
-
-        // Add some randomness to avoid exact repetition
         return Math.min(baseConfidence + Math.random() * 0.1, 0.95);
     }
 }

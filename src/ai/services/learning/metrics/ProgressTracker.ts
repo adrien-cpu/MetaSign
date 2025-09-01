@@ -3,7 +3,7 @@
  * @description Suivi de la progression d'apprentissage et des niveaux de maîtrise
  */
 
-import { LoggerFactory } from '@utils/LoggerFactory';
+import { LoggerFactory } from '../../../utils/LoggerFactory';
 import { IProgressTracker } from './interfaces/MetricsInterfaces';
 import { MetricsStore } from './MetricsStore';
 

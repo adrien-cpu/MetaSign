@@ -24,6 +24,24 @@
     "paths": {
       "@/*": [
         "src/*"
+      ],
+      "@ai/*": [
+        "src/ai/*"
+      ],
+      "@api/*": [
+        "src/api/*"
+      ],
+      "@components/*": [
+        "src/components/*"
+      ],
+      "@types/*": [
+        "src/types/*"
+      ],
+      "@utils/*": [
+        "src/utils/*"
+      ],
+      "@constants/*": [
+        "src/constants/*"
       ]
     },
     "types": [

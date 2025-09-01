@@ -474,4 +474,98 @@ export class MetricsStore implements IMetricsStore {
         // Les événements peuvent être convertis en métriques si nécessaire
         console.log(`MetricsStore: Recording event ${eventName}`, data);
     }
+
+    /**
+     * Récupère les métriques d'un utilisateur pour un concept spécifique
+     * 
+     * @method getUserConceptMetrics
+     * @param {string} userId - Identifiant de l'utilisateur
+     * @param {string} conceptId - Identifiant du concept
+     * @returns {Array<{score: number, timeSpent: number, completionDate: Date}>} Métriques du concept
+     * @public
+     */
+    public getUserConceptMetrics(userId: string, conceptId: string): Array<{score: number, timeSpent: number, completionDate: Date}> {
+        const exerciseKey = `${userId}:${conceptId}`;
+        const metrics = this.exerciseMetrics.get(exerciseKey);
+        
+        if (!metrics || !Array.isArray(metrics.exercises)) {
+            return [];
+        }
+
+        return (metrics.exercises as any[]).map(exercise => ({
+            score: exercise.score || 0,
+            timeSpent: exercise.timeSpent || 0,
+            completionDate: exercise.completionDate || new Date()
+        }));
+    }
+
+    /**
+     * Récupère toutes les métriques d'un utilisateur
+     * 
+     * @method getUserMetrics
+     * @param {string} userId - Identifiant de l'utilisateur
+     * @returns {Array<{score: number, timeSpent: number, completionDate: Date}>} Métriques de l'utilisateur
+     * @public
+     */
+    public getUserMetrics(userId: string): Array<{score: number, timeSpent: number, completionDate: Date}> {
+        const allMetrics: Array<{score: number, timeSpent: number, completionDate: Date}> = [];
+        
+        for (const [key, metrics] of this.exerciseMetrics.entries()) {
+            if (key.startsWith(`${userId}:`)) {
+                if (metrics && Array.isArray(metrics.exercises)) {
+                    const exercises = (metrics.exercises as any[]).map(exercise => ({
+                        score: exercise.score || 0,
+                        timeSpent: exercise.timeSpent || 0,
+                        completionDate: exercise.completionDate || new Date()
+                    }));
+                    allMetrics.push(...exercises);
+                }
+            }
+        }
+        
+        return allMetrics;
+    }
+
+    /**
+     * Récupère la liste des concepts pratiqués par un utilisateur
+     * 
+     * @method getPracticedConcepts
+     * @param {string} userId - Identifiant de l'utilisateur
+     * @returns {string[]} Liste des identifiants de concepts
+     * @public
+     */
+    public getPracticedConcepts(userId: string): string[] {
+        const concepts: string[] = [];
+        
+        for (const key of this.exerciseMetrics.keys()) {
+            if (key.startsWith(`${userId}:`)) {
+                const conceptId = key.substring(userId.length + 1);
+                if (conceptId && !concepts.includes(conceptId)) {
+                    concepts.push(conceptId);
+                }
+            }
+        }
+        
+        return concepts;
+    }
+
+    /**
+     * Instance unique du service (pattern Singleton)
+     * @private
+     * @static
+     */
+    private static instance: MetricsStore;
+
+    /**
+     * Récupère ou crée l'instance du service (pattern Singleton)
+     * @returns Instance unique du service
+     * @static
+     * @public
+     */
+    public static getInstance(): MetricsStore {
+        if (!MetricsStore.instance) {
+            MetricsStore.instance = new MetricsStore();
+        }
+        return MetricsStore.instance;
+    }
 }

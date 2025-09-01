@@ -45,7 +45,7 @@ const TextToLSF: React.FC<TextToLSFProps> = ({ onOpenFeedback }) => {
     );
 
     return (
-        <div className="max-w-4xl mx-auto p-6 space-y-6">
+        <div className="max-w-2xl mx-auto p-6 space-y-6">
             <Textarea
                 value={inputText}
                 onChange={handleInputChange}

@@ -14,83 +14,83 @@ export interface UserFeatures {
     /**
      * Temps total passé sur l'apprentissage (en secondes)
      */
-    timeSpent: number;
+    timeSpent?: number;
 
     /**
      * Nombre de sessions d'apprentissage
      */
-    sessionCount: number;
+    sessionCount?: number;
 
     /**
      * Taux de complétion des modules (0-1)
      */
-    completionRate: number;
+    completionRate?: number;
 
     /**
      * Score moyen de l'utilisateur (0-1)
      */
-    averageScore: number;
+    averageScore?: number;
 
     /**
      * Taux de clics (interactions par minute)
      */
-    clickRate: number;
+    clickRate?: number;
 
     /**
      * Fréquence des pauses (par heure)
      */
-    pauseFrequency: number;
+    pauseFrequency?: number;
 
     /**
-     * Heure de la journée (Date)
+     * Heure de la journée (Date ou string)
      */
-    timeOfDay: Date;
+    timeOfDay?: Date | string;
 
     /**
      * Jour de la semaine (0-6, 0 = dimanche)
      */
-    dayOfWeek: number;
+    dayOfWeek?: number;
 
     /**
      * Taux d'erreur dans les exercices (0-1)
      */
-    errorRate: number;
+    errorRate?: number;
 
     /**
      * Tendance du temps par tâche (-1 à 1)
      * Valeur positive = diminution du temps par tâche (amélioration)
      */
-    timePerTaskTrend: number;
+    timePerTaskTrend?: number;
 
     /**
      * Fréquence des clics (par minute)
      */
-    clickFrequency: number;
+    clickFrequency?: number;
 
     /**
      * Nombre de demandes d'aide
      */
-    helpRequests: number;
+    helpRequests?: number;
 
     /**
      * Taux d'abandon des tâches (0-1)
      */
-    taskAbandonment: number;
+    taskAbandonment?: number;
 
     /**
      * Score de cohérence de navigation (0-1)
      */
-    navigationPatternScore: number;
+    navigationPatternScore?: number;
 
     /**
      * Nombre de révisions d'entrée/corrections
      */
-    inputRevisions: number;
+    inputRevisions?: number;
 
     /**
      * Timestamp de la dernière activité
      */
-    lastActivityTimestamp: Date;
+    lastActivityTimestamp?: Date | string;
 
     /**
      * Caractéristiques additionnelles spécifiques au cas d'usage
@@ -121,9 +121,24 @@ export interface EngagementPrediction {
     }>;
 
     /**
+     * Facteurs influençant la prédiction (format simple)
+     */
+    factors?: string[];
+
+    /**
      * Recommandations pour améliorer l'engagement
      */
     recommendations?: string[];
+
+    /**
+     * Timestamp de la prédiction
+     */
+    timestamp?: Date;
+
+    /**
+     * Erreur éventuelle lors de la prédiction
+     */
+    error?: string;
 
     /**
      * Métadonnées additionnelles sur la prédiction
@@ -146,9 +161,24 @@ export interface FrustrationPrediction {
     confidence: number;
 
     /**
+     * Niveau de frustration ('low', 'medium', 'high', 'critical')
+     */
+    level?: 'low' | 'medium' | 'high' | 'critical';
+
+    /**
      * Causes probables de frustration identifiées
      */
     probableCauses?: string[];
+
+    /**
+     * Facteurs contribuant à la frustration
+     */
+    contributingFactors?: string[];
+
+    /**
+     * Interventions recommandées
+     */
+    recommendedInterventions?: string[];
 
     /**
      * Niveau de sévérité ('low', 'medium', 'high')
@@ -159,6 +189,16 @@ export interface FrustrationPrediction {
      * Suggestions pour réduire la frustration
      */
     mitigationSuggestions?: string[];
+
+    /**
+     * Timestamp de la prédiction
+     */
+    timestamp?: Date;
+
+    /**
+     * Erreur éventuelle lors de la prédiction
+     */
+    error?: string;
 
     /**
      * Métadonnées additionnelles sur la prédiction
