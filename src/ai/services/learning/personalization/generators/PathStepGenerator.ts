@@ -15,11 +15,18 @@ import type {
     StepGeneratorConfig,
     LearningPathStep,
     StepType,
-    PathGenerationMode,
     CECRLLevel
 } from '../types/LearningPathTypes';
-import { LEARNING_PATH_CONSTANTS } from '../types/LearningPathTypes';
-import type { UserReverseProfile } from '@/ai/services/learning/human/coda/codavirtuel/ReverseApprenticeshipSystem';
+
+/**
+ * Interface locale pour le profil d'apprentissage inversé
+ */
+interface UserReverseProfile {
+    currentLevel: number;
+    exercisePreferences?: {
+        preferredTypes?: string[];
+    };
+}
 
 import {
     StepConfigurationManager,
@@ -426,13 +433,8 @@ export class PathStepGenerator {
             prerequisites: stepConfig.prerequisites,
             priority: stepConfig.priority,
             status: stepConfig.status,
-            metadata: {
-                ...stepConfig.metadata,
-                contentGenerated: !!content,
-                hasAdvancedMaterials: content?.materials.length || 0,
-                culturalNotesCount: content?.culturalNotes.length || 0,
-                adaptiveHintsCount: content?.adaptiveHints.length || 0
-            }
+            params: {},
+            mandatory: true
         };
     }
 
@@ -444,7 +446,17 @@ export class PathStepGenerator {
      * @private
      */
     private calculateTotalStepsTarget(generatorConfig: StepGeneratorConfig): number {
-        const baseStepsForLevel = LEARNING_PATH_CONSTANTS.BASE_STEPS_BY_LEVEL[generatorConfig.options.targetLevel] || 20;
+        // Utiliser une constante locale si BASE_STEPS_BY_LEVEL n'existe pas
+        const baseStepsByLevel: Record<CECRLLevel, number> = {
+            A1: 15,
+            A2: 20,
+            B1: 25,
+            B2: 30,
+            C1: 35,
+            C2: 40
+        };
+        
+        const baseStepsForLevel = baseStepsByLevel[generatorConfig.options.targetLevel] || 20;
         const intensityMultiplier = 0.8 + (generatorConfig.intensity * 0.1); // 0.8 à 1.3
 
         return Math.round(baseStepsForLevel * intensityMultiplier);
@@ -496,8 +508,18 @@ export class PathStepGenerator {
      * @private
      */
     private calculateTotalPathDuration(generatorConfig: StepGeneratorConfig): number {
+        // Utiliser une constante locale si DEFAULT_LEVEL_DURATIONS n'existe pas
+        const defaultLevelDurations: Record<CECRLLevel, number> = {
+            A1: 30,
+            A2: 45,
+            B1: 60,
+            B2: 90,
+            C1: 120,
+            C2: 150
+        };
+        
         return generatorConfig.options.targetDuration ||
-            LEARNING_PATH_CONSTANTS.DEFAULT_LEVEL_DURATIONS[generatorConfig.options.targetLevel] ||
+            defaultLevelDurations[generatorConfig.options.targetLevel] ||
             30;
     }
 

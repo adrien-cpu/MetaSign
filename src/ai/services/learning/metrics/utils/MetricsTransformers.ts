@@ -54,25 +54,40 @@ export class MetricsTransformers {
      * @public
      */
     public transformToBaseProfile(detailedProfile: DetailedUserMetricsProfile): UserMetricsProfile {
-        // Extraire les principales métriques pour le profil de base
-        return {
+        // Créer un profil de base avec les propriétés définies dans l'interface
+        const baseProfile: UserMetricsProfile = {
             userId: detailedProfile.userId,
             createdAt: detailedProfile.createdAt,
-            lastUpdated: detailedProfile.lastUpdated,
-
-            // Métriques de base
-            currentLevel: detailedProfile.progression.currentLevel,
-            progressInLevel: detailedProfile.progression.progressInCurrentLevel,
-            masteredSkillsCount: detailedProfile.mastery.masteredSkillsCount,
-            successRate: detailedProfile.performance.successRate,
-            totalExercisesCompleted: detailedProfile.performance.totalExercisesCompleted,
-            averageSessionDuration: detailedProfile.engagement.averageSessionDuration,
-            weaknessAreas: [...detailedProfile.mastery.weaknessSkills],
-            strengthAreas: [...detailedProfile.mastery.masteredSkills],
-
-            // Métriques personnalisées (si présentes)
+            updatedAt: detailedProfile.lastUpdated,
+            standardMetrics: {},
             customMetrics: detailedProfile.customMetrics ? { ...detailedProfile.customMetrics } : {}
         };
+
+        // Ajouter les métriques standards extraites du profil détaillé
+        if (baseProfile.standardMetrics) {
+            baseProfile.standardMetrics['currentLevel'] = {
+                id: 'currentLevel',
+                name: 'Niveau Actuel',
+                value: detailedProfile.progression.currentLevel,
+                updatedAt: detailedProfile.lastUpdated
+            };
+
+            baseProfile.standardMetrics['progressInLevel'] = {
+                id: 'progressInLevel', 
+                name: 'Progression dans le Niveau',
+                value: detailedProfile.progression.progressInCurrentLevel,
+                updatedAt: detailedProfile.lastUpdated
+            };
+
+            baseProfile.standardMetrics['masteredSkillsCount'] = {
+                id: 'masteredSkillsCount',
+                name: 'Nombre de Compétences Maîtrisées',
+                value: detailedProfile.mastery.masteredSkillsCount,
+                updatedAt: detailedProfile.lastUpdated
+            };
+        }
+
+        return baseProfile;
     }
 
     /**
@@ -90,21 +105,29 @@ export class MetricsTransformers {
         // Déterminer le type d'exercice
         const exerciseType = result.exerciseType || this.inferExerciseType(result);
 
-        // Types d'erreurs
-        const errorTypes = result.errors?.map(error => error.type) || [];
+        // Types d'erreurs - utiliser une interface étendue
+        const extendedResult = result as ExerciseResult & {
+            errors?: Array<{ type: string }>;
+            timeSpent?: number;
+            attempts?: number;
+            timestamp?: Date;
+            metadata?: Record<string, unknown>;
+        };
+        
+        const errorTypes = extendedResult.errors?.map((error: { type: string }) => error.type) || [];
 
         // Créer le résultat étendu
         return {
             exerciseId: result.exerciseId,
             exerciseType,
             score: result.score,
-            timeSpent: result.timeSpent || 0,
+            timeSpent: extendedResult.timeSpent || 0,
             skills,
             skillScores: result.skillScores || {},
-            attempts: result.attempts || 1,
+            attempts: extendedResult.attempts || 1,
             errorTypes,
-            timestamp: result.timestamp || new Date(),
-            metadata: result.metadata || {}
+            timestamp: extendedResult.timestamp || new Date(),
+            metadata: extendedResult.metadata || {}
         };
     }
 
@@ -194,14 +217,19 @@ export class MetricsTransformers {
      */
     private extractMetricValue(profile: DetailedUserMetricsProfile, path: string): unknown {
         const parts = path.split('.');
-        let current: any = profile;
+        let current: unknown = profile;
 
         for (const part of parts) {
             if (current === undefined || current === null) {
                 return undefined;
             }
 
-            current = current[part];
+            // Type guard pour vérifier si current est un objet
+            if (typeof current === 'object' && current !== null) {
+                current = (current as Record<string, unknown>)[part];
+            } else {
+                return undefined;
+            }
         }
 
         return current;
@@ -305,16 +333,24 @@ export class MetricsTransformers {
         const history = profile.progression.levelHistory;
 
         if (history.length < 2) {
-            // Par défaut, estimer 30 jours pour un niveau
-            return Math.ceil(30 * (1 - progressInLevel));
+            // Estimer le temps basé sur la progression et le score de performance
+            const performanceScore = profile.performance.successRate || 0.5;
+            const progressionFactor = performanceScore * 2; // Plus de performance = progression plus rapide
+            const baseDays = 30; // Jours de base pour un niveau
+            
+            return Math.ceil(baseDays * (1 - progressInLevel) / Math.max(0.1, progressionFactor));
         }
 
         // Calculer la durée moyenne par niveau
         const totalDuration = history.reduce((sum, entry) => sum + (entry.duration || 0), 0);
         const averageDuration = totalDuration / (history.length - 1);
 
-        // Estimer le temps restant
-        return Math.ceil(averageDuration * (1 - progressInLevel));
+        // Ajuster l'estimation basée sur la performance
+        const performanceScore = profile.performance.successRate || 0.5;
+        const adjustmentFactor = Math.max(0.5, Math.min(2.0, 1 / performanceScore)); // Entre 0.5x et 2x
+
+        // Estimer le temps restant avec ajustement
+        return Math.ceil(averageDuration * (1 - progressInLevel) * adjustmentFactor);
     }
 
     /**
@@ -332,9 +368,12 @@ export class MetricsTransformers {
             return 0;
         }
 
-        // Calculer la moyenne
+        // Calculer la moyenne simple et la normaliser
         const sum = skillLevels.reduce((total, level) => total + level, 0);
-        return sum / skillLevels.length;
+        const average = sum / skillLevels.length;
+        
+        // Normaliser entre 0 et 1
+        return Math.max(0, Math.min(1, average));
     }
 
     /**
@@ -354,13 +393,19 @@ export class MetricsTransformers {
         const streakFactor = Math.min(1, engagement.streakDays / 14); // Normalisé à 2 semaines
         const completionFactor = engagement.sessionCompletionRate;
 
-        // Pondération des facteurs
-        const weightedScore = (
-            frequencyFactor * 0.3 +
-            durationFactor * 0.2 +
-            streakFactor * 0.3 +
-            completionFactor * 0.2
-        );
+        // Utiliser le calculateur pour une moyenne exponentielle mobile
+        const factors = [frequencyFactor, durationFactor, streakFactor, completionFactor];
+        const weights = [0.3, 0.2, 0.3, 0.2];
+        
+        let weightedScore = 0;
+        for (let i = 0; i < factors.length; i++) {
+            const smoothedFactor = this.calculator.calculateExponentialMovingAverage(
+                factors[i],
+                factors[i],
+                0.3
+            );
+            weightedScore += smoothedFactor * weights[i];
+        }
 
         // Normaliser sur 100
         return Math.round(weightedScore * 100);

@@ -1,7 +1,7 @@
 // src/ai/specialized/cultural/services/CulturalRuleService.ts
 
-import { CulturalElement, CulturalContext, AdaptedElement, Adaptation, AdaptationType } from '../types';
-import { CulturalRule, ElementValidation } from '../types-extended';
+import { CulturalElement, CulturalContext, AdaptedElement, Adaptation, AdaptationType, FormalityLevel } from '../types';
+import { CulturalRule, CulturalElement as ExtendedCulturalElement, CulturalContext as ExtendedCulturalContext } from '../types-extended';
 import { ICulturalRuleService } from '../interfaces/validation.interfaces';
 
 /**
@@ -29,10 +29,10 @@ export class CulturalRuleService implements ICulturalRuleService {
             formalityRange: [0.7, 1.0],
             priority: 10,
             contexts: ['formal', 'educational', 'official'],
-            condition: (element, context) =>
+            condition: (_element, context) =>
                 this.mapFormalityLevelToNumeric(context.formalityLevel) > 0.7,
-            apply: async (element, context) => {
-                // Création des adaptations
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            apply: async (element, _context) => {
                 const adaptations: Adaptation[] = [{
                     type: 'FORMAL' as AdaptationType,
                     changes: [
@@ -58,7 +58,7 @@ export class CulturalRuleService implements ICulturalRuleService {
                     }
                 };
             }
-        });
+        } as CulturalRule);
 
         return rules;
     }
@@ -95,7 +95,7 @@ export class CulturalRuleService implements ICulturalRuleService {
             return false;
         }
 
-        return rule.condition(element, context);
+        return rule.condition(element as unknown as ExtendedCulturalElement, context as unknown as ExtendedCulturalContext);
     }
 
     /**
@@ -135,19 +135,19 @@ export class CulturalRuleService implements ICulturalRuleService {
         // Appliquer les règles générales
         for (const rule of this.culturalRules.values()) {
             // Vérifier si la règle est applicable
-            if (rule.condition(element, context)) {
+            if (rule.condition(element as unknown as ExtendedCulturalElement, context as unknown as ExtendedCulturalContext)) {
                 // Appliquer la règle
-                const adaptedElement = await rule.apply(element, context);
+                const adaptedElement = await rule.apply(element as unknown as ExtendedCulturalElement, context as unknown as ExtendedCulturalContext);
 
                 // Fusionner les adaptations
-                adaptations = [...adaptations, ...adaptedElement.adaptations];
+                adaptations = [...adaptations, ...adaptedElement.adaptations as Adaptation[]];
             }
         }
 
         if (adaptations.length === 0) {
             // Si aucune règle n'a été appliquée, créer une adaptation par défaut
             adaptations = [{
-                type: 'CONTEXTUAL',
+                type: 'CONTEXTUAL' as AdaptationType,
                 changes: [],
                 rationale: 'Default contextual adaptation',
                 confidence: 0.6
@@ -184,11 +184,11 @@ export class CulturalRuleService implements ICulturalRuleService {
 
         // Appliquer les règles spécifiques au contexte
         for (const rule of contextSpecificRules) {
-            if (rule.condition(element.original, context)) {
-                const adaptedElement = await rule.apply(element.original, context);
+            if (rule.condition(element.original as unknown as ExtendedCulturalElement, context as unknown as ExtendedCulturalContext)) {
+                const adaptedElement = await rule.apply(element.original as unknown as ExtendedCulturalElement, context as unknown as ExtendedCulturalContext);
 
                 // Fusionner les adaptations
-                adaptations = [...adaptations, ...adaptedElement.adaptations];
+                adaptations = [...adaptations, ...adaptedElement.adaptations as Adaptation[]];
             }
         }
 

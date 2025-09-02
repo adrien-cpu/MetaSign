@@ -1,7 +1,39 @@
 // src/ai/learning/realtime/analyzers/CognitiveLoadEstimator.ts
 
-import { EngagementSignals, CognitiveLoadEstimate, CognitiveLoadFactor } from '@ai/learning/types/engagement.types';
-import { IMetricsCollector } from '@api/common/metrics/interfaces/IMetricsCollector';
+// Types définis localement pour éviter les dépendances manquantes
+export interface EngagementSignals {
+    timestamp: number;
+    responseTime: number;
+    errorRate: number;
+    pauseDuration: number;
+    revisitFrequency: number;
+    complexityLevel: number;
+    multiTaskingIndicators: number;
+    consistencyVariance: number;
+    activityType: string;
+    contentId: string;
+}
+
+export interface CognitiveLoadFactor {
+    factorName: string;
+    value: number;
+    weight: number;
+    contribution: number;
+    description: string;
+}
+
+export interface CognitiveLoadEstimate {
+    level: number;
+    factors: CognitiveLoadFactor[];
+    confidence: number;
+    timestamp: number;
+    recommendations?: string[];
+}
+
+// Interface minimaliste pour le collecteur de métriques
+interface IMetricsCollector {
+    recordMetric(name: string, value: number): void;
+}
 
 /**
  * Estimates the cognitive load of a learner based on real-time engagement signals.
@@ -28,20 +60,22 @@ export class CognitiveLoadEstimator {
 
     /**
      * Estimates cognitive load based on engagement signals and context
-     * @param signals Array of engagement signals
-     * @param contextData Additional context data
-     * @returns Cognitive load estimate with level and contributing factors
      */
     public estimateCognitiveLoad(
         signals: EngagementSignals[],
-        contextData?: Record<string, any>
+        contextData?: Record<string, unknown>
     ): CognitiveLoadEstimate {
         this.metricsCollector.recordMetric('cognitive_load.estimation_start', 1);
         const startTime = performance.now();
 
         try {
             if (signals.length === 0) {
-                return { level: 0.5, factors: [] };
+                return { 
+                    level: 0.5, 
+                    factors: [],
+                    confidence: 0.1,
+                    timestamp: Date.now()
+                };
             }
 
             // Extract cognitive load factors from signals
@@ -49,259 +83,241 @@ export class CognitiveLoadEstimator {
             let totalLoadLevel = 0;
             let totalWeight = 0;
 
-            // Response time factor
-            const responseTimeFactor = this.calculateResponseTimeFactor(signals);
-            if (responseTimeFactor) {
-                factors.push(responseTimeFactor);
-                totalLoadLevel += responseTimeFactor.contribution * (this.factorWeights.get('responseTime') || 0);
-                totalWeight += this.factorWeights.get('responseTime') || 0;
+            // Analyze each factor
+            for (const [factorName, weight] of this.factorWeights.entries()) {
+                const factorContribution = this.analyzeFactor(factorName, signals, contextData);
+                
+                if (factorContribution !== null) {
+                    factors.push({
+                        factorName,
+                        value: factorContribution.value,
+                        weight,
+                        contribution: factorContribution.value * weight,
+                        description: factorContribution.description
+                    });
+
+                    totalLoadLevel += factorContribution.value * weight;
+                    totalWeight += weight;
+                }
             }
 
-            // Error rate factor
-            const errorRateFactor = this.calculateErrorRateFactor(signals);
-            if (errorRateFactor) {
-                factors.push(errorRateFactor);
-                totalLoadLevel += errorRateFactor.contribution * (this.factorWeights.get('errorRate') || 0);
-                totalWeight += this.factorWeights.get('errorRate') || 0;
-            }
+            // Normalize the load level
+            const normalizedLevel = totalWeight > 0 ? totalLoadLevel / totalWeight : 0.5;
+            const confidence = this.calculateConfidence(factors, signals.length);
 
-            // Pause duration factor
-            const pauseDurationFactor = this.calculatePauseDurationFactor(signals);
-            if (pauseDurationFactor) {
-                factors.push(pauseDurationFactor);
-                totalLoadLevel += pauseDurationFactor.contribution * (this.factorWeights.get('pauseDuration') || 0);
-                totalWeight += this.factorWeights.get('pauseDuration') || 0;
-            }
-
-            // Revisit frequency factor
-            const revisitFactor = this.calculateRevisitFactor(signals);
-            if (revisitFactor) {
-                factors.push(revisitFactor);
-                totalLoadLevel += revisitFactor.contribution * (this.factorWeights.get('revisitFrequency') || 0);
-                totalWeight += this.factorWeights.get('revisitFrequency') || 0;
-            }
-
-            // Content complexity factor (from context data)
-            if (contextData?.difficulty !== undefined) {
-                const complexityFactor: CognitiveLoadFactor = {
-                    name: 'contentComplexity',
-                    value: contextData.difficulty,
-                    contribution: contextData.difficulty, // Higher difficulty = higher cognitive load
-                    description: `Content difficulty level: ${contextData.difficulty.toFixed(2)}`
-                };
-
-                factors.push(complexityFactor);
-                totalLoadLevel += complexityFactor.contribution * (this.factorWeights.get('complexityLevel') || 0);
-                totalWeight += this.factorWeights.get('complexityLevel') || 0;
-            }
-
-            // Multitasking indicators
-            const multitaskingFactor = this.calculateMultitaskingFactor(signals);
-            if (multitaskingFactor) {
-                factors.push(multitaskingFactor);
-                totalLoadLevel += multitaskingFactor.contribution * (this.factorWeights.get('multiTaskingIndicators') || 0);
-                totalWeight += this.factorWeights.get('multiTaskingIndicators') || 0;
-            }
-
-            // Consistency variance
-            const consistencyFactor = this.calculateConsistencyFactor(signals);
-            if (consistencyFactor) {
-                factors.push(consistencyFactor);
-                totalLoadLevel += consistencyFactor.contribution * (this.factorWeights.get('consistencyVariance') || 0);
-                totalWeight += this.factorWeights.get('consistencyVariance') || 0;
-            }
-
-            // Normalize cognitive load level
-            const normalizedLevel = totalWeight > 0
-                ? Math.min(1, Math.max(0, totalLoadLevel / totalWeight))
-                : 0.5; // Default to medium if no factors
+            // Generate recommendations based on load level
+            const recommendations = this.generateRecommendations(normalizedLevel, factors);
 
             const result: CognitiveLoadEstimate = {
-                level: normalizedLevel,
-                factors: factors.sort((a, b) => b.contribution - a.contribution)
+                level: Math.max(0, Math.min(1, normalizedLevel)),
+                factors,
+                confidence,
+                timestamp: Date.now(),
+                recommendations
             };
 
-            this.metricsCollector.recordMetric('cognitive_load.estimation_success', 1);
-            this.metricsCollector.recordMetric('cognitive_load.estimation_time_ms', performance.now() - startTime);
+            const duration = performance.now() - startTime;
+            this.metricsCollector.recordMetric('cognitive_load.estimation_duration', duration);
+            this.metricsCollector.recordMetric('cognitive_load.estimated_level', result.level);
 
             return result;
         } catch (error) {
             this.metricsCollector.recordMetric('cognitive_load.estimation_error', 1);
-
-            // Return a default estimate in case of error
-            return {
-                level: 0.5,
-                factors: [],
-                error: String(error)
-            };
+            throw error;
         }
     }
 
     /**
-     * Calculates the response time factor for cognitive load
+     * Analyzes a specific cognitive load factor
      */
-    private calculateResponseTimeFactor(signals: EngagementSignals[]): CognitiveLoadFactor | null {
-        const responseTimeSignals = signals
-            .filter(s => s.responseTime !== undefined)
-            .map(s => s.responseTime!);
+    private analyzeFactor(
+        factorName: string,
+        signals: EngagementSignals[],
+        contextData?: Record<string, unknown>
+    ): { value: number; description: string } | null {
+        if (signals.length === 0) return null;
 
-        if (responseTimeSignals.length < 2) {
-            return null;
+        switch (factorName) {
+            case 'responseTime':
+                return this.analyzeResponseTime(signals);
+            case 'errorRate':
+                return this.analyzeErrorRate(signals);
+            case 'pauseDuration':
+                return this.analyzePauseDuration(signals);
+            case 'revisitFrequency':
+                return this.analyzeRevisitFrequency(signals);
+            case 'complexityLevel':
+                return this.analyzeComplexityLevel(signals, contextData);
+            case 'multiTaskingIndicators':
+                return this.analyzeMultiTasking(signals);
+            case 'consistencyVariance':
+                return this.analyzeConsistency(signals);
+            default:
+                return null;
         }
+    }
 
-        // Calculate average response time
-        const avgResponseTime = responseTimeSignals.reduce((sum, time) => sum + time, 0) / responseTimeSignals.length;
-
-        // Normalize to a 0-1 scale (assumes response times typically range from 0-10000ms)
-        // Higher values indicate higher cognitive load
-        const normalizedValue = Math.min(avgResponseTime / 10000, 1);
-
+    /**
+     * Analyzes response time patterns
+     */
+    private analyzeResponseTime(signals: EngagementSignals[]): { value: number; description: string } {
+        const avgResponseTime = signals.reduce((sum, s) => sum + s.responseTime, 0) / signals.length;
+        
+        // Normalize response time (assuming 0-10 seconds range)
+        const normalizedTime = Math.min(1, avgResponseTime / 10000); // 10 seconds = high load
+        
         return {
-            name: 'responseTime',
-            value: avgResponseTime,
-            contribution: normalizedValue,
+            value: normalizedTime,
             description: `Average response time: ${avgResponseTime.toFixed(0)}ms`
         };
     }
 
     /**
-     * Calculates the error rate factor for cognitive load
+     * Analyzes error rate patterns
      */
-    private calculateErrorRateFactor(signals: EngagementSignals[]): CognitiveLoadFactor | null {
-        const interactionSignals = signals.filter(s => s.interactionResult !== undefined);
-
-        if (interactionSignals.length < 3) {
-            return null;
-        }
-
-        // Count errors
-        const errorCount = interactionSignals.filter(s => s.interactionResult === 'error').length;
-        const errorRate = errorCount / interactionSignals.length;
-
+    private analyzeErrorRate(signals: EngagementSignals[]): { value: number; description: string } {
+        const avgErrorRate = signals.reduce((sum, s) => sum + s.errorRate, 0) / signals.length;
+        
         return {
-            name: 'errorRate',
-            value: errorRate,
-            contribution: errorRate, // Higher error rate = higher cognitive load
-            description: `Error rate: ${(errorRate * 100).toFixed(1)}%`
+            value: Math.min(1, avgErrorRate),
+            description: `Error rate: ${(avgErrorRate * 100).toFixed(1)}%`
         };
     }
 
     /**
-     * Calculates the pause duration factor for cognitive load
+     * Analyzes pause duration patterns
      */
-    private calculatePauseDurationFactor(signals: EngagementSignals[]): CognitiveLoadFactor | null {
-        const pauseSignals = signals.filter(s => s.pauseDuration !== undefined);
-
-        if (pauseSignals.length < 2) {
-            return null;
-        }
-
-        // Calculate average pause duration
-        const avgPauseDuration = pauseSignals.reduce((sum, s) => sum + s.pauseDuration!, 0) / pauseSignals.length;
-
-        // Normalize to a 0-1 scale (assumes pause durations typically range from 0-5000ms)
-        const normalizedValue = Math.min(avgPauseDuration / 5000, 1);
-
+    private analyzePauseDuration(signals: EngagementSignals[]): { value: number; description: string } {
+        const avgPauseDuration = signals.reduce((sum, s) => sum + s.pauseDuration, 0) / signals.length;
+        
+        // Normalize pause duration (assuming 0-5 seconds range)
+        const normalizedPause = Math.min(1, avgPauseDuration / 5000);
+        
         return {
-            name: 'pauseDuration',
-            value: avgPauseDuration,
-            contribution: normalizedValue, // Longer pauses indicate higher cognitive load
+            value: normalizedPause,
             description: `Average pause duration: ${avgPauseDuration.toFixed(0)}ms`
         };
     }
 
     /**
-     * Calculates the content revisit factor for cognitive load
+     * Analyzes content revisit patterns
      */
-    private calculateRevisitFactor(signals: EngagementSignals[]): CognitiveLoadFactor | null {
-        const navigationSignals = signals.filter(s => s.navigationAction !== undefined);
-
-        if (navigationSignals.length < 3) {
-            return null;
-        }
-
-        // Count backward navigation actions (revisits)
-        const revisitCount = navigationSignals.filter(s =>
-            s.navigationAction === 'back' ||
-            s.navigationAction === 'repeat'
-        ).length;
-
-        const revisitRate = revisitCount / navigationSignals.length;
-
+    private analyzeRevisitFrequency(signals: EngagementSignals[]): { value: number; description: string } {
+        const avgRevisitFreq = signals.reduce((sum, s) => sum + s.revisitFrequency, 0) / signals.length;
+        
         return {
-            name: 'revisitFrequency',
-            value: revisitRate,
-            contribution: revisitRate, // Higher revisit rate suggests higher cognitive load
-            description: `Content revisit rate: ${(revisitRate * 100).toFixed(1)}%`
+            value: Math.min(1, avgRevisitFreq / 5), // Normalize to 0-1 range
+            description: `Revisit frequency: ${avgRevisitFreq.toFixed(1)} times`
         };
     }
 
     /**
-     * Calculates the multitasking factor for cognitive load
+     * Analyzes complexity level impact
      */
-    private calculateMultitaskingFactor(signals: EngagementSignals[]): CognitiveLoadFactor | null {
-        const focusSignals = signals.filter(s => s.focusState !== undefined);
+    private analyzeComplexityLevel(
+        signals: EngagementSignals[],
+        contextData?: Record<string, unknown>
+    ): { value: number; description: string } {
+        const avgComplexity = signals.reduce((sum, s) => sum + s.complexityLevel, 0) / signals.length;
+        
+        // Consider context data if available
+        let adjustedComplexity = avgComplexity;
+        if (contextData?.difficultyMultiplier) {
+            adjustedComplexity *= contextData.difficultyMultiplier as number;
+        }
+        
+        return {
+            value: Math.min(1, adjustedComplexity / 5), // Normalize assuming 0-5 scale
+            description: `Content complexity level: ${avgComplexity.toFixed(1)}/5`
+        };
+    }
 
-        if (focusSignals.length < 3) {
-            return null;
+    /**
+     * Analyzes multitasking indicators
+     */
+    private analyzeMultiTasking(signals: EngagementSignals[]): { value: number; description: string } {
+        const avgMultiTasking = signals.reduce((sum, s) => sum + s.multiTaskingIndicators, 0) / signals.length;
+        
+        return {
+            value: Math.min(1, avgMultiTasking),
+            description: `Multitasking level: ${(avgMultiTasking * 100).toFixed(0)}%`
+        };
+    }
+
+    /**
+     * Analyzes response consistency
+     */
+    private analyzeConsistency(signals: EngagementSignals[]): { value: number; description: string } {
+        const avgVariance = signals.reduce((sum, s) => sum + s.consistencyVariance, 0) / signals.length;
+        
+        return {
+            value: Math.min(1, avgVariance),
+            description: `Response variance: ${(avgVariance * 100).toFixed(1)}%`
+        };
+    }
+
+    /**
+     * Calculates confidence level for the estimate
+     */
+    private calculateConfidence(factors: CognitiveLoadFactor[], sampleSize: number): number {
+        // Base confidence on number of factors analyzed and sample size
+        const factorCoverage = factors.length / this.factorWeights.size;
+        const sampleConfidence = Math.min(1, sampleSize / 10); // Max confidence at 10+ samples
+        
+        return (factorCoverage + sampleConfidence) / 2;
+    }
+
+    /**
+     * Generates recommendations based on cognitive load level
+     */
+    private generateRecommendations(level: number, factors: CognitiveLoadFactor[]): string[] {
+        const recommendations: string[] = [];
+        
+        if (level > 0.8) {
+            recommendations.push('Consider reducing content complexity');
+            recommendations.push('Provide additional scaffolding and support');
+            recommendations.push('Break down tasks into smaller chunks');
+        } else if (level > 0.6) {
+            recommendations.push('Monitor learner closely for signs of overload');
+            recommendations.push('Provide periodic breaks or easier content');
+        } else if (level < 0.3) {
+            recommendations.push('Consider increasing content complexity');
+            recommendations.push('Introduce additional challenges');
         }
 
-        // Count focus transitions (potential multitasking indicators)
-        let focusTransitions = 0;
-        for (let i = 1; i < focusSignals.length; i++) {
-            if (focusSignals[i].focusState !== focusSignals[i - 1].focusState) {
-                focusTransitions++;
+        // Factor-specific recommendations
+        const highFactors = factors.filter(f => f.contribution > 0.15);
+        for (const factor of highFactors) {
+            switch (factor.factorName) {
+                case 'responseTime':
+                    recommendations.push('Provide time management strategies');
+                    break;
+                case 'errorRate':
+                    recommendations.push('Review foundational concepts');
+                    break;
+                case 'pauseDuration':
+                    recommendations.push('Encourage active engagement techniques');
+                    break;
             }
         }
 
-        // Calculate transitions per minute
-        const sessionDurationMinutes = (focusSignals[focusSignals.length - 1].timestamp - focusSignals[0].timestamp) / 60000;
-
-        if (sessionDurationMinutes < 0.1) { // Less than 6 seconds
-            return null;
-        }
-
-        const transitionsPerMinute = focusTransitions / sessionDurationMinutes;
-
-        // Normalize to 0-1 (assume 0-10 transitions per minute range)
-        const normalizedValue = Math.min(transitionsPerMinute / 10, 1);
-
-        return {
-            name: 'multitaskingIndicators',
-            value: transitionsPerMinute,
-            contribution: normalizedValue, // More focus transitions suggest higher cognitive load due to task switching
-            description: `Focus transitions per minute: ${transitionsPerMinute.toFixed(1)}`
-        };
+        return recommendations;
     }
 
     /**
-     * Calculates the consistency factor for cognitive load
+     * Updates factor weights based on learning outcomes
      */
-    private calculateConsistencyFactor(signals: EngagementSignals[]): CognitiveLoadFactor | null {
-        const interactionSignals = signals.filter(s => s.interactionDuration !== undefined);
-
-        if (interactionSignals.length < 4) {
-            return null;
+    public updateFactorWeights(factorName: string, newWeight: number): void {
+        if (this.factorWeights.has(factorName) && newWeight >= 0 && newWeight <= 1) {
+            this.factorWeights.set(factorName, newWeight);
+            this.metricsCollector.recordMetric('cognitive_load.weight_updated', 1);
         }
+    }
 
-        // Calculate variance in interaction durations
-        const durations = interactionSignals.map(s => s.interactionDuration!);
-        const avgDuration = durations.reduce((sum, d) => sum + d, 0) / durations.length;
-
-        const variance = durations.reduce((sum, d) => sum + Math.pow(d - avgDuration, 2), 0) / durations.length;
-        const stdDev = Math.sqrt(variance);
-
-        // Calculate coefficient of variation (normalized measure of dispersion)
-        const cv = stdDev / avgDuration;
-
-        // Normalize to 0-1 scale (assume CV ranges from 0-1)
-        const normalizedValue = Math.min(cv, 1);
-
-        return {
-            name: 'consistencyVariance',
-            value: cv,
-            contribution: normalizedValue, // Higher variance suggests inconsistent performance, potentially due to cognitive load
-            description: `Interaction consistency variance: ${cv.toFixed(2)}`
-        };
+    /**
+     * Gets current factor weights
+     */
+    public getFactorWeights(): Map<string, number> {
+        return new Map(this.factorWeights);
     }
 }

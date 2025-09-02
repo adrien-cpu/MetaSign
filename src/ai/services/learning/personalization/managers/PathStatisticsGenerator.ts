@@ -14,9 +14,7 @@
 import type {
     PersonalizedLearningPathModel,
     LearningPathStep,
-    PathStatistics,
-    StepStatus,
-    StepType
+    PathStatistics
 } from '../types/LearningPathTypes';
 import { ProgressCalculator } from './ProgressCalculator';
 import { Logger } from '@/ai/utils/Logger';

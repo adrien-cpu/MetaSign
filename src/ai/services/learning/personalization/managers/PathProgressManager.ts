@@ -379,10 +379,16 @@ export class PathProgressManager {
             throw new Error(`Étape non trouvée: ${stepId}`);
         }
 
-        // Mettre à jour le statut de l'étape
+        // Mettre à jour le statut de l'étape selon le succès
+        const newStatus: StepStatus = success ? 'completed' : 'available';
+        
+        // Si l'étape a échoué, réduire légèrement la difficulté pour la prochaine tentative
+        const difficultyAdjustment = success ? 0 : -0.05;
+        
         path.steps[stepIndex] = {
             ...path.steps[stepIndex],
-            status: 'completed'
+            status: newStatus,
+            difficulty: Math.max(0, Math.min(1, path.steps[stepIndex].difficulty + difficultyAdjustment))
         };
     }
 

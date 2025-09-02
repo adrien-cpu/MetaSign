@@ -1,10 +1,104 @@
 // src/ai/learning/analytics/analyzers/RiskPredictor.ts
 
-import { LearningMetrics, TimeSeriesData, RiskPrediction, RiskType, RiskLevel } from '@ai/learning/types/analytics.types';
-import { StatisticalUtils } from '../utils/StatisticalUtils';
-import { TimeSeriesUtils } from '../utils/TimeSeriesUtils';
-import { CorrelationUtils } from '../utils/CorrelationUtils';
-import { IMetricsCollector } from '@api/common/metrics/interfaces/IMetricsCollector';
+// Types définis localement en attendant la création des modules dédiés
+export type RiskType = 'completion_risk' | 'engagement_drop' | 'comprehension_issue' | 'skill_gap' | 'pace_mismatch' | 'conceptual_confusion';
+export type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
+
+export interface LearningMetrics {
+  accuracy: number;
+  completionTime: number;
+  completionRate: number;
+  engagementLevel: number;
+  engagementScore: number;
+  comprehensionScore: number;
+  quizScore: number;
+  skillAssessment: { [key: string]: { score: number } };
+  skillAssessments: { [key: string]: { score: number } };
+  moduleProgress: number;
+  timeSpent: number;
+  conceptPerformance: { [key: string]: number };
+  timestamp: number;
+}
+
+export interface TimeSeriesData {
+  values: number[];
+  timestamps: number[];
+}
+
+export interface RiskPrediction {
+  type: RiskType;
+  level: RiskLevel;
+  confidence: number;
+  probability: number;
+  description: string;
+  suggestedActions: string[];
+  affectedAreas?: string[];
+}
+
+// Interface minimaliste pour le collecteur de métriques
+interface IMetricsCollector {
+  recordMetric(name: string, value: number): void;
+}
+
+// Utilitaires statistiques simplifiés
+class StatisticalUtils {
+  static calculateMean(values: number[]): number {
+    if (values.length === 0) return 0;
+    return values.reduce((sum, val) => sum + val, 0) / values.length;
+  }
+  
+  static calculateStandardDeviation(values: number[]): number {
+    if (values.length === 0) return 0;
+    const mean = this.calculateMean(values);
+    const squaredDiffs = values.map(val => Math.pow(val - mean, 2));
+    return Math.sqrt(this.calculateMean(squaredDiffs));
+  }
+}
+
+// Utilitaires pour les séries temporelles
+class TimeSeriesUtils {
+  static detectTrend(values: number[]): 'increasing' | 'decreasing' | 'stable' {
+    if (values.length < 2) return 'stable';
+    const first = values[0];
+    const last = values[values.length - 1];
+    const threshold = 0.1;
+    if (first === 0) return 'stable';
+    const change = (last - first) / first;
+    if (Math.abs(change) < threshold) return 'stable';
+    return change > 0 ? 'increasing' : 'decreasing';
+  }
+
+  static calculateTrend(values: number[]): number {
+    if (values.length < 2) return 0;
+    const first = values[0];
+    const last = values[values.length - 1];
+    if (first === 0) return 0;
+    return (last - first) / first;
+  }
+
+  static calculateMovingAverage(values: number[], windowSize: number): number[] {
+    const result: number[] = [];
+    for (let i = windowSize - 1; i < values.length; i++) {
+      const window = values.slice(i - windowSize + 1, i + 1);
+      const avg = window.reduce((sum, val) => sum + val, 0) / windowSize;
+      result.push(avg);
+    }
+    return result;
+  }
+
+  static detectSuddenDrops(values: number[], threshold: number = 0.3): boolean[] {
+    const drops: boolean[] = [];
+    for (let i = 1; i < values.length; i++) {
+      if (values[i-1] === 0) {
+        drops.push(false);
+        continue;
+      }
+      const change = (values[i] - values[i-1]) / values[i-1];
+      drops.push(change < -threshold);
+    }
+    return drops;
+  }
+}
 
 /**
  * RiskPredictor analyzes learning patterns to identify potential risks
@@ -39,480 +133,249 @@ export class RiskPredictor {
         const startTime = performance.now();
 
         try {
-            // Process different risk types in parallel for performance
-            const [
-                completionRisks,
-                engagementRisks,
-                comprehensionRisks,
-                skillGapRisks,
-                paceMismatchRisks,
-                conceptualConfusionRisks
-            ] = await Promise.all([
-                this.detectCompletionRisks(metrics, timeSeriesData),
-                this.detectEngagementRisks(metrics, timeSeriesData),
-                this.detectComprehensionIssues(metrics, timeSeriesData),
-                this.detectSkillGaps(metrics),
-                this.detectPaceMismatches(metrics, timeSeriesData),
-                this.detectConceptualConfusion(metrics)
-            ]);
-
-            // Combine all risk predictions
-            const allRisks = [
-                ...completionRisks,
-                ...engagementRisks,
-                ...comprehensionRisks,
-                ...skillGapRisks,
-                ...paceMismatchRisks,
-                ...conceptualConfusionRisks
+            // Analyze different risk types
+            const allRisks: RiskPrediction[] = [
+                ...this.analyzeCompletionRisk(metrics, timeSeriesData),
+                ...this.analyzeEngagementDrop(metrics, timeSeriesData),
+                ...this.analyzeComprehensionIssues(metrics, timeSeriesData),
+                ...this.analyzeSkillGaps(metrics, timeSeriesData),
+                ...this.analyzePaceMismatch(metrics, timeSeriesData),
+                ...this.analyzeConceptualConfusion(metrics, timeSeriesData)
             ];
 
-            // De-duplicate risks if necessary
-            const uniqueRisks = this.deduplicateRisks(allRisks);
+            // Filter risks above threshold and sort by severity
+            const significantRisks = allRisks
+                .filter(risk => risk.probability >= (this.riskThresholds.get(risk.type) || 0.5))
+                .sort((a, b) => b.probability - a.probability);
 
-            // Sort risks by probability (highest first)
-            const sortedRisks = uniqueRisks.sort((a, b) => b.probability - a.probability);
+            const endTime = performance.now();
+            this.metricsCollector.recordMetric('risk_predictor.prediction_duration', endTime - startTime);
+            this.metricsCollector.recordMetric('risk_predictor.risks_detected', significantRisks.length);
 
-            this.metricsCollector.recordMetric('risk_predictor.prediction_success', 1);
-            this.metricsCollector.recordMetric('risk_predictor.prediction_time_ms', performance.now() - startTime);
-
-            return sortedRisks;
+            return significantRisks;
         } catch (error) {
             this.metricsCollector.recordMetric('risk_predictor.prediction_error', 1);
             throw error;
         }
     }
 
-    /**
-     * Detects risks related to course completion
-     */
-    private async detectCompletionRisks(
-        metrics: LearningMetrics[],
-        timeSeriesData: TimeSeriesData
-    ): Promise<RiskPrediction[]> {
+    private analyzeCompletionRisk(metrics: LearningMetrics[], timeSeriesData: TimeSeriesData): RiskPrediction[] {
         const risks: RiskPrediction[] = [];
+        
+        const recentMetrics = metrics.slice(-5);
+        const avgCompletionRate = StatisticalUtils.calculateMean(
+            recentMetrics.map(m => m.completionRate)
+        );
+        
+        // Analyser la tendance des données temporelles
+        const trend = TimeSeriesUtils.detectTrend(timeSeriesData.values);
+        const trendMultiplier = trend === 'decreasing' ? 1.2 : trend === 'increasing' ? 0.8 : 1;
 
-        // Calculate completion rate trend
-        const completionRates = metrics
-            .filter(m => m.completionRate !== undefined)
-            .map(m => ({ timestamp: m.timestamp || 0, value: m.completionRate! }))
-            .sort((a, b) => a.timestamp - b.timestamp);
+        if (avgCompletionRate < 0.7) {
+            const probability = Math.min(1, (1 - avgCompletionRate) * trendMultiplier);
+            const level: RiskLevel = probability > 0.8 ? 'critical' : 
+                                   probability > 0.6 ? 'high' : 
+                                   probability > 0.4 ? 'medium' : 'low';
 
-        if (completionRates.length < 2) {
-            return risks; // Not enough data
-        }
-
-        // Analyze completion trend
-        const trend = TimeSeriesUtils.calculateTrend(completionRates);
-
-        // If trend is negative and below threshold, it's a risk
-        if (trend < -0.1) {
-            const expectedCompletion = this.projectedCompletion(completionRates, trend);
-
-            // Calculate the probability based on trend severity
-            const probability = Math.min(0.5 - trend, 0.95); // Convert trend to probability
-
-            if (probability > this.riskThresholds.get('completion_risk')!) {
-                risks.push({
-                    type: 'completion_risk',
-                    probability,
-                    level: this.getRiskLevel(probability),
-                    description: 'Learner may not complete the course at the current pace',
-                    affectedAreas: ['course_completion'],
-                    projectedValues: { completionRate: expectedCompletion },
-                    mitigationStrategies: [
-                        'Adjust course timeline',
-                        'Provide additional support resources',
-                        'Break content into smaller modules'
-                    ],
-                    dataPoints: completionRates.length
-                });
-            }
-        }
-
-        return risks;
-    }
-
-    /**
-     * Detects risks related to declining engagement
-     */
-    private async detectEngagementRisks(
-        metrics: LearningMetrics[],
-        timeSeriesData: TimeSeriesData
-    ): Promise<RiskPrediction[]> {
-        const risks: RiskPrediction[] = [];
-
-        // Extract engagement metrics
-        const engagementMetrics = metrics
-            .filter(m => m.engagementScore !== undefined)
-            .map(m => ({ timestamp: m.timestamp || 0, value: m.engagementScore! }))
-            .sort((a, b) => a.timestamp - b.timestamp);
-
-        if (engagementMetrics.length < 3) {
-            return risks; // Not enough data
-        }
-
-        // Calculate moving average to smooth out noise
-        const movingAvg = TimeSeriesUtils.calculateMovingAverage(engagementMetrics, 3);
-
-        // Calculate trend of the moving average
-        const trend = TimeSeriesUtils.calculateTrend(movingAvg);
-
-        // Detect sudden drops in engagement
-        const recentDrops = TimeSeriesUtils.detectSuddenDrops(engagementMetrics, 0.2, 3);
-
-        // If trend is negative or there are recent drops, create risk prediction
-        if (trend < -0.05 || recentDrops.length > 0) {
-            const probability = recentDrops.length > 0 ? 0.8 : Math.min(0.5 - trend * 2, 0.9);
-
-            if (probability > this.riskThresholds.get('engagement_drop')!) {
-                risks.push({
-                    type: 'engagement_drop',
-                    probability,
-                    level: this.getRiskLevel(probability),
-                    description: recentDrops.length > 0
-                        ? 'Sudden drop in learner engagement detected'
-                        : 'Gradual decline in learner engagement',
-                    affectedAreas: ['motivation', 'participation', 'attention'],
-                    projectedValues: { engagementScore: engagementMetrics[engagementMetrics.length - 1].value + (trend * 5) },
-                    mitigationStrategies: [
-                        'Introduce interactive elements',
-                        'Provide personalized feedback',
-                        'Adjust difficulty level',
-                        'Implement gamification elements'
-                    ],
-                    dataPoints: engagementMetrics.length
-                });
-            }
-        }
-
-        return risks;
-    }
-
-    /**
-     * Detects risks related to comprehension issues
-     */
-    private async detectComprehensionIssues(
-        metrics: LearningMetrics[],
-        timeSeriesData: TimeSeriesData
-    ): Promise<RiskPrediction[]> {
-        const risks: RiskPrediction[] = [];
-
-        // Extract quiz scores, error rates, etc.
-        const quizScores = metrics
-            .filter(m => m.quizScore !== undefined)
-            .map(m => ({ timestamp: m.timestamp || 0, value: m.quizScore! }))
-            .sort((a, b) => a.timestamp - b.timestamp);
-
-        if (quizScores.length < 2) {
-            return risks; // Not enough data
-        }
-
-        // Calculate average quiz score and recent trend
-        const avgScore = StatisticalUtils.calculateMean(quizScores.map(q => q.value));
-        const recentScores = quizScores.slice(-3);
-        const recentAvg = recentScores.length >= 2
-            ? StatisticalUtils.calculateMean(recentScores.map(q => q.value))
-            : avgScore;
-
-        // Check for comprehension issues
-        if (recentAvg < 0.7 || (avgScore - recentAvg > 0.1)) {
-            const probability = 1 - recentAvg;
-
-            if (probability > this.riskThresholds.get('comprehension_issue')!) {
-                risks.push({
-                    type: 'comprehension_issue',
-                    probability,
-                    level: this.getRiskLevel(probability),
-                    description: 'Learner may be struggling with course concepts',
-                    affectedAreas: ['knowledge_acquisition', 'concept_mastery'],
-                    projectedValues: { quizScore: recentAvg },
-                    mitigationStrategies: [
-                        'Provide supplementary materials',
-                        'Offer concept clarification sessions',
-                        'Simplify difficult concepts',
-                        'Provide alternative explanations',
-                        'Introduce visual learning aids'
-                    ],
-                    dataPoints: quizScores.length
-                });
-            }
-        }
-
-        return risks;
-    }
-
-    /**
-     * Detects risks related to significant skill gaps
-     */
-    private async detectSkillGaps(metrics: LearningMetrics[]): Promise<RiskPrediction[]> {
-        const risks: RiskPrediction[] = [];
-
-        // Extract skill assessment data
-        const skillAssessments = metrics
-            .filter(m => m.skillAssessments && Object.keys(m.skillAssessments).length > 0)
-            .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
-        if (skillAssessments.length === 0) {
-            return risks; // No skill assessment data
-        }
-
-        // Get most recent skill assessment
-        const latestAssessment = skillAssessments[0].skillAssessments || {};
-
-        // Identify skills with low scores
-        const lowSkills = Object.entries(latestAssessment)
-            .filter(([_, score]) => score < 0.6)
-            .map(([skill, score]) => ({ skill, score }));
-
-        if (lowSkills.length === 0) {
-            return risks; // No low-scoring skills
-        }
-
-        // Calculate overall skill gap severity
-        const gapSeverity = lowSkills.reduce((sum, skill) => sum + (0.6 - skill.score), 0) / lowSkills.length;
-        const probability = Math.min(gapSeverity * 1.5, 0.95);
-
-        if (probability > this.riskThresholds.get('skill_gap')!) {
             risks.push({
-                type: 'skill_gap',
+                type: 'completion_risk',
+                level,
+                confidence: 0.75,
                 probability,
-                level: this.getRiskLevel(probability),
-                description: `Significant gaps in ${lowSkills.length} key skills`,
-                affectedAreas: lowSkills.map(s => s.skill),
-                projectedValues: { averageSkillScore: 1 - gapSeverity },
-                mitigationStrategies: [
-                    'Targeted skill development exercises',
-                    'Prerequisite refresher modules',
-                    'One-on-one coaching sessions',
-                    'Custom practice activities'
+                description: `Low completion rate detected (${(avgCompletionRate * 100).toFixed(1)}%)`,
+                suggestedActions: [
+                    'Break down complex tasks into smaller chunks',
+                    'Provide additional scaffolding and support',
+                    'Review learning pace and adjust difficulty'
                 ],
-                dataPoints: skillAssessments.length
+                affectedAreas: ['task_completion', 'progress_tracking']
             });
         }
 
         return risks;
     }
 
-    /**
-     * Detects risks related to pace mismatches (too fast or too slow)
-     */
-    private async detectPaceMismatches(
-        metrics: LearningMetrics[],
-        timeSeriesData: TimeSeriesData
-    ): Promise<RiskPrediction[]> {
+    private analyzeEngagementDrop(metrics: LearningMetrics[], timeSeriesData: TimeSeriesData): RiskPrediction[] {
         const risks: RiskPrediction[] = [];
+        
+        const recentMetrics = metrics.slice(-5);
+        const engagementScores = recentMetrics.map(m => m.engagementScore);
+        const metricsTrend = TimeSeriesUtils.detectTrend(engagementScores);
+        const timeSeriesTrend = TimeSeriesUtils.detectTrend(timeSeriesData.values);
+        
+        // Combiner les tendances des métriques et des données temporelles
+        const combinedTrend = metricsTrend === 'decreasing' || timeSeriesTrend === 'decreasing' ? 'decreasing' : 'stable';
 
-        // Extract completion rate and time spent
-        const progressData = metrics
-            .filter(m => m.moduleProgress !== undefined && m.timeSpent !== undefined)
-            .map(m => ({
-                timestamp: m.timestamp || 0,
-                progress: m.moduleProgress!,
-                timeSpent: m.timeSpent!
-            }))
-            .sort((a, b) => a.timestamp - b.timestamp);
-
-        if (progressData.length < 3) {
-            return risks; // Not enough data
-        }
-
-        // Calculate time per progress unit (higher values = slower pace)
-        const paceData = progressData.map((item, index, array) => {
-            if (index === 0) return null;
-            const prevItem = array[index - 1];
-            const progressDelta = item.progress - prevItem.progress;
-            const timeDelta = item.timeSpent - prevItem.timeSpent;
-            return progressDelta > 0 ? timeDelta / progressDelta : null;
-        }).filter(item => item !== null) as number[];
-
-        if (paceData.length < 2) {
-            return risks; // Not enough pace data
-        }
-
-        // Calculate average pace and recent pace
-        const avgPace = StatisticalUtils.calculateMean(paceData);
-        const recentPace = StatisticalUtils.calculateMean(paceData.slice(-2));
-
-        // Calculate pace mismatch
-        const paceDifference = Math.abs(recentPace / avgPace - 1);
-
-        if (paceDifference > 0.3) {
-            // Determine if pace is too fast or too slow
-            const isTooSlow = recentPace > avgPace;
-
-            const probability = Math.min(paceDifference, 0.9);
-
-            if (probability > this.riskThresholds.get('pace_mismatch')!) {
-                risks.push({
-                    type: 'pace_mismatch',
-                    probability,
-                    level: this.getRiskLevel(probability),
-                    description: isTooSlow
-                        ? 'Learner is progressing slower than optimal pace'
-                        : 'Learner is progressing faster than may be effective for retention',
-                    affectedAreas: ['learning_efficiency', 'content_absorption', 'time_management'],
-                    projectedValues: {
-                        estimatedCompletion: isTooSlow
-                            ? 'delayed'
-                            : 'ahead_of_schedule'
-                    },
-                    mitigationStrategies: isTooSlow
-                        ? [
-                            'Adjust content complexity',
-                            'Provide learning path guidance',
-                            'Offer time management strategies',
-                            'Simplify initial modules'
-                        ]
-                        : [
-                            'Suggest deeper exploration activities',
-                            'Provide enrichment content',
-                            'Encourage reflection exercises',
-                            'Recommend peer teaching opportunities'
-                        ],
-                    dataPoints: paceData.length
-                });
-            }
+        if (combinedTrend === 'decreasing') {
+            const avgEngagement = StatisticalUtils.calculateMean(engagementScores);
+            const probability = 1 - avgEngagement;
+            
+            risks.push({
+                type: 'engagement_drop',
+                level: probability > 0.6 ? 'high' : 'medium',
+                confidence: 0.7,
+                probability,
+                description: 'Decreasing engagement trend detected',
+                suggestedActions: [
+                    'Introduce more interactive content',
+                    'Provide immediate feedback',
+                    'Adjust content to learner preferences'
+                ],
+                affectedAreas: ['motivation', 'participation']
+            });
         }
 
         return risks;
     }
 
-    /**
-     * Detects risks related to conceptual confusion between related topics
-     */
-    private async detectConceptualConfusion(metrics: LearningMetrics[]): Promise<RiskPrediction[]> {
+    private analyzeComprehensionIssues(metrics: LearningMetrics[], timeSeriesData: TimeSeriesData): RiskPrediction[] {
         const risks: RiskPrediction[] = [];
+        
+        const recentMetrics = metrics.slice(-5);
+        const avgComprehension = StatisticalUtils.calculateMean(
+            recentMetrics.map(m => m.comprehensionScore)
+        );
 
-        // Extract concept-specific performance data
-        const conceptData = metrics
-            .filter(m => m.conceptPerformance && Object.keys(m.conceptPerformance).length > 0)
-            .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
-        if (conceptData.length === 0) {
-            return risks; // No concept performance data
+        if (avgComprehension < 0.6) {
+            // Détecter les chutes soudaines dans les données temporelles
+            const suddenDrops = TimeSeriesUtils.detectSuddenDrops(timeSeriesData.values, 0.2);
+            const hasRecentDrop = suddenDrops.slice(-3).some(drop => drop);
+            const dropMultiplier = hasRecentDrop ? 1.3 : 1;
+            
+            const probability = Math.min(1, (1 - avgComprehension) * dropMultiplier);
+            
+            risks.push({
+                type: 'comprehension_issue',
+                level: probability > 0.7 ? 'critical' : 'high',
+                confidence: 0.8,
+                probability,
+                description: `Low comprehension scores (${(avgComprehension * 100).toFixed(1)}%)`,
+                suggestedActions: [
+                    'Provide additional explanations',
+                    'Use alternative teaching methods',
+                    'Schedule one-on-one support sessions'
+                ],
+                affectedAreas: ['understanding', 'knowledge_retention']
+            });
         }
 
-        // Get latest concept performance
-        const latestConcepts = conceptData[0].conceptPerformance || {};
+        return risks;
+    }
 
-        // Identify related concepts with significantly different performance scores
-        const confusedConcepts: Array<{ concept1: string, concept2: string, difference: number }> = [];
+    private analyzeSkillGaps(metrics: LearningMetrics[], timeSeriesData: TimeSeriesData): RiskPrediction[] {
+        const risks: RiskPrediction[] = [];
+        
+        if (metrics.length === 0) return risks;
+        
+        const latestMetrics = metrics[metrics.length - 1];
+        const skillAssessments = latestMetrics.skillAssessments || {};
+        
+        const lowSkills = Object.entries(skillAssessments)
+            .filter(([, skill]) => skill.score < 0.5)
+            .map(([skillName]) => skillName);
 
-        // Get concept pairs that should be related (this would be a predefined mapping in a real system)
-        const relatedConcepts = this.getRelatedConceptPairs(Object.keys(latestConcepts));
-
-        // Check for significant performance differences between related concepts
-        for (const [concept1, concept2] of relatedConcepts) {
-            if (latestConcepts[concept1] !== undefined && latestConcepts[concept2] !== undefined) {
-                const difference = Math.abs(latestConcepts[concept1] - latestConcepts[concept2]);
-
-                if (difference > 0.3) {
-                    confusedConcepts.push({
-                        concept1,
-                        concept2,
-                        difference
-                    });
-                }
-            }
+        if (lowSkills.length > 0) {
+            const totalSkills = Object.keys(skillAssessments).length;
+            
+            // Analyser la stabilité des performances via les données temporelles
+            const movingAvg = TimeSeriesUtils.calculateMovingAverage(timeSeriesData.values, 3);
+            const isUnstable = movingAvg.length > 0 && StatisticalUtils.calculateStandardDeviation(movingAvg) > 0.15;
+            const instabilityMultiplier = isUnstable ? 1.15 : 1;
+            
+            const probability = Math.min(1, (lowSkills.length / Math.max(totalSkills, 1)) * instabilityMultiplier);
+            
+            risks.push({
+                type: 'skill_gap',
+                level: probability > 0.6 ? 'high' : 'medium',
+                confidence: 0.75,
+                probability,
+                description: `Skill gaps identified in ${lowSkills.length} areas`,
+                suggestedActions: [
+                    'Focus on foundational skills',
+                    'Provide targeted practice exercises',
+                    'Create personalized skill development plan'
+                ],
+                affectedAreas: lowSkills
+            });
         }
+
+        return risks;
+    }
+
+    private analyzePaceMismatch(metrics: LearningMetrics[], timeSeriesData: TimeSeriesData): RiskPrediction[] {
+        const risks: RiskPrediction[] = [];
+        
+        const recentMetrics = metrics.slice(-5);
+        const timeSpentValues = recentMetrics.map(m => m.timeSpent);
+        const progressValues = recentMetrics.map(m => m.moduleProgress);
+        
+        const avgTimeSpent = StatisticalUtils.calculateMean(timeSpentValues);
+        const avgProgress = StatisticalUtils.calculateMean(progressValues);
+        
+        // Analyser le rythme via les données temporelles
+        const timeSeriesTrend = TimeSeriesUtils.calculateTrend(timeSeriesData.values);
+        const paceIssue = Math.abs(timeSeriesTrend) < 0.05; // Trend très faible = problème de rythme
+        
+        // High time spent but low progress indicates pace issues
+        if (avgTimeSpent > 0.8 && avgProgress < 0.4) {
+            const baseProbability = (avgTimeSpent - avgProgress) / 2;
+            const probability = paceIssue ? Math.min(1, baseProbability * 1.25) : baseProbability;
+            
+            risks.push({
+                type: 'pace_mismatch',
+                level: probability > 0.5 ? 'high' : 'medium',
+                confidence: 0.65,
+                probability,
+                description: 'High time investment but low progress rate',
+                suggestedActions: [
+                    'Adjust content difficulty',
+                    'Provide additional learning resources',
+                    'Review learning objectives and expectations'
+                ],
+                affectedAreas: ['time_management', 'progress_rate']
+            });
+        }
+
+        return risks;
+    }
+
+    private analyzeConceptualConfusion(metrics: LearningMetrics[], timeSeriesData: TimeSeriesData): RiskPrediction[] {
+        const risks: RiskPrediction[] = [];
+        
+        if (metrics.length === 0) return risks;
+        
+        const latestMetrics = metrics[metrics.length - 1];
+        const conceptPerformance = latestMetrics.conceptPerformance || {};
+        
+        const confusedConcepts = Object.entries(conceptPerformance)
+            .filter(([, score]) => score < 0.5)
+            .map(([concept]) => concept);
 
         if (confusedConcepts.length > 0) {
-            // Calculate average performance difference
-            const avgDifference = confusedConcepts.reduce((sum, item) => sum + item.difference, 0) / confusedConcepts.length;
-
-            // Calculate probability based on difference severity and number of confused concept pairs
-            const probability = Math.min(avgDifference * confusedConcepts.length * 0.1, 0.9);
-
-            if (probability > this.riskThresholds.get('conceptual_confusion')!) {
-                risks.push({
-                    type: 'conceptual_confusion',
-                    probability,
-                    level: this.getRiskLevel(probability),
-                    description: `Potential confusion between ${confusedConcepts.length} related concept pairs`,
-                    affectedAreas: confusedConcepts.flatMap(c => [c.concept1, c.concept2]),
-                    projectedValues: { conceptualClarityScore: 1 - avgDifference },
-                    mitigationStrategies: [
-                        'Provide explicit comparison between related concepts',
-                        'Create concept relationship maps',
-                        'Offer targeted exercises on concept differentiation',
-                        'Review foundational understanding'
-                    ],
-                    dataPoints: conceptData.length
-                });
-            }
+            const totalConcepts = Object.keys(conceptPerformance).length;
+            
+            // Analyser la volatilité des performances
+            const volatility = StatisticalUtils.calculateStandardDeviation(timeSeriesData.values);
+            const isVolatile = volatility > 0.2;
+            const volatilityMultiplier = isVolatile ? 1.2 : 1;
+            
+            const probability = Math.min(1, (confusedConcepts.length / Math.max(totalConcepts, 1)) * volatilityMultiplier);
+            
+            risks.push({
+                type: 'conceptual_confusion',
+                level: probability > 0.5 ? 'high' : 'medium',
+                confidence: 0.7,
+                probability,
+                description: `Conceptual confusion in ${confusedConcepts.length} areas`,
+                suggestedActions: [
+                    'Clarify fundamental concepts',
+                    'Use visual aids and examples',
+                    'Provide conceptual practice exercises'
+                ],
+                affectedAreas: confusedConcepts
+            });
         }
 
         return risks;
-    }
-
-    /**
-     * Helper method to generate pairs of concepts that are related
-     * In a real implementation, this would use a knowledge graph or predefined relationships
-     */
-    private getRelatedConceptPairs(concepts: string[]): Array<[string, string]> {
-        // This is a placeholder - in reality, there would be a proper mapping of related concepts
-        const pairs: Array<[string, string]> = [];
-
-        // Simulate some concept relationships
-        const relationMapping: Record<string, string[]> = {
-            'inheritance': ['polymorphism', 'classes', 'objects'],
-            'polymorphism': ['inheritance', 'interfaces'],
-            'variables': ['constants', 'data_types'],
-            'loops': ['iteration', 'recursion'],
-            'addition': ['subtraction', 'arithmetic'],
-            'multiplication': ['division', 'arithmetic']
-        };
-
-        // Create pairs based on the mapping
-        for (const concept of concepts) {
-            const related = relationMapping[concept];
-            if (related) {
-                for (const relatedConcept of related) {
-                    if (concepts.includes(relatedConcept)) {
-                        pairs.push([concept, relatedConcept]);
-                    }
-                }
-            }
-        }
-
-        return pairs;
-    }
-
-    /**
-     * Projects the completion rate based on current trend
-     */
-    private projectedCompletion(
-        completionRates: Array<{ timestamp: number, value: number }>,
-        trend: number
-    ): number {
-        const latestValue = completionRates[completionRates.length - 1].value;
-        // Project 10 time units into the future
-        return Math.max(0, Math.min(1, latestValue + (trend * 10)));
-    }
-
-    /**
-     * Deduplicate risks by combining similar predictions
-     */
-    private deduplicateRisks(risks: RiskPrediction[]): RiskPrediction[] {
-        const uniqueRisks = new Map<string, RiskPrediction>();
-
-        for (const risk of risks) {
-            const key = risk.type;
-
-            if (!uniqueRisks.has(key) || uniqueRisks.get(key)!.probability < risk.probability) {
-                uniqueRisks.set(key, risk);
-            }
-        }
-
-        return Array.from(uniqueRisks.values());
-    }
-
-    /**
-     * Determines risk level based on probability
-     */
-    private getRiskLevel(probability: number): RiskLevel {
-        if (probability >= 0.8) return 'high';
-        if (probability >= 0.5) return 'medium';
-        return 'low';
     }
 }

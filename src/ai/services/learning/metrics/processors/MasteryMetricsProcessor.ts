@@ -122,7 +122,7 @@ export class MasteryMetricsProcessor {
         this.updateSkillMasteryLevels(updatedMastery, result);
 
         // Mettre à jour les compétences maîtrisées et faibles
-        this.updateMasteredAndWeaknessSkills(updatedMastery);
+        this.updateMasteredAndWeaknessSkills(updatedMastery, result);
 
         // Mettre à jour les courbes d'oubli
         this.updateForgettingCurves(updatedMastery, result);
@@ -178,16 +178,21 @@ export class MasteryMetricsProcessor {
      * 
      * @method updateMasteredAndWeaknessSkills
      * @param {DetailedMasteryMetrics} mastery - Métriques de maîtrise
+     * @param {ExtendedExerciseResult} result - Résultat d'exercice
      * @private
      */
-    private updateMasteredAndWeaknessSkills(mastery: DetailedMasteryMetrics): void {
+    private updateMasteredAndWeaknessSkills(mastery: DetailedMasteryMetrics, result: ExtendedExerciseResult): void {
         // Réinitialiser les listes
         mastery.masteredSkills = [];
         mastery.weaknessSkills = [];
 
         // Examiner chaque compétence
         for (const [skill, level] of Object.entries(mastery.skillMasteryLevels)) {
-            if (level >= this.masteryThreshold) {
+            // Vérifier le nombre minimum d'exercices avant de déclarer la maîtrise
+            const exerciseCount = result.skills.filter((s: string) => s === skill).length;
+            const hasEnoughExercises = exerciseCount >= this.minExercisesForMastery;
+            
+            if (level >= this.masteryThreshold && hasEnoughExercises) {
                 mastery.masteredSkills.push(skill);
             } else if (level <= this.weaknessThreshold) {
                 mastery.weaknessSkills.push(skill);
@@ -219,22 +224,27 @@ export class MasteryMetricsProcessor {
         for (const skill of result.skills) {
             const skillScore = result.skillScores[skill] || 0;
             const masteryLevel = mastery.skillMasteryLevels[skill] || 0;
+            
+            // Utiliser skillScore pour calculer l'impact sur la courbe d'oubli
+            const skillImpact = skillScore / 100; // Normaliser le score
 
             // Générer la courbe d'oubli pour cette compétence
             if (!mastery.forgettingCurves[skill]) {
                 mastery.forgettingCurves[skill] = [];
             }
 
-            // Réinitialiser la courbe existante
-            mastery.forgettingCurves[skill] = [];
+            // Calculer la courbe d'oubli avec le facteur d'oubli
+            const forgettingCurvePoints = this.calculateForgettingCurve(
+                masteryLevel, 
+                skillImpact, 
+                this.forgettingFactor
+            );
 
-            // Générer des points pour la courbe (30 jours)
-            for (let day = 0; day <= 30; day += 5) {
-                mastery.forgettingCurves[skill].push({
-                    daysFromLastPractice: day,
-                    retentionRate: this.calculator.calculateRetentionRate(masteryLevel, day)
-                });
-            }
+            // Convertir les points de la courbe au bon format
+            mastery.forgettingCurves[skill] = forgettingCurvePoints.map(point => ({
+                daysFromLastPractice: point.day,
+                retentionRate: point.retentionRate
+            }));
         }
     }
 
@@ -340,5 +350,33 @@ export class MasteryMetricsProcessor {
 
             mastery.skillAcquisitionRates[skill] = newRate;
         }
+    }
+
+    /**
+     * Calcule une courbe d'oubli pour une compétence
+     * @private
+     */
+    private calculateForgettingCurve(
+        masteryLevel: number,
+        skillImpact: number,
+        forgettingFactor: number
+    ): Array<{ day: number; retentionRate: number }> {
+        const curve: Array<{ day: number; retentionRate: number }> = [];
+        
+        // Générer une courbe sur 30 jours
+        for (let day = 1; day <= 30; day++) {
+            // Calculer le taux de rétention avec le facteur d'oubli
+            const baseRetention = Math.pow(forgettingFactor, day);
+            
+            // Ajuster selon le niveau de maîtrise et l'impact de la compétence
+            const adjustedRetention = baseRetention * (0.5 + masteryLevel * 0.3 + skillImpact * 0.2);
+            
+            curve.push({
+                day,
+                retentionRate: Math.max(0.1, Math.min(1, adjustedRetention))
+            });
+        }
+        
+        return curve;
     }
 }

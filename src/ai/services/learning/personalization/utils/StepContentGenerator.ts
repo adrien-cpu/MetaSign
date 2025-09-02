@@ -13,10 +13,18 @@
 
 import type {
     StepType,
-    CECRLLevel,
-    LearningPathStep
+    CECRLLevel
 } from '../types/LearningPathTypes';
-import type { UserReverseProfile } from '@/ai/services/learning/human/coda/codavirtuel/ReverseApprenticeshipSystem';
+
+/**
+ * Interface locale pour le profil d'apprentissage inversé
+ */
+interface UserReverseProfile {
+    currentLevel: number;
+    exercisePreferences?: {
+        preferredTypes?: string[];
+    };
+}
 import { Logger } from '@/ai/utils/Logger';
 
 /**

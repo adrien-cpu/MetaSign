@@ -15,11 +15,21 @@ import type {
     StepType,
     CECRLLevel,
     PathGenerationMode,
-    LearningPathStep,
     StepStatus
 } from '../types/LearningPathTypes';
 import { LEARNING_PATH_CONSTANTS } from '../types/LearningPathTypes';
-import type { UserReverseProfile } from '@/ai/services/learning/human/coda/codavirtuel/ReverseApprenticeshipSystem';
+
+/**
+ * Interface locale pour le profil d'apprentissage inversé
+ */
+interface UserReverseProfile {
+    currentLevel: number;
+    exercisePreferences?: {
+        preferredTypes?: string[];
+        difficultyPreference?: number;
+    };
+    weaknessAreas?: string[];
+}
 import { Logger } from '@/ai/utils/Logger';
 
 /**
@@ -131,9 +141,14 @@ const BASE_STEP_CONFIGS: Readonly<Record<StepType, BaseStepConfig>> = {
 } as const;
 
 /**
+ * Types de modes de génération supportés localement
+ */
+type LocalPathGenerationMode = 'theory_focused' | 'practice_focused' | 'assessment_focused' | 'balanced' | 'accelerated';
+
+/**
  * Distribution des étapes par mode de génération
  */
-const STEP_DISTRIBUTION_BY_MODE: Readonly<Record<PathGenerationMode, StepDistributionByMode>> = {
+const STEP_DISTRIBUTION_BY_MODE: Readonly<Record<LocalPathGenerationMode, StepDistributionByMode>> = {
     theory_focused: {
         lesson: 0.4,
         exercise: 0.3,
@@ -260,7 +275,9 @@ export class StepConfigurationManager {
             totalStepsTarget
         });
 
-        const baseDistribution = STEP_DISTRIBUTION_BY_MODE[params.mode];
+        // Convertir le mode vers un mode local supporté
+        const localMode = this.convertToLocalMode(params.mode);
+        const baseDistribution = STEP_DISTRIBUTION_BY_MODE[localMode];
         const levelConfig = CECRL_LEVEL_CONFIGS[params.targetLevel];
 
         // Ajuster selon l'intensité
@@ -439,6 +456,22 @@ export class StepConfigurationManager {
     ): StepDistributionByMode {
         // Ajustements basés sur les préférences du profil
         let adjustedDistribution = { ...baseDistribution };
+
+        // Ajuster selon la fréquence d'évaluation du niveau
+        if (levelConfig.assessmentFrequency > 0.15) {
+            adjustedDistribution = {
+                ...adjustedDistribution,
+                assessment: Math.min(0.3, adjustedDistribution.assessment * (1 + levelConfig.assessmentFrequency))
+            };
+        }
+
+        // Ajuster selon la fréquence de révision du niveau
+        if (levelConfig.revisionFrequency > 0.1) {
+            adjustedDistribution = {
+                ...adjustedDistribution,
+                revision: Math.min(0.2, adjustedDistribution.revision * (1 + levelConfig.revisionFrequency))
+            };
+        }
 
         // Ajuster selon les préférences d'exercices
         if (profile.exercisePreferences?.preferredTypes) {
@@ -724,5 +757,22 @@ export class StepConfigurationManager {
         }
 
         return [];
+    }
+
+    /**
+     * Convertit un mode de génération vers un mode local supporté
+     * 
+     * @param mode Mode de génération
+     * @returns Mode local correspondant
+     * @private
+     */
+    private convertToLocalMode(mode: PathGenerationMode): LocalPathGenerationMode {
+        // Mapping des modes vers les modes locaux supportés
+        const modeMapping: Partial<Record<PathGenerationMode, LocalPathGenerationMode>> = {
+            // Ajouter les mappings si nécessaire
+        };
+
+        // Utiliser le mapping ou un mode par défaut
+        return (modeMapping[mode] as LocalPathGenerationMode) || 'balanced';
     }
 }

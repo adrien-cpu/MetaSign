@@ -84,17 +84,58 @@ enum CacheLevel {
 
 // Classe MultiLevelCache simulée pour résoudre les dépendances
 class MultiLevelCache<K, V> {
+    private readonly options: {
+        L1?: { maxSize: number; ttl: number };
+        L2?: { maxSize: number; ttl: number };
+        L3?: { maxSize: number; ttl: number };
+    };
+    private readonly cacheL1 = new Map<K, { value: V; timestamp: number }>();
+    private readonly cacheL2 = new Map<K, { value: V; timestamp: number }>();
+    private readonly cacheL3 = new Map<K, { value: V; timestamp: number }>();
+
     constructor(
-        // Marquer le paramètre comme inutilisé avec un underscore
-        _options: {
+        options: {
             L1?: { maxSize: number; ttl: number };
             L2?: { maxSize: number; ttl: number };
             L3?: { maxSize: number; ttl: number };
         }
-    ) { }
+    ) { 
+        this.options = options;
+    }
 
-    // Utiliser des underscores pour indiquer que ces paramètres sont intentionnellement non utilisés
-    get(_key: K): V | undefined {
+    get(key: K): V | undefined {
+        const now = Date.now();
+        
+        // Check L1 cache first
+        if (this.options.L1) {
+            const item = this.cacheL1.get(key);
+            if (item && (now - item.timestamp) < this.options.L1.ttl) {
+                return item.value;
+            } else if (item) {
+                this.cacheL1.delete(key);
+            }
+        }
+        
+        // Check L2 cache
+        if (this.options.L2) {
+            const item = this.cacheL2.get(key);
+            if (item && (now - item.timestamp) < this.options.L2.ttl) {
+                return item.value;
+            } else if (item) {
+                this.cacheL2.delete(key);
+            }
+        }
+        
+        // Check L3 cache
+        if (this.options.L3) {
+            const item = this.cacheL3.get(key);
+            if (item && (now - item.timestamp) < this.options.L3.ttl) {
+                return item.value;
+            } else if (item) {
+                this.cacheL3.delete(key);
+            }
+        }
+        
         return undefined;
     }
 
@@ -256,6 +297,7 @@ export class LearningAnalyticsProcessor {
                 trends,
                 longitudinalInsights,
                 riskPredictions,
+                engagementMetrics,
                 recommendations,
                 performanceMetrics,
                 timestamp: Date.now(),

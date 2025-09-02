@@ -103,7 +103,7 @@ export class LocalStorageManager {
     public async checkAvailableStorage(): Promise<StorageCheckResult> {
         try {
             // Obtenir les statistiques du système de fichiers
-            const stats = await fs.stat(this.basePath);
+            await fs.stat(this.basePath);
 
             // Pour Windows/macOS/Linux, nous devons utiliser une approche différente
             // Cette implémentation est simplifiée - dans un vrai système,
@@ -203,7 +203,7 @@ export class LocalStorageManager {
                 compressionFormat,
                 metrics: metadata.metrics as ValidationMetrics,
                 dataset: metadata.dataset as { id: string; sampleCount: number },
-                trainingOptions: metadata.options || {},
+                trainingOptions: (metadata.options as Record<string, unknown>) || {} as Record<string, unknown>,
                 schemaVersion: '1.0.0'
             };
 
@@ -245,7 +245,7 @@ export class LocalStorageManager {
             const compressedData = await fs.readFile(modelPath);
 
             // Décompresser les données
-            return await decompress(compressedData.buffer, metadata.compressionFormat);
+            return await decompress(compressedData.buffer as ArrayBuffer, metadata.compressionFormat);
         } catch (error) {
             this.logger.error(`Error loading model ${modelId}:`, error);
             throw error;
@@ -261,7 +261,7 @@ export class LocalStorageManager {
             const modelPath = path.join(this.modelsDir, `${modelId}.bin`);
             await fs.access(modelPath);
             return true;
-        } catch (error) {
+        } catch {
             return false;
         }
     }
@@ -376,7 +376,16 @@ export class LocalStorageManager {
             const data = await fs.readFile(importPath, 'utf8');
 
             // Parser le contenu
-            const importObject = JSON.parse(data);
+            const importObject = JSON.parse(data) as {
+                model: number[];
+                metadata: {
+                    exportFormat: string[];
+                    id?: string;
+                    metrics?: unknown;
+                    dataset?: unknown;
+                    options?: unknown;
+                };
+            };
 
             // Vérifier le format
             if (!importObject.model || !importObject.metadata ||
@@ -438,3 +447,4 @@ export class LocalStorageManager {
             return false;
         }
     }
+}

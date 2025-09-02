@@ -1,7 +1,7 @@
 // src/ai/coordinators/services/metrics/alerts/ThresholdManager.ts
 import { Logger } from '@ai/utils/Logger';
-import { MetricValue, MetricTags } from '@ai/coordinators/types';
-import { Observable, Observer } from '@ai/utils/Observable';
+import { MetricTags } from '../../../types/metrics.types';
+import { Observable } from '@ai/utils/Observable';
 
 export type ThresholdOperator = 'gt' | 'lt' | 'eq' | 'gte' | 'lte';
 export type ThresholdSeverity = 'info' | 'warning' | 'error' | 'critical';

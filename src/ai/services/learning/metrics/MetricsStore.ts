@@ -352,13 +352,13 @@ export class MetricsStore implements IMetricsStore {
      * @method getMetrics
      * @async
      * @param {string} userId - Identifiant de l'utilisateur
-     * @param {MetricsFilterOptions} [options] - Options de filtrage (non utilisées pour l'instant)
+     * @param {MetricsFilterOptions} [options] - Options de filtrage
      * @returns {Promise<Record<string, LearningMetric>>} Métriques de l'utilisateur
      * @public
      */
     public async getMetrics(
         userId: string,
-        _options?: MetricsFilterOptions
+        options?: MetricsFilterOptions
     ): Promise<Record<string, LearningMetric>> {
         // Récupérer le profil utilisateur
         const profile = await this.loadProfile(userId);
@@ -368,7 +368,7 @@ export class MetricsStore implements IMetricsStore {
         }
 
         // Combiner les métriques standards et personnalisées
-        const metrics: Record<string, LearningMetric> = {};
+        let metrics: Record<string, LearningMetric> = {};
 
         // Ajouter les métriques standards si présentes
         if (profile.standardMetrics) {
@@ -378,6 +378,11 @@ export class MetricsStore implements IMetricsStore {
         // Ajouter les métriques personnalisées si présentes
         if (profile.customMetrics) {
             Object.assign(metrics, profile.customMetrics);
+        }
+
+        // Appliquer les filtres si des options sont fournies
+        if (options) {
+            metrics = this.applyMetricsFilters(metrics, options);
         }
 
         return metrics;
@@ -492,7 +497,13 @@ export class MetricsStore implements IMetricsStore {
             return [];
         }
 
-        return (metrics.exercises as any[]).map(exercise => ({
+        type ExerciseData = {
+            score?: number;
+            timeSpent?: number;
+            completionDate?: Date;
+        };
+
+        return (metrics.exercises as ExerciseData[]).map(exercise => ({
             score: exercise.score || 0,
             timeSpent: exercise.timeSpent || 0,
             completionDate: exercise.completionDate || new Date()
@@ -513,7 +524,13 @@ export class MetricsStore implements IMetricsStore {
         for (const [key, metrics] of this.exerciseMetrics.entries()) {
             if (key.startsWith(`${userId}:`)) {
                 if (metrics && Array.isArray(metrics.exercises)) {
-                    const exercises = (metrics.exercises as any[]).map(exercise => ({
+                    type ExerciseData = {
+                        score?: number;
+                        timeSpent?: number;
+                        completionDate?: Date;
+                    };
+
+                    const exercises = (metrics.exercises as ExerciseData[]).map(exercise => ({
                         score: exercise.score || 0,
                         timeSpent: exercise.timeSpent || 0,
                         completionDate: exercise.completionDate || new Date()
@@ -567,5 +584,58 @@ export class MetricsStore implements IMetricsStore {
             MetricsStore.instance = new MetricsStore();
         }
         return MetricsStore.instance;
+    }
+
+    /**
+     * Applique les filtres de métriques selon les options fournies
+     * @private
+     */
+    private applyMetricsFilters(
+        metrics: Record<string, LearningMetric>, 
+        filterOptions: MetricsFilterOptions
+    ): Record<string, LearningMetric> {
+        let filteredMetrics = { ...metrics };
+
+        // Filtrer par types de métriques
+        if (filterOptions.metricTypes && filterOptions.metricTypes.length > 0) {
+            filteredMetrics = Object.fromEntries(
+                Object.entries(filteredMetrics).filter(([key, metric]) => 
+                    filterOptions.metricTypes!.includes(metric.type?.toString() || key)
+                )
+            );
+        }
+
+        // Filtrer par catégories
+        if (filterOptions.categories && filterOptions.categories.length > 0) {
+            filteredMetrics = Object.fromEntries(
+                Object.entries(filteredMetrics).filter(([key, metric]) => 
+                    filterOptions.categories!.some(category => 
+                        key.startsWith(category) || 
+                        (metric.category && metric.category.includes(category))
+                    )
+                )
+            );
+        }
+
+        // Filtrer par tags
+        if (filterOptions.tags && filterOptions.tags.length > 0) {
+            filteredMetrics = Object.fromEntries(
+                Object.entries(filteredMetrics).filter(([, metric]) => 
+                    filterOptions.tags!.some(tag => 
+                        metric.tags && metric.tags.includes(tag)
+                    )
+                )
+            );
+        }
+
+        // Appliquer la limite
+        if (filterOptions.limit && filterOptions.limit > 0) {
+            const entries = Object.entries(filteredMetrics);
+            const offset = filterOptions.offset || 0;
+            const limitedEntries = entries.slice(offset, offset + filterOptions.limit);
+            filteredMetrics = Object.fromEntries(limitedEntries);
+        }
+
+        return filteredMetrics;
     }
 }

@@ -113,10 +113,58 @@ class MemoryStorageProvider implements MetricsStorageProvider {
     async loadMetricHistory(
         userId: string,
         metricId: string,
-        _options?: MetricsFilterOptions
+        options?: MetricsFilterOptions
     ): Promise<MetricHistoryEntry[]> {
         const key = `${userId}:${metricId}`;
-        return this.history.get(key) || [];
+        let entries = this.history.get(key) || [];
+
+        // Appliquer les filtres si des options sont fournies
+        if (options) {
+            entries = this.applyHistoryFilters(entries, options);
+        }
+
+        return entries;
+    }
+
+    /**
+     * Applique les filtres sur l'historique des métriques
+     * @private
+     */
+    private applyHistoryFilters(
+        entries: MetricHistoryEntry[],
+        options: MetricsFilterOptions
+    ): MetricHistoryEntry[] {
+        let filteredEntries = [...entries];
+
+        // Filtrage par date de début
+        if (options.startDate) {
+            filteredEntries = filteredEntries.filter(entry => 
+                entry.timestamp >= options.startDate!
+            );
+        }
+
+        // Filtrage par date de fin
+        if (options.endDate) {
+            filteredEntries = filteredEntries.filter(entry => 
+                entry.timestamp <= options.endDate!
+            );
+        }
+
+        // Tri par timestamp
+        if (options.sortBy === 'timestamp') {
+            filteredEntries.sort((a, b) => {
+                const comparison = a.timestamp.getTime() - b.timestamp.getTime();
+                return options.sort === 'desc' ? -comparison : comparison;
+            });
+        }
+
+        // Limitation du nombre de résultats
+        if (options.limit && options.limit > 0) {
+            const offset = options.offset || 0;
+            filteredEntries = filteredEntries.slice(offset, offset + options.limit);
+        }
+
+        return filteredEntries;
     }
 
     async deleteMetricHistory(userId: string, metricId: string): Promise<void> {
@@ -137,15 +185,29 @@ class MemoryStorageProvider implements MetricsStorageProvider {
 /**
  * Factory pour créer un provider de stockage
  * @param {string} mode - Mode de stockage
- * @param {string} [_dbUrl] - URL de la base de données (non utilisé dans le stub)
+ * @param {string} [dbUrl] - URL de la base de données
  * @returns {MetricsStorageProvider} Provider de stockage
  */
 export function createStorageProvider(
     mode: string,
-    _dbUrl?: string
+    dbUrl?: string
 ): MetricsStorageProvider {
     switch (mode) {
         case 'memory':
+            return new MemoryStorageProvider();
+        case 'database':
+            // Utiliser l'URL de base de données pour créer un provider de base de données
+            if (!dbUrl) {
+                throw new Error('Database URL is required for database storage provider');
+            }
+            // Pour l'instant, retourner un MemoryStorageProvider avec logging de l'URL
+            console.log(`Database storage provider would connect to: ${dbUrl}`);
+            return new MemoryStorageProvider();
+        case 'file':
+            // Utiliser l'URL comme chemin de fichier
+            const filePath = dbUrl || './metrics_storage';
+            console.log(`File storage provider would use path: ${filePath}`);
+            return new MemoryStorageProvider();
         default:
             return new MemoryStorageProvider();
         // Ajouter d'autres providers ici (database, file, etc.)

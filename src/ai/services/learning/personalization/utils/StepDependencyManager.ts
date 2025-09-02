@@ -12,12 +12,17 @@
  */
 
 import type {
-    LearningPathStep,
-    StepType,
-    CECRLLevel,
-    StepStatus
+    LearningPathStep
 } from '../types/LearningPathTypes';
-import type { UserReverseProfile } from '@/ai/services/learning/human/coda/codavirtuel/ReverseApprenticeshipSystem';
+
+/**
+ * Interface locale pour le profil d'apprentissage inversé
+ */
+interface UserReverseProfile {
+    currentLevel: number;
+    strengthAreas?: string[];
+    weaknessAreas?: string[];
+}
 import { Logger } from '@/ai/utils/Logger';
 
 /**
@@ -507,7 +512,7 @@ export class StepDependencyManager {
     ): StepDependency[] {
         return dependencies.map(dependency => {
             // Réduire les dépendances pour les domaines de force
-            if (profile.strengthAreas?.some(strength => dependency.rule.description.includes(strength))) {
+            if (profile.strengthAreas?.some((strength: string) => dependency.rule.description.includes(strength))) {
                 return {
                     ...dependency,
                     rule: {
@@ -520,7 +525,7 @@ export class StepDependencyManager {
             }
 
             // Renforcer les dépendances pour les domaines de faiblesse
-            if (profile.weaknessAreas?.some(weakness => dependency.rule.description.includes(weakness))) {
+            if (profile.weaknessAreas?.some((weakness: string) => dependency.rule.description.includes(weakness))) {
                 return {
                     ...dependency,
                     rule: {
@@ -560,12 +565,19 @@ export class StepDependencyManager {
             dependencyCounts.set(dependency.dependentStepId, count + 1);
         }
 
+        // Valider que les étapes existent
+        const validStepIds = new Set(steps.map(step => step.id));
+        
         // Trier par nombre de dépendances (décroissant)
         const sortedByDependencies = Array.from(dependencyCounts.entries())
+            .filter(([stepId]) => validStepIds.has(stepId))
             .sort(([, a], [, b]) => b - a)
             .map(([stepId]) => stepId);
 
-        return sortedByDependencies.slice(0, 5); // Top 5 des étapes critiques
+        // Ajouter les étapes critiques identifiées
+        criticalSteps.push(...sortedByDependencies.slice(0, 5));
+
+        return criticalSteps; // Top 5 des étapes critiques
     }
 
     /**
@@ -584,12 +596,18 @@ export class StepDependencyManager {
         const parallelGroups: string[][] = [];
         const processedSteps = new Set<string>();
 
+        // S'assurer que tous les stepIds sont valides
+        const validStepIds = new Set(steps.map(step => step.id));
+
         // Grouper les étapes par niveau de dépendance
         const dependencyLevels = new Map<string, number>();
 
         for (const dependency of dependencies) {
-            const level = dependencyLevels.get(dependency.dependentStepId) || 0;
-            dependencyLevels.set(dependency.dependentStepId, level + 1);
+            if (validStepIds.has(dependency.dependentStepId)) {
+                const level = dependencyLevels.get(dependency.dependentStepId) || 0;
+                dependencyLevels.set(dependency.dependentStepId, level + 1);
+                processedSteps.add(dependency.dependentStepId);
+            }
         }
 
         // Grouper par niveau
@@ -601,7 +619,11 @@ export class StepDependencyManager {
             levelGroups.get(level)!.push(stepId);
         }
 
-        return Array.from(levelGroups.values());
+        // Convertir en groupes parallèles
+        const groups = Array.from(levelGroups.values());
+        parallelGroups.push(...groups);
+
+        return parallelGroups;
     }
 
     /**
@@ -654,8 +676,22 @@ export class StepDependencyManager {
             return new Date();
         }
 
-        // Estimer le temps nécessaire pour compléter les prérequis
-        const estimatedHours = missingPrerequisites.length * 2; // 2h par prérequis en moyenne
+        // Utiliser le graphe pour une estimation plus précise
+        const relevantDependencies = graph.dependencies.filter(dep => 
+            missingPrerequisites.includes(dep.prerequisiteStepId)
+        );
+        
+        // Estimer le temps basé sur les délais de déblocage
+        const totalUnlockDelay = relevantDependencies.reduce(
+            (sum, dep) => sum + dep.estimatedUnlockDelay, 
+            0
+        );
+        
+        // Fallback sur estimation générale si aucune dépendance trouvée
+        const estimatedHours = totalUnlockDelay > 0 
+            ? totalUnlockDelay 
+            : missingPrerequisites.length * 2; // 2h par prérequis en moyenne
+            
         const estimatedMs = estimatedHours * 60 * 60 * 1000;
 
         return new Date(Date.now() + estimatedMs);
@@ -749,17 +785,26 @@ export class StepDependencyManager {
         graph: DependencyGraph,
         blockingDependencies: readonly StepDependency[]
     ): StepDependency[] {
+        // Utiliser le graphe pour identifier les chemins critiques
+        const criticalSteps = new Set(graph.criticalPath);
+        
         // Implémentation simplifiée : créer des chemins optionnels
-        return blockingDependencies.map(dependency => ({
-            ...dependency,
-            rule: {
-                ...dependency.rule,
-                type: 'sequential' as const,
-                mandatory: false,
-                weight: dependency.rule.weight * 0.5
-            },
-            bypassConditions: ['alternative_skill_demonstrated', 'time_based_unlock']
-        }));
+        return blockingDependencies.map(dependency => {
+            // Réduire l'importance si l'étape n'est pas sur le chemin critique
+            const isOnCriticalPath = criticalSteps.has(dependency.dependentStepId);
+            const weightReduction = isOnCriticalPath ? 0.7 : 0.5;
+            
+            return {
+                ...dependency,
+                rule: {
+                    ...dependency.rule,
+                    type: 'sequential' as const,
+                    mandatory: false,
+                    weight: dependency.rule.weight * weightReduction
+                },
+                bypassConditions: ['alternative_skill_demonstrated', 'time_based_unlock']
+            };
+        });
     }
 
     /**

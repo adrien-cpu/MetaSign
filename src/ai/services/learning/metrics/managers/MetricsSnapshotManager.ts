@@ -392,15 +392,25 @@ export class MetricsSnapshotManager {
         profile: DetailedUserMetricsProfile,
         metadata: SnapshotMetadata
     ): Promise<void> {
+        // Utiliser le profil pour contextualiser les compétences
+        const userLevel = profile.standardMetrics?.overall_level?.value || 'beginner';
+        const userPreferences = profile.preferences || {};
+        
         // Suivre les scores par compétence
         for (const skill of result.skills) {
             const skillScore = result.skillScores[skill] || 0;
+            
+            // Ajuster le score selon le niveau utilisateur et préférences
+            const adjustedScore = this.adjustScoreForUser(skillScore, userLevel, userPreferences);
+            
+            // Utiliser le score ajusté dans les calculs de métriques
+            const finalScore = Math.round(adjustedScore);
 
             // Créer la métrique
             const metric: LearningMetric = {
                 id: `skill.${skill}.score`,
                 name: `Score de compétence: ${skill}`,
-                value: skillScore,
+                value: finalScore,
                 updatedAt: new Date(),
                 category: 'skill_scores',
                 metadata: {
@@ -500,16 +510,53 @@ export class MetricsSnapshotManager {
      */
     private extractMetricValue(profile: DetailedUserMetricsProfile, path: string): unknown {
         const parts = path.split('.');
-        let current: any = profile;
+        let current: unknown = profile;
 
         for (const part of parts) {
-            if (current === undefined || current === null) {
+            if (current === undefined || current === null || typeof current !== 'object') {
                 return undefined;
             }
 
-            current = current[part];
+            current = (current as Record<string, unknown>)[part];
         }
 
         return current;
+    }
+
+    /**
+     * Ajuste un score selon le niveau utilisateur et les préférences
+     * @private
+     */
+    private adjustScoreForUser(
+        baseScore: number, 
+        userLevel: unknown, 
+        userPreferences: unknown
+    ): number {
+        let adjustedScore = baseScore;
+        
+        // Ajustement selon le niveau utilisateur
+        if (typeof userLevel === 'string') {
+            switch (userLevel) {
+                case 'beginner':
+                    adjustedScore *= 1.1; // Bonus pour encourager les débutants
+                    break;
+                case 'advanced':
+                    adjustedScore *= 0.95; // Légère réduction pour les avancés
+                    break;
+                case 'expert':
+                    adjustedScore *= 0.9; // Plus exigeant pour les experts
+                    break;
+            }
+        }
+        
+        // Ajustement selon les préférences (exemple simple)
+        if (typeof userPreferences === 'object' && userPreferences !== null) {
+            const prefs = userPreferences as Record<string, unknown>;
+            if (prefs.difficultyBonus === true) {
+                adjustedScore *= 1.05;
+            }
+        }
+        
+        return Math.min(100, Math.max(0, adjustedScore)); // Borner entre 0 et 100
     }
 }

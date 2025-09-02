@@ -1,5 +1,5 @@
 // src/ai/coordinators/services/metrics/persistence/MetricsPersistenceStrategy.ts
-import { StoredMetricValue } from '@ai/coordinators/types';
+import { StoredMetricValue } from '../../../types/metrics.types';
 
 export interface MetricsPersistenceStrategy {
     persist(namespace: string, metrics: Map<string, StoredMetricValue[]>): Promise<void>;
@@ -16,12 +16,15 @@ export class FileStoragePersistence implements MetricsPersistenceStrategy {
     public async persist(namespace: string, metrics: Map<string, StoredMetricValue[]>): Promise<void> {
         // Implémentation de la persistance fichier
         const serialized = this.serializeMetrics(metrics);
-        // Écriture dans le fichier
+        // TODO: Écrire dans le fichier this.filePath pour le namespace donné
+        console.log(`Persisting metrics for ${namespace}:`, serialized.length, 'chars');
     }
 
     public async load(namespace: string): Promise<Map<string, StoredMetricValue[]>> {
         // Implémentation du chargement depuis un fichier
-        // Lecture depuis le fichier
+        // TODO: Lire depuis le fichier this.filePath pour le namespace donné
+        console.log(`Loading metrics for ${namespace} from ${this.filePath}`);
+        // const fileContent = await fs.readFile(this.filePath, 'utf-8');
         // return this.deserializeMetrics(fileContent);
         return new Map();
     }
@@ -30,8 +33,4 @@ export class FileStoragePersistence implements MetricsPersistenceStrategy {
         return JSON.stringify(Array.from(metrics.entries()));
     }
 
-    private deserializeMetrics(serialized: string): Map<string, StoredMetricValue[]> {
-        const entries = JSON.parse(serialized);
-        return new Map(entries);
-    }
 }
