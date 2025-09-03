@@ -264,7 +264,9 @@ export class MentorSkillsAnalyzer {
 
         // Analyser la clarté des explications basée sur la compréhension
         const comprehensionScores = metrics.map(m => m.comprehensionRate);
-        const averageComprehension = comprehensionScores.reduce((sum: number, score: number) => sum + score, 0) / comprehensionScores.length;
+        const averageComprehension = comprehensionScores.length > 0 
+            ? comprehensionScores.reduce((sum: number, score: number) => sum + score, 0) / comprehensionScores.length
+            : 0.5;
 
         // Analyser la progression dans les sessions
         const progressionFactor = this.calculateProgressionFactor(comprehensionScores);
@@ -299,12 +301,16 @@ export class MentorSkillsAnalyzer {
 
         // Analyser la gestion de la frustration
         const frustrationScores = sessions.map(s => s.aiReactions?.frustrationSigns || 0);
-        const averageFrustration = frustrationScores.reduce((sum: number, score: number) => sum + score, 0) / frustrationScores.length;
+        const averageFrustration = frustrationScores.length > 0 
+            ? frustrationScores.reduce((sum: number, score: number) => sum + score, 0) / frustrationScores.length
+            : 0;
         const frustrationHandling = Math.max(0, 1 - averageFrustration); // Moins de frustration = plus de patience
 
         // Analyser le taux d'acceptation des corrections
         const correctionRates = sessions.map(s => s.aiReactions?.correctionsAccepted || 0.5);
-        const averageAcceptance = correctionRates.reduce((sum: number, rate: number) => sum + rate, 0) / correctionRates.length;
+        const averageAcceptance = correctionRates.length > 0
+            ? correctionRates.reduce((sum: number, rate: number) => sum + rate, 0) / correctionRates.length
+            : 0.5;
 
         // Analyser la consistance de l'engagement
         const engagementConsistency = this.calculateEngagementConsistency(metrics);
@@ -335,7 +341,9 @@ export class MentorSkillsAnalyzer {
 
         // Analyser la vitesse d'adaptation aux besoins de l'AI
         const adaptationSpeeds = metrics.map(m => m.adaptationSpeed);
-        const averageAdaptationSpeed = adaptationSpeeds.reduce((sum: number, speed: number) => sum + speed, 0) / adaptationSpeeds.length;
+        const averageAdaptationSpeed = adaptationSpeeds.length > 0
+            ? adaptationSpeeds.reduce((sum: number, speed: number) => sum + speed, 0) / adaptationSpeeds.length
+            : 0.5;
 
         // Analyser la variété des méthodes d'enseignement
         const teachingMethods = new Set(sessions.map(s => s.content?.teachingMethod || 'default'));
@@ -362,11 +370,15 @@ export class MentorSkillsAnalyzer {
 
         // Analyser l'évolution de la satisfaction de l'IA
         const satisfactionScores = sessions.map(s => s.results?.aiSatisfaction || 0.5);
-        const averageSatisfaction = satisfactionScores.reduce((sum: number, score: number) => sum + score, 0) / satisfactionScores.length;
+        const averageSatisfaction = satisfactionScores.length > 0
+            ? satisfactionScores.reduce((sum: number, score: number) => sum + score, 0) / satisfactionScores.length
+            : 0.5;
 
         // Analyser l'amélioration progressive
         const improvementScores = sessions.map(s => s.results?.improvement || 0);
-        const averageImprovement = improvementScores.reduce((sum: number, score: number) => sum + score, 0) / improvementScores.length;
+        const averageImprovement = improvementScores.length > 0
+            ? improvementScores.reduce((sum: number, score: number) => sum + score, 0) / improvementScores.length
+            : 0;
 
         // Analyser la progression de la satisfaction
         let satisfactionGrowth = 0;
@@ -374,27 +386,37 @@ export class MentorSkillsAnalyzer {
             const firstHalf = satisfactionScores.slice(0, Math.ceil(satisfactionScores.length / 2));
             const secondHalf = satisfactionScores.slice(Math.ceil(satisfactionScores.length / 2));
 
-            const firstAvg = firstHalf.reduce((sum: number, score: number) => sum + score, 0) / firstHalf.length;
-            const secondAvg = secondHalf.reduce((sum: number, score: number) => sum + score, 0) / secondHalf.length;
+            const firstAvg = firstHalf.length > 0 
+                ? firstHalf.reduce((sum: number, score: number) => sum + score, 0) / firstHalf.length
+                : 0.5;
+            const secondAvg = secondHalf.length > 0
+                ? secondHalf.reduce((sum: number, score: number) => sum + score, 0) / secondHalf.length
+                : 0.5;
 
             satisfactionGrowth = Math.max(0, secondAvg - firstAvg);
         }
 
         // Analyser les objectifs atteints
         const objectivesScores = sessions.map(s => s.results?.objectivesAchieved || 0.5);
-        const averageObjectives = objectivesScores.reduce((sum: number, score: number) => sum + score, 0) / objectivesScores.length;
+        const averageObjectives = objectivesScores.length > 0
+            ? objectivesScores.reduce((sum: number, score: number) => sum + score, 0) / objectivesScores.length
+            : 0.5;
 
         // ✅ CORRECTION: Utiliser les métriques pour analyser l'efficacité des encouragements
         // Analyser la corrélation entre engagement et encouragement
         const engagementScores = metrics.map(m => m.engagementLevel);
-        const averageEngagement = engagementScores.reduce((sum: number, score: number) => sum + score, 0) / engagementScores.length;
+        const averageEngagement = engagementScores.length > 0
+            ? engagementScores.reduce((sum: number, score: number) => sum + score, 0) / engagementScores.length
+            : 0.5;
 
         // Analyser la progression de l'engagement (signe d'encouragement efficace)
         const engagementProgression = this.calculateProgressionFactor(engagementScores);
 
         // Analyser la corrélation entre taux de récupération d'erreurs et encouragement
         const errorRecoveryScores = metrics.map(m => m.errorRecoveryRate);
-        const averageErrorRecovery = errorRecoveryScores.reduce((sum: number, score: number) => sum + score, 0) / errorRecoveryScores.length;
+        const averageErrorRecovery = errorRecoveryScores.length > 0
+            ? errorRecoveryScores.reduce((sum: number, score: number) => sum + score, 0) / errorRecoveryScores.length
+            : 1.0;
 
         // Score final d'encouragement enrichi avec les métriques
         const encouragementScore = (
@@ -426,8 +448,10 @@ export class MentorSkillsAnalyzer {
         if (!this.config.culturalSensitivity) return 0.7; // Score par défaut
 
         // Analyser l'adaptation au contexte culturel
-        const culturalAdaptationScore = metrics.map(m => m.culturalSensitivity)
-            .reduce((sum: number, score: number) => sum + score, 0) / metrics.length;
+        const culturalAdaptationScore = metrics.length > 0
+            ? metrics.map(m => m.culturalSensitivity)
+                .reduce((sum: number, score: number) => sum + score, 0) / metrics.length
+            : 0.5;
 
         // Analyser l'utilisation d'éléments culturels appropriés
         const culturalElementsUsed = this.analyzeCulturalElementsUsage(sessions);
@@ -507,8 +531,12 @@ export class MentorSkillsAnalyzer {
         const firstHalf = scores.slice(0, Math.ceil(scores.length / 2));
         const secondHalf = scores.slice(Math.ceil(scores.length / 2));
 
-        const firstAvg = firstHalf.reduce((sum: number, score: number) => sum + score, 0) / firstHalf.length;
-        const secondAvg = secondHalf.reduce((sum: number, score: number) => sum + score, 0) / secondHalf.length;
+        const firstAvg = firstHalf.length > 0 
+            ? firstHalf.reduce((sum: number, score: number) => sum + score, 0) / firstHalf.length
+            : 0;
+        const secondAvg = secondHalf.length > 0
+            ? secondHalf.reduce((sum: number, score: number) => sum + score, 0) / secondHalf.length
+            : 0;
 
         const improvement = secondAvg - firstAvg;
         return Math.max(0, Math.min(1, (improvement + 0.5) / 1)); // Normaliser entre 0-1
@@ -523,8 +551,12 @@ export class MentorSkillsAnalyzer {
     private calculateConsistencyFactor(scores: readonly number[]): number {
         if (scores.length < 2) return 1;
 
-        const mean = scores.reduce((sum: number, score: number) => sum + score, 0) / scores.length;
-        const variance = scores.reduce((sum: number, score: number) => sum + Math.pow(score - mean, 2), 0) / scores.length;
+        const mean = scores.length > 0 
+            ? scores.reduce((sum: number, score: number) => sum + score, 0) / scores.length
+            : 0;
+        const variance = scores.length > 0
+            ? scores.reduce((sum: number, score: number) => sum + Math.pow(score - mean, 2), 0) / scores.length
+            : 0;
         const standardDeviation = Math.sqrt(variance);
 
         // Plus la déviation est faible, plus la consistance est élevée
@@ -551,8 +583,12 @@ export class MentorSkillsAnalyzer {
     private calculateVariability(values: readonly number[]): number {
         if (values.length < 2) return 0;
 
-        const mean = values.reduce((sum: number, val: number) => sum + val, 0) / values.length;
-        const variance = values.reduce((sum: number, val: number) => sum + Math.pow(val - mean, 2), 0) / values.length;
+        const mean = values.length > 0
+            ? values.reduce((sum: number, val: number) => sum + val, 0) / values.length
+            : 0;
+        const variance = values.length > 0
+            ? values.reduce((sum: number, val: number) => sum + Math.pow(val - mean, 2), 0) / values.length
+            : 0;
 
         return Math.sqrt(variance);
     }
@@ -699,7 +735,9 @@ export class MentorSkillsAnalyzer {
         }
 
         // Conseils basés sur les métriques
-        const avgEngagement = sessionMetrics.reduce((sum: number, m: SessionMetrics) => sum + m.engagementLevel, 0) / sessionMetrics.length;
+        const avgEngagement = sessionMetrics.length > 0
+            ? sessionMetrics.reduce((sum: number, m: SessionMetrics) => sum + m.engagementLevel, 0) / sessionMetrics.length
+            : 0.5;
         if (avgEngagement < 0.6) {
             tips.push("Améliorer l'engagement en variant les activités et en rendant les leçons plus interactives");
         }

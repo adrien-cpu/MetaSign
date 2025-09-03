@@ -563,7 +563,8 @@ metasign/src/ai$ tree
 │   │   │   │   └── PerimeterEthicsValidator.ts
 │   │   │   ├── monitoring
 │   │   │   │   ├── PerimeterMetricsCollector.ts
-│   │   │   │   └── PerimeterMonitor.ts
+│   │   │   │   ├── PerimeterMonitor.ts
+│   │   │   │   └── PerimeterReportGenerator.ts
 │   │   │   ├── reporting
 │   │   │   │   ├── PerimeterReportGenerator.ts
 │   │   │   │   └── PerimeterReporting.ts
@@ -918,6 +919,8 @@ metasign/src/ai$ tree
 │   │   │   │   │   │       └── preference-utils.ts
 │   │   │   │   │   ├── algorithms
 │   │   │   │   │   │   └── EvolutionAlgorithmManager.ts
+│   │   │   │   │   ├── analysis
+│   │   │   │   │   │   └── EvolutionAnalyzer.ts
 │   │   │   │   │   ├── evaluators
 │   │   │   │   │   │   ├── CECRLCODAEvaluator.ts
 │   │   │   │   │   │   ├── CECRLLevelEvaluator.ts
@@ -1136,6 +1139,8 @@ metasign/src/ai$ tree
 │   │   │   │   │   │   ├── AIMemorySystem.ts
 │   │   │   │   │   │   ├── AIPersonalitySystem.ts
 │   │   │   │   │   │   ├── EnhancedCODASystem.ts
+│   │   │   │   │   │   ├── PersonalityAnalysisEngine.ts
+│   │   │   │   │   │   ├── PersonalityCompatibilityCalculator.ts
 │   │   │   │   │   │   ├── README.md
 │   │   │   │   │   │   ├── __tests__
 │   │   │   │   │   │   │   ├── AIEmotionalSystem.test.ts
@@ -1154,7 +1159,10 @@ metasign/src/ai$ tree
 │   │   │   │   │   │   ├── benchmarks
 │   │   │   │   │   │   │   └── PerformanceBenchmarks.ts
 │   │   │   │   │   │   ├── config
+│   │   │   │   │   │   │   ├── CODAConfigManager.ts
 │   │   │   │   │   │   │   └── EmotionalConfigPresets.ts
+│   │   │   │   │   │   ├── emotional
+│   │   │   │   │   │   │   └── CODAEmotionalProcessor.ts
 │   │   │   │   │   │   ├── examples
 │   │   │   │   │   │   │   └── EmotionalSystemExamples.ts
 │   │   │   │   │   │   ├── history
@@ -1162,6 +1170,10 @@ metasign/src/ai$ tree
 │   │   │   │   │   │   ├── index.ts
 │   │   │   │   │   │   ├── pattern
 │   │   │   │   │   │   │   └── EmotionalPatternDetector.ts
+│   │   │   │   │   │   ├── response
+│   │   │   │   │   │   │   └── CODAResponseGenerator.ts
+│   │   │   │   │   │   ├── state
+│   │   │   │   │   │   │   └── CODAStateManager.ts
 │   │   │   │   │   │   ├── transition
 │   │   │   │   │   │   │   └── EmotionalTransitionManager.ts
 │   │   │   │   │   │   └── types
@@ -1170,8 +1182,15 @@ metasign/src/ai$ tree
 │   │   │   │   │   │   ├── CODASystemTypes.ts
 │   │   │   │   │   │   ├── CompatibilityTypes.ts
 │   │   │   │   │   │   ├── LSFBaseTypes.ts
+│   │   │   │   │   │   ├── base.ts
+│   │   │   │   │   │   ├── config.ts
 │   │   │   │   │   │   ├── evolution.types.ts
-│   │   │   │   │   │   └── index.ts
+│   │   │   │   │   │   ├── index.ts
+│   │   │   │   │   │   ├── learning.ts
+│   │   │   │   │   │   ├── metrics.ts
+│   │   │   │   │   │   ├── personality.ts
+│   │   │   │   │   │   ├── session.ts
+│   │   │   │   │   │   └── utils.ts
 │   │   │   │   │   ├── types.ts
 │   │   │   │   │   └── utils
 │   │   │   │   │       ├── AISimulatorUtils.ts
@@ -1309,6 +1328,7 @@ metasign/src/ai$ tree
 │   │   │   │       └── adapters
 │   │   │   │           └── ContentAdapter.ts
 │   │   │   └── metrics
+│   │   │       ├── EngagementMonitor.ts
 │   │   │       ├── ProgressTracker.ts
 │   │   │       ├── RecommendationEngine.ts
 │   │   │       └── analyzers
@@ -2049,4 +2069,4 @@ metasign/src/ai$ tree
         ├── result-helpers.ts
         └── validation-helpers.ts
 
-592 directories, 1456 files
+596 directories, 1472 files

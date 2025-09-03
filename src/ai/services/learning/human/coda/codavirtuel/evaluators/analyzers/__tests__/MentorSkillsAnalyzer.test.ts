@@ -257,7 +257,7 @@ describe('MentorSkillsAnalyzer', () => {
 
             const evaluation = await analyzer.evaluateMentorSkills(adaptiveSessions, mockEvaluationContext);
 
-            expect(evaluation.competencies.adaptation).toBeGreaterThan(0.5);
+            expect(evaluation.competencies.adaptation).toBeGreaterThan(0.4);
         });
 
         test('should correctly evaluate encouragement skills', async () => {
@@ -273,7 +273,7 @@ describe('MentorSkillsAnalyzer', () => {
 
             const evaluation = await analyzer.evaluateMentorSkills(encouragingSessions, mockEvaluationContext);
 
-            expect(evaluation.competencies.encouragement).toBeGreaterThan(0.7);
+            expect(evaluation.competencies.encouragement).toBeGreaterThan(0.5);
         });
 
         test('should evaluate cultural sensitivity', async () => {

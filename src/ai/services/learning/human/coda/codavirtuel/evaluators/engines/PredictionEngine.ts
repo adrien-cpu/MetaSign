@@ -226,7 +226,7 @@ export class PredictionEngine {
             sessions: sessions.length,
             mentorId: context.mentorId,
             currentLevel: context.aiStudentLevel,
-            mentorScore: mentorEval.overallScore.toFixed(2)
+            mentorScore: mentorEval?.overallScore?.toFixed(2) || 'N/A'
         });
 
         // Analyser les tendances d'apprentissage
@@ -388,7 +388,7 @@ export class PredictionEngine {
         const baseDuration = PredictionEngine.LEVEL_DURATIONS[nextLevel];
 
         // Ajuster selon les performances du mentor et la tendance
-        const mentorAdjustment = (mentorEval.overallScore - 0.5) * 0.3; // -15% à +15%
+        const mentorAdjustment = ((mentorEval?.overallScore || 0.5) - 0.5) * 0.3; // -15% à +15%
         const trendAdjustment = this.calculateTrendAdjustment(trend);
 
         const adjustedDuration = baseDuration * (1 - mentorAdjustment - trendAdjustment);
@@ -796,7 +796,7 @@ export class PredictionEngine {
         }
 
         // Ajustement basé sur les compétences du mentor
-        const mentorAdjustment = (mentorEval.overallScore - 0.5) * 0.4; // -20% à +20%
+        const mentorAdjustment = ((mentorEval?.overallScore || 0.5) - 0.5) * 0.4; // -20% à +20%
 
         const adjustmentFactor = 1 + trendAdjustment - mentorAdjustment;
         return Math.max(3, Math.round(baseTime * adjustmentFactor)); // Minimum 3 jours
@@ -819,7 +819,7 @@ export class PredictionEngine {
         const baseConfidence = Math.min(0.9, sessions.length / 10);
 
         // Ajustement basé sur la performance du mentor
-        const mentorAdjustment = (mentorEval.overallScore - 0.5) * 0.3;
+        const mentorAdjustment = ((mentorEval?.overallScore || 0.5) - 0.5) * 0.3;
 
         // Ajustement basé sur la fiabilité de la tendance
         const trendAdjustment = trend.reliability * trend.consistency * 0.2;

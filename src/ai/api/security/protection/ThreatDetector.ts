@@ -76,7 +76,7 @@ export class ThreatDetector {
             analyze: async (context, history) => {
                 const recentAccess = history.filter(event => {
                     const eventTime = event.timestamp ? 
-                        (event.timestamp instanceof Date ? event.timestamp.getTime() : event.timestamp.getTime()) : 0;
+                        (event.timestamp instanceof Date ? event.timestamp.getTime() : (event.timestamp as number)) : 0;
                     return event.userId === context.userId &&
                            eventTime > Date.now() - 60 * 1000;
                 });
@@ -94,7 +94,7 @@ export class ThreatDetector {
             description: 'Détection de changement anormal de localisation',
             analyze: async (context, history) => {
                 const profile = this.behaviorProfiles.get(context.userId);
-                const ipAddress = (context as any).ipAddress || 'unknown';
+                const ipAddress = (context as SecurityContext & { ipAddress?: string }).ipAddress || 'unknown';
                 
                 // Vérifier si l'IP est dans la liste des IPs connues
                 const isKnownIP = profile ? profile.normalPatterns.commonIPs.has(ipAddress) : false;
@@ -103,7 +103,7 @@ export class ThreatDetector {
                 if (!isKnownIP && history.length > 0) {
                     const recentGeoChanges = history.filter(event => {
                         const eventTime = event.timestamp ? 
-                            (event.timestamp instanceof Date ? event.timestamp.getTime() : event.timestamp.getTime()) : 0;
+                            (event.timestamp instanceof Date ? event.timestamp.getTime() : (event.timestamp as number)) : 0;
                         return event.userId === context.userId &&
                                eventTime > Date.now() - 24 * 60 * 60 * 1000;
                     });
@@ -127,7 +127,7 @@ export class ThreatDetector {
             analyze: async (context, history) => {
                 const recentEscalation = history.filter(event => {
                     const eventTime = event.timestamp ? 
-                        (event.timestamp instanceof Date ? event.timestamp.getTime() : event.timestamp.getTime()) : 0;
+                        (event.timestamp instanceof Date ? event.timestamp.getTime() : (event.timestamp as number)) : 0;
                     return event.userId === context.userId &&
                            event.type === 'permission_change' &&
                            eventTime > Date.now() - 5 * 60 * 1000;
@@ -147,7 +147,7 @@ export class ThreatDetector {
             analyze: async (context, history) => {
                 const recentDownloads = history.filter(event => {
                     const eventTime = event.timestamp ? 
-                        (event.timestamp instanceof Date ? event.timestamp.getTime() : event.timestamp.getTime()) : 0;
+                        (event.timestamp instanceof Date ? event.timestamp.getTime() : (event.timestamp as number)) : 0;
                     return event.userId === context.userId &&
                            event.type === 'data_access' &&
                            eventTime > Date.now() - 30 * 60 * 1000;
@@ -167,8 +167,8 @@ export class ThreatDetector {
             analyze: async (context, history) => {
                 const failedAttempts = history.filter(event => {
                     const eventTime = event.timestamp ? 
-                        (event.timestamp instanceof Date ? event.timestamp.getTime() : event.timestamp.getTime()) : 0;
-                    return event.ip === (context as any).ipAddress &&
+                        (event.timestamp instanceof Date ? event.timestamp.getTime() : (event.timestamp as number)) : 0;
+                    return event.ip === (context as SecurityContext & { ipAddress?: string }).ipAddress &&
                            event.type === 'authentication_failed' &&
                            eventTime > Date.now() - 5 * 60 * 1000;
                 });
@@ -187,9 +187,9 @@ export class ThreatDetector {
             analyze: async (context, history) => {
                 const sameUserDifferentIPs = history.filter(event => {
                     const eventTime = event.timestamp ? 
-                        (event.timestamp instanceof Date ? event.timestamp.getTime() : event.timestamp.getTime()) : 0;
+                        (event.timestamp instanceof Date ? event.timestamp.getTime() : (event.timestamp as number)) : 0;
                     return event.userId === context.userId &&
-                           event.ip !== (context as any).ipAddress &&
+                           event.ip !== (context as SecurityContext & { ipAddress?: string }).ipAddress &&
                            eventTime > Date.now() - 10 * 60 * 1000;
                 });
                 return sameUserDifferentIPs.length > 0;
@@ -346,7 +346,7 @@ export class ThreatDetector {
             details: {},
             source: 'ThreatDetector',
             userId: context.userId,
-            ip: (context as any).ipAddress
+            ip: (context as SecurityContext & { ipAddress?: string }).ipAddress
         };
         this.eventHistory.push(event);
 
@@ -358,8 +358,8 @@ export class ThreatDetector {
     private async updateBehaviorProfile(context: SecurityContext): Promise<void> {
         let profile = this.behaviorProfiles.get(context.userId);
         const now = Date.now();
-        const ipAddress = (context as any).ipAddress || 'unknown';
-        const operation = context.operation || 'unknown';
+        const ipAddress = (context as SecurityContext & { ipAddress?: string }).ipAddress || 'unknown';
+        const operation = (context as SecurityContext & { operation?: string }).operation || 'unknown';
 
         if (!profile || (now - profile.lastUpdated > this.PROFILE_UPDATE_INTERVAL)) {
             profile = {
@@ -400,7 +400,7 @@ export class ThreatDetector {
         }
     }
 
-    private async logError(context: SecurityContext, error: unknown): Promise<void> {
+    private async logError(_context: SecurityContext, error: unknown): Promise<void> {
         const event = {
             type: 'threat_detection_error',
             severity: SecurityEventSeverity.ERROR,
