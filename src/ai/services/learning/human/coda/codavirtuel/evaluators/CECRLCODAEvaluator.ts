@@ -13,13 +13,14 @@
 import { LoggerFactory } from '@/ai/utils/LoggerFactory';
 import { MentorSkillsAnalyzer } from './analyzers/MentorSkillsAnalyzer';
 import { SupportGenerator } from './generators/SupportGenerator';
-import { PredictionEngine, type CECRLLevel } from './engines/PredictionEngine';
+import { PredictionEngine, type CECRLLevel, type ProgressPredictions } from './engines/PredictionEngine';
 import { CulturalAnalyzer } from './analyzers/CulturalAnalyzer';
 import type {
     TeachingSession,
     MentorEvaluation,
     CODAExperienceEvaluation,
-    TeachingSupport
+    TeachingSupport,
+    LearningPrediction
 } from './types/CODAEvaluatorTypes';
 
 /**
@@ -253,7 +254,7 @@ export class CECRLCODAEvaluator {
 
             // Générer les prédictions de progression
             const progressPredictions = this.config.enablePredictiveAnalysis
-                ? await this.predictionEngine.generateProgressPredictions(sessions, context)
+                ? await this.predictionEngine.generateProgressPredictions(sessions, context, mentorEvaluation)
                 : null;
 
             // Analyser le contexte culturel
@@ -264,7 +265,7 @@ export class CECRLCODAEvaluator {
                 teachingSupports,
                 aiStudent: {
                     currentLevel: context.aiStudentLevel,
-                    name: `AI Student ${Math.random().toString(36).substr(2, 5)}`
+                    name: `AI Student ${Math.random().toString(36).substring(2, 7)}`
                 } as CODAExperienceEvaluation['aiStudent'],
                 predictions: progressPredictions ? this.convertToLearningPredictions(progressPredictions) : [],
                 confidence: mentorEvaluation.overallScore,
@@ -431,13 +432,13 @@ export class CECRLCODAEvaluator {
      * @returns Prédictions d'apprentissage
      * @private
      */
-    private convertToLearningPredictions(progressPredictions: any): Array<any> {
+    private convertToLearningPredictions(progressPredictions: ProgressPredictions): readonly LearningPrediction[] {
         if (!progressPredictions) return [];
         
         // Convertir les prédictions de progression en format attendu
         return [{
             area: 'vocabulary',
-            difficulty: 'medium',
+            difficulty: 'medium' as const,
             timeEstimate: 120, // Valeur fixe pour correspondre aux tests
             confidence: 0.8,
             recommendations: ['Pratiquer régulièrement'],

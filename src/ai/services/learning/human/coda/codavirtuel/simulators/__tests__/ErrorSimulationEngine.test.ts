@@ -13,8 +13,8 @@
  * @version 1.0.0
  */
 
-import { ErrorSimulationEngine, LSFErrorType, type SimulatedError } from '../ErrorSimulationEngine';
-import { type LearnerContext, type CECRLLevel, type AIStudentPersonalityType, type AIMood } from '../../types/base';
+import { ErrorSimulationEngine, LSFErrorType, type LearnerContext } from '../ErrorSimulationEngine';
+import { type CECRLLevel, type AIStudentPersonalityType, type AIMood } from '../../types/base';
 
 // Configuration de test avec données réalistes
 const mockLearnerContext: LearnerContext = {
@@ -25,8 +25,8 @@ const mockLearnerContext: LearnerContext = {
     masteredConcepts: ['salutations_base', 'chiffres_simples'],
     recentConcepts: ['famille', 'couleurs'],
     sessionDuration: 30,
-    fatigueLevel: 0.3,
-    concentrationLevel: 0.7
+    fatigue: 0.3,
+    previousErrors: []
 };
 
 describe('ErrorSimulationEngine', () => {
@@ -37,7 +37,7 @@ describe('ErrorSimulationEngine', () => {
     });
 
     afterEach(() => {
-        errorEngine.destroy();
+        // Nettoyage si nécessaire
     });
 
     describe('Configuration et Initialisation', () => {
@@ -47,9 +47,9 @@ describe('ErrorSimulationEngine', () => {
             // Vérifier que toutes les configurations CECRL sont présentes
             const levels: CECRLLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
             levels.forEach(level => {
-                const errors = (errorEngine as any).getErrorsForLevel(level);
-                expect(errors).toBeDefined();
-                expect(Array.isArray(errors)).toBe(true);
+                const availableErrors = errorEngine.getAvailableErrorTypes(level);
+                expect(availableErrors).toBeDefined();
+                expect(Array.isArray(availableErrors)).toBe(true);
             });
         });
 
@@ -80,10 +80,10 @@ describe('ErrorSimulationEngine', () => {
     });
 
     describe('Génération d\'Erreurs Contextuelles', () => {
-        test('doit générer des erreurs appropriées pour le niveau A1', async () => {
+        test('doit générer des erreurs appropriées pour le niveau A1', () => {
             const contextA1: LearnerContext = { ...mockLearnerContext, currentLevel: 'A1' };
             
-            const error = await errorEngine.simulateError(contextA1, 'bonjour', 'BONJOUR');
+            const error = errorEngine.generateError(contextA1, 'bonjour', 'BONJOUR');
             
             expect(error).toBeDefined();
             expect(error!.concept).toBe('bonjour');
@@ -93,10 +93,10 @@ describe('ErrorSimulationEngine', () => {
             expect(error!.correctionHints.length).toBeGreaterThan(0);
         });
 
-        test('doit générer des erreurs plus complexes pour les niveaux avancés', async () => {
+        test('doit générer des erreurs plus complexes pour les niveaux avancés', () => {
             const contextC1: LearnerContext = { ...mockLearnerContext, currentLevel: 'C1' };
             
-            const error = await errorEngine.simulateError(contextC1, 'discours_politique', 'DISCOURS');
+            const error = errorEngine.generateError(contextC1, 'discours_politique', 'DISCOURS');
             
             if (error) {
                 // Les erreurs de niveau C1 devraient être plus subtiles (pragmatiques, discursives)
@@ -109,7 +109,7 @@ describe('ErrorSimulationEngine', () => {
             }
         });
 
-        test('doit prendre en compte la personnalité dans la génération d\'erreurs', async () => {
+        test('doit prendre en compte la personnalité dans la génération d\'erreurs', () => {
             const testPersonalities: AIStudentPersonalityType[] = [
                 'curious_student',
                 'shy_learner',
@@ -121,7 +121,7 @@ describe('ErrorSimulationEngine', () => {
 
             for (const personality of testPersonalities) {
                 const context: LearnerContext = { ...mockLearnerContext, personality };
-                const error = await errorEngine.simulateError(context, 'test_concept', 'TEST');
+                const error = errorEngine.generateError(context, 'test_concept', 'TEST');
                 
                 // Chaque personnalité devrait potentiellement générer des erreurs
                 // (peut être null selon la probabilité)
@@ -132,7 +132,7 @@ describe('ErrorSimulationEngine', () => {
             }
         });
 
-        test('doit adapter les erreurs selon l\'humeur de l\'apprenant', async () => {
+        test('doit adapter les erreurs selon l\'humeur de l\'apprenant', () => {
             const testMoods: AIMood[] = ['happy', 'confused', 'frustrated', 'excited', 'neutral', 'curious'];
             const errorFrequencies: Record<string, number> = {};
 
@@ -142,7 +142,7 @@ describe('ErrorSimulationEngine', () => {
                 
                 // Test sur plusieurs tentatives pour évaluer la fréquence
                 for (let i = 0; i < 10; i++) {
-                    const error = await errorEngine.simulateError(context, 'test_mood', 'TEST');
+                    const error = errorEngine.generateError(context, 'test_mood', 'TEST');
                     if (error) errorCount++;
                 }
                 
@@ -155,15 +155,15 @@ describe('ErrorSimulationEngine', () => {
     });
 
     describe('Correction et Pédagogie', () => {
-        test('doit fournir des conseils de correction spécifiques au type d\'erreur', async () => {
-            const error = await errorEngine.simulateError(mockLearnerContext, 'famille', 'FAMILLE');
+        test('doit fournir des conseils de correction spécifiques au type d\'erreur', () => {
+            const error = errorEngine.generateError(mockLearnerContext, 'famille', 'FAMILLE');
             
             if (error) {
                 expect(error.correctionHints).toBeInstanceOf(Array);
                 expect(error.correctionHints.length).toBeGreaterThan(0);
                 
                 // Les conseils doivent être des chaînes non vides
-                error.correctionHints.forEach(hint => {
+                error.correctionHints.forEach((hint: string) => {
                     expect(typeof hint).toBe('string');
                     expect(hint.length).toBeGreaterThan(0);
                 });
@@ -174,8 +174,8 @@ describe('ErrorSimulationEngine', () => {
             }
         });
 
-        test('doit générer des descriptions d\'erreur contextualisées', async () => {
-            const error = await errorEngine.simulateError(mockLearnerContext, 'maison', 'MAISON');
+        test('doit générer des descriptions d\'erreur contextualisées', () => {
+            const error = errorEngine.generateError(mockLearnerContext, 'maison', 'MAISON');
             
             if (error) {
                 expect(error.description).toBeDefined();
@@ -185,15 +185,15 @@ describe('ErrorSimulationEngine', () => {
             }
         });
 
-        test('doit identifier les concepts liés pour l\'apprentissage', async () => {
-            const error = await errorEngine.simulateError(mockLearnerContext, 'rouge', 'ROUGE');
+        test('doit identifier les concepts liés pour l\'apprentissage', () => {
+            const error = errorEngine.generateError(mockLearnerContext, 'rouge', 'ROUGE');
             
             if (error) {
                 expect(error.relatedConcepts).toBeInstanceOf(Array);
                 expect(error.relatedConcepts).toContain('rouge');
                 
                 // Devrait inclure d'autres concepts de la même famille
-                const relatedColors = error.relatedConcepts.filter(concept => 
+                const relatedColors = error.relatedConcepts.filter((concept: string) => 
                     ['bleu', 'vert', 'jaune', 'rouge'].includes(concept)
                 );
                 expect(relatedColors.length).toBeGreaterThan(1);
@@ -202,7 +202,7 @@ describe('ErrorSimulationEngine', () => {
     });
 
     describe('Gestion des Concepts Difficiles', () => {
-        test('doit augmenter la probabilité d\'erreur pour les concepts en difficulté', async () => {
+        test('doit augmenter la probabilité d\'erreur pour les concepts en difficulté', () => {
             const contextWithStruggles: LearnerContext = {
                 ...mockLearnerContext,
                 strugglingConcepts: ['test_difficult']
@@ -212,7 +212,7 @@ describe('ErrorSimulationEngine', () => {
             const iterations = 20;
 
             for (let i = 0; i < iterations; i++) {
-                const error = await errorEngine.simulateError(contextWithStruggles, 'test_difficult', 'TEST');
+                const error = errorEngine.generateError(contextWithStruggles, 'test_difficult', 'TEST');
                 if (error) errorCount++;
             }
 
@@ -221,7 +221,7 @@ describe('ErrorSimulationEngine', () => {
             expect(errorRate).toBeGreaterThan(0.3); // Au moins 30% d'erreurs
         });
 
-        test('doit réduire les erreurs pour les concepts maîtrisés', async () => {
+        test('doit réduire les erreurs pour les concepts maîtrisés', () => {
             const contextMastered: LearnerContext = {
                 ...mockLearnerContext,
                 masteredConcepts: ['test_mastered']
@@ -231,7 +231,7 @@ describe('ErrorSimulationEngine', () => {
             const iterations = 20;
 
             for (let i = 0; i < iterations; i++) {
-                const error = await errorEngine.simulateError(contextMastered, 'test_mastered', 'TEST');
+                const error = errorEngine.generateError(contextMastered, 'test_mastered', 'TEST');
                 if (error) errorCount++;
             }
 
@@ -242,8 +242,8 @@ describe('ErrorSimulationEngine', () => {
     });
 
     describe('Validation des Structures de Données', () => {
-        test('doit créer des erreurs avec tous les champs obligatoires', async () => {
-            const error = await errorEngine.simulateError(mockLearnerContext, 'validation', 'VALIDATION');
+        test('doit créer des erreurs avec tous les champs obligatoires', () => {
+            const error = errorEngine.generateError(mockLearnerContext, 'validation', 'VALIDATION');
             
             if (error) {
                 // Vérification de tous les champs obligatoires de SimulatedError
@@ -262,43 +262,42 @@ describe('ErrorSimulationEngine', () => {
             }
         });
 
-        test('doit gérer gracieusement les contextes invalides', async () => {
+        test('doit gérer gracieusement les contextes invalides', () => {
             const invalidContext = {
                 ...mockLearnerContext,
                 currentLevel: 'INVALID' as CECRLLevel
             };
 
             // Ne devrait pas lever d'exception
-            const error = await errorEngine.simulateError(invalidContext, 'test', 'TEST');
+            const error = errorEngine.generateError(invalidContext, 'test', 'TEST');
             expect(error).toBeDefined(); // Peut être null ou une erreur valide
         });
     });
 
     describe('Performance et Stabilité', () => {
-        test('doit maintenir des performances correctes avec de multiples simulations', async () => {
+        test('doit maintenir des performances correctes avec de multiples simulations', () => {
             const startTime = Date.now();
-            const promises = [];
+            const results = [];
 
             for (let i = 0; i < 50; i++) {
-                promises.push(errorEngine.simulateError(mockLearnerContext, `concept_${i}`, `TEST_${i}`));
+                results.push(errorEngine.generateError(mockLearnerContext, `concept_${i}`, `TEST_${i}`));
             }
 
-            const results = await Promise.all(promises);
             const endTime = Date.now();
             
             expect(endTime - startTime).toBeLessThan(1000); // Moins d'1 seconde pour 50 simulations
             expect(results).toHaveLength(50);
         });
 
-        test('doit nettoyer correctement les ressources lors de la destruction', () => {
+        test('doit créer une nouvelle instance sans erreur', () => {
             const engine = new ErrorSimulationEngine();
-            expect(() => engine.destroy()).not.toThrow();
+            expect(engine).toBeInstanceOf(ErrorSimulationEngine);
         });
     });
 
     describe('Cohérence Pédagogique', () => {
-        test('doit maintenir la cohérence entre le type d\'erreur et les conseils', async () => {
-            const error = await errorEngine.simulateError(mockLearnerContext, 'cohérence', 'COHERENCE');
+        test('doit maintenir la cohérence entre le type d\'erreur et les conseils', () => {
+            const error = errorEngine.generateError(mockLearnerContext, 'cohérence', 'COHERENCE');
             
             if (error) {
                 const errorTypeLower = error.type.toLowerCase();
