@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//home/adrien/mes_projets/metasign/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

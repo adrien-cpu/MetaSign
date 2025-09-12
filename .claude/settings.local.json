@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__ide__getDiagnostics",
+      "Bash(npx tsc:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npx eslint:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(rm:*)",
+      "Bash(node:*)",
+      "Bash(npm test:*)",
+      "Bash(npx jest:*)",
+      "Bash(pkill:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": false
+}
