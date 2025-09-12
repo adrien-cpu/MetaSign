@@ -61,6 +61,7 @@ export const ROUTES = {
   USER_BADGES: '/modules/protected/user/gamification', //fait
   USER_STATS: '/modules/protected/user/stats', //fait
   USER_CONTACTS: '/modules/protected/user/contacts', //fait
+  USER_CODA: '/modules/protected/user/coda', //fait
 
   //PROFIL UTILISATEUR - PASSWORD
   VERIFY_PASSWORD: '/api/user/verify-password', //fait

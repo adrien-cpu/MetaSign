@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { User, Settings, Smile, Medal, BarChart2, Users, LayoutDashboard } from 'lucide-react';
+import { User, Settings, Smile, Medal, BarChart2, Users, LayoutDashboard, Brain } from 'lucide-react';
 import Link from 'next/link';
 import Banner from '@/components/ui/banner';
 import { motion } from 'framer-motion';
@@ -54,6 +54,13 @@ const DashboardMainPage = () => {
       description: "Gérez vos contacts",
       icon: <Users className="tile-icon text-red-800" />,
       href: ROUTES.USER_CONTACTS,
+    },
+    {
+      id: "coda",
+      title: "CODA Virtuel",
+      description: "Apprentissage inversé avec IA CODA",
+      icon: <Brain className="tile-icon text-cyan-600" />,
+      href: ROUTES.USER_CODA,
     },
   ], []);
 

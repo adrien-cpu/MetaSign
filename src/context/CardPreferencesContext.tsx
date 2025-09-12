@@ -5,14 +5,14 @@ import { useSession } from "next-auth/react";
 import axios from "axios";
 
 export const VALID_CARDS = [
-    "profile", "personalization", "avatar", "badges", "stats", "contacts",
+    "profile", "personalization", "avatar", "badges", "stats", "contacts", "coda",
     "traduction", "learn", "socialDashboard", "facilities",
     "actualite", "business", "culture", "divertissement", "voyage",
     "clubs", "salons", "rencontres", "amis", "groupes", "evenements",
 ];
 
 export const CATEGORIES = {
-    "Mon Espace": ["profile", "avatar", "badges", "stats", "contacts"],
+    "Mon Espace": ["profile", "avatar", "badges", "stats", "contacts", "coda"],
     "Thématiques": ["traduction", "learn", "socialDashboard", "facilities", "actualite", "business", "culture", "divertissement", "voyage"],
     "Social": ["clubs", "salons", "rencontres", "amis", "groupes", "evenements"],
 };
