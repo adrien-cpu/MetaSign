@@ -430,14 +430,14 @@ export class ProcessingPipeline {
         };
 
         // Résultat de l'exécution
-        let finalResult: OrchestrationResult | null = null;
-        let finalError: Error | null = null;
+        const finalResult: OrchestrationResult | null = null;
+        const finalError: Error | null = null;
 
         // Traitement des étapes
         try {
             const filteredSteps = this.getFilteredStepsForOperation(request.operationType);
 
-            let stepInput: unknown = request.input;
+            const stepInput: unknown = request.input;
 
             // Exécuter chaque étape séquentiellement
             for (currentStepIndex = 0; currentStepIndex < filteredSteps.length; currentStepIndex++) {
@@ -530,3 +530,11 @@ export class ProcessingPipeline {
                                 throw stepError;
                             }
                         }
+                    }
+                }
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
+}

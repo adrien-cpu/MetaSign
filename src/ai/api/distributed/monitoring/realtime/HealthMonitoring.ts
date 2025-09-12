@@ -7,9 +7,9 @@ import { HealthCheckFactory } from './HealthCheckFactory';
 import {
     HealthChangeEvent,
     HealthCheckResult,
-    HealthStatus,
+    // HealthStatus, // Commenté car non utilisé
     SystemHealth,
-    ThresholdConfig
+    // ThresholdConfig // Commenté car non utilisé
 } from '../health/types/health.types';
 
 // Configuration globale du système de monitoring
@@ -393,7 +393,7 @@ class AdvancedHealthMonitoring {
      * Agrège les métriques pour réduire leur volume
      */
     private aggregateMetrics(): void {
-        const now = Date.now();
+        // const now = Date.now(); // Commenté car non utilisé
         const aggregationWindowMs = this.config.metrics.aggregationInterval * 60 * 1000;
 
         // Pour chaque type de métrique

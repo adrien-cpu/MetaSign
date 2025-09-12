@@ -29,6 +29,14 @@ interface BodyComponent extends EmotionalComponent {
     type: 'posture' | 'movement';
 }
 
+// Types pour les valeurs de mouvement
+interface MovementProperties {
+    intensity: number;
+    speed: number;
+    fluidity: number;
+    tension?: number;
+}
+
 /**
  * Classe responsable de la génération d'expressions LSF à partir d'émotions
  */
@@ -291,14 +299,6 @@ export class EmotionGenerator {
     private mapBodyComponentToLSF(component: BodyComponent): Record<string, number> {
         return this.mapFacialComponentToLSF(component as FacialComponent);
     }
-
-    // Types pour les valeurs de mouvement
-    interface MovementProperties {
-    intensity: number;
-    speed: number;
-    fluidity: number;
-    tension?: number;
-}
 
     /**
      * Crée une description du mouvement corporel

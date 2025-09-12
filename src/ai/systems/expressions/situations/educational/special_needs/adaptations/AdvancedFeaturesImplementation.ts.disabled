@@ -123,9 +123,9 @@ export class AdvancedFeaturesAdapter implements IAdvancedAdaptation {
      * Délègue à l'implémentation existante et adapte le résultat au format attendu
      */
     public async implementAdvancedFeatures(
-    session: Record<string, unknown>,
-    options: Record<string, unknown>
-): Promise < AdvancedFeaturesResult > {
+        session: Record<string, unknown>,
+        options: Record<string, unknown>
+    ): Promise<AdvancedFeaturesResult> {
     // Générer un ID de session unique
     const sessionId = options.sessionId as string || `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 

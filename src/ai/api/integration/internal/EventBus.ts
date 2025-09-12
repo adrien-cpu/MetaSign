@@ -259,4 +259,6 @@ export class EventBus {
      * @returns Identifiant unique
      */
     private generateEventId(): string {
-        return Math.random().toString(36).
+        return Math.random().toString(36).substring(7);
+    }
+}
