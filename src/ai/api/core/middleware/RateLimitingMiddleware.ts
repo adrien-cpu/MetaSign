@@ -1,6 +1,6 @@
 // src/ai/api/core/middleware/RateLimitingMiddleware.ts
 import { AbstractMiddleware } from './AbstractMiddleware';
-import { IAPIContext, NextFunction } from '@api/core/types';
+import { IAPIContext, NextFunction } from '../types';
 import { IRateLimiter } from './interfaces';
 // Importer SecurityError depuis le bon emplacement
 import { SecurityError } from '@ai/errors/ErrorTypes';

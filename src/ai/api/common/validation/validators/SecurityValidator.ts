@@ -186,6 +186,7 @@ export class SecurityValidator implements IValidator<SecurityContext> {
 
             return {
                 isValid,
+                success: isValid,
                 errors: allErrors,
                 warnings: this.generateWarnings(context),
                 metadata: this.createMetadata(startTime)
@@ -194,6 +195,7 @@ export class SecurityValidator implements IValidator<SecurityContext> {
             const errorMessage = e instanceof Error ? e.message : 'Unknown security validation error';
             return {
                 isValid: false,
+                success: false,
                 errors: [{
                     code: 'SECURITY_VALIDATION_FAILED',
                     message: errorMessage,
@@ -415,7 +417,7 @@ export class SecurityValidator implements IValidator<SecurityContext> {
     }
 
     hasError(result: ValidationResult, errorCode: string): boolean {
-        return result.errors.some(error => error.code === errorCode);
+        return result.errors?.some(error => error.code === errorCode) ?? false;
     }
 
     getName(): string {
@@ -427,7 +429,7 @@ export class SecurityValidator implements IValidator<SecurityContext> {
             return false;
         }
         const result = await this.validate(data);
-        return result.isValid;
+        return result.isValid ?? result.success;
     }
 
     async validateRules(rulesToValidate: ValidationRuleDefinition[]): Promise<ValidationResult> {
@@ -435,6 +437,7 @@ export class SecurityValidator implements IValidator<SecurityContext> {
         // Implémenter la validation des règles spécifiques
         return {
             isValid: true,
+            success: true,
             errors: [],
             metadata: this.createMetadata(Date.now())
         };

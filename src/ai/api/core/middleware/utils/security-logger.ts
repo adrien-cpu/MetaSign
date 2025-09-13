@@ -1,5 +1,12 @@
 // src/ai/api/core/middleware/utils/security-logger.ts
-import { Logger } from '@api/common/monitoring/LogService';
+// import { Logger } from '@api/common/monitoring/LogService';
+class Logger {
+    constructor(private name: string) {}
+    debug(msg: string, data?: any) { console.log(`[DEBUG] ${this.name}: ${msg}`, data); }
+    error(msg: string, data?: any) { console.error(`[ERROR] ${this.name}: ${msg}`, data); }
+    info(msg: string, data?: any) { console.info(`[INFO] ${this.name}: ${msg}`, data); }
+    warn(msg: string, data?: any) { console.warn(`[WARN] ${this.name}: ${msg}`, data); }
+}
 
 export enum SecurityLogLevel {
     DEBUG = 'debug',

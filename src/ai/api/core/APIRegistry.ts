@@ -1,5 +1,5 @@
 // src/ai/api/core/APIRegistry.ts
-import { APIHandler, APIHandlerType } from '@api/core/types';
+import { APIHandler, APIHandlerType } from './types';
 
 /**
  * Registry for API handlers that manages different types of handlers

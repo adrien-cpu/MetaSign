@@ -11,7 +11,7 @@ import {
     RequestBody,
     ResponseBody,
     SecurityContext
-} from '@api/core/types';
+} from './types';
 
 /**
  * Implémentation du contexte API

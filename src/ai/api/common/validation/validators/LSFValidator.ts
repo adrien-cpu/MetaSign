@@ -217,7 +217,7 @@ export class LSFValidator implements IValidator<LSFExpression> {
      * Cette fonction auxiliaire contourne le problème de compatibilité de TypeScript.
      */
     private createEmptyRecord<T>(): Record<string, T> {
-        return Object.create(null) as Record<string, T>;
+        return {} as Record<string, T>;
     }
 
     /**
@@ -394,7 +394,7 @@ export class LSFValidator implements IValidator<LSFExpression> {
     private async validateSemantics(expr: LSFExpression): Promise<ValidationError[]> {
         const errors: ValidationError[] = [];
         // Utilisation du contexte existant ou création d'un Record vide
-        const contextMetadata = this.context.metadata ?? this.createEmptyRecord<unknown>();
+        const contextMetadata: Record<string, unknown> = this.context.metadata ?? Object.create(null);
 
         for (const rule of this.semanticRules) {
             if (!rule.validate(expr, contextMetadata)) {

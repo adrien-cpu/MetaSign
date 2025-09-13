@@ -1,7 +1,15 @@
 // src/ai/api/core/middleware/SecurityMiddleware.ts
-import { IMiddleware, IAPIContext, NextFunction } from '@api/core/types';
+import { IAPIContext, NextFunction } from '../types';
+import { IMiddleware } from './interfaces';
 import { v4 as uuidv4 } from 'uuid';
-import { Logger } from '@api/common/monitoring/LogService';
+// import { Logger } from '@api/common/monitoring/LogService';
+class Logger {
+    constructor(private name: string) {}
+    debug(msg: string, data?: any) { console.log(`[DEBUG] ${this.name}: ${msg}`, data); }
+    error(msg: string, data?: any) { console.error(`[ERROR] ${this.name}: ${msg}`, data); }
+    info(msg: string, data?: any) { console.info(`[INFO] ${this.name}: ${msg}`, data); }
+    warn(msg: string, data?: any) { console.warn(`[WARN] ${this.name}: ${msg}`, data); }
+}
 import {
     IJWTService,
     ITokenValidator,
@@ -17,14 +25,27 @@ import {
     SecurityMiddlewareOptions
 } from './interfaces';
 
-import {
-    SecurityMiddlewareFactory,
-    SecurityServiceProvider,
-    SecurityMiddlewareChain
-} from '@api/core/middleware';
+// import {
+//     SecurityMiddlewareFactory,
+//     SecurityServiceProvider,
+//     SecurityMiddlewareChain
+// } from './interfaces';
 
 // Importer SecurityServiceKeys du bon chemin
-import { SecurityServiceKeys } from '@api/core/middleware/di/types';
+// import { SecurityServiceKeys } from '@api/core/middleware/di/types';
+enum SecurityServiceKeys {
+    JWT_SERVICE = 'JWT_SERVICE',
+    TOKEN_VALIDATOR = 'TOKEN_VALIDATOR',
+    ENCRYPTION_SERVICE = 'ENCRYPTION_SERVICE',
+    DATA_SANITIZER = 'DATA_SANITIZER',
+    BEHAVIOR_ANALYZER = 'BEHAVIOR_ANALYZER',
+    INTRUSION_DETECTION = 'INTRUSION_DETECTION',
+    RATE_LIMITER = 'RATE_LIMITER',
+    SECURITY_AUDITOR = 'SECURITY_AUDITOR',
+    FRAUD_DETECTION = 'FRAUD_DETECTION',
+    COMPLIANCE_VALIDATOR = 'COMPLIANCE_VALIDATOR',
+    SECURITY_EVENT_MONITOR = 'SECURITY_EVENT_MONITOR'
+}
 
 // Importer les middlewares individuellement
 import { RequestIdMiddleware } from './middlewares/RequestIdMiddleware';

@@ -3,9 +3,9 @@ import {
     TokenValidationResult,
     ComplianceValidationResult,
     IntrusionDetectionResult,
-    BehaviorAnalysisResult
-} from '@api/core/types';
-import { IAPIContext } from '@api/core/types';
+    BehaviorAnalysisResult,
+    IAPIContext
+} from '../types';
 
 /**
  * Options pour le middleware de sécurité

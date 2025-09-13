@@ -41,6 +41,12 @@ export interface IValidationResult {
     /**
      * Indique si la validation a réussi.
      */
+    success: boolean;
+
+    /**
+     * Indique si la validation a réussi.
+     * @deprecated Utiliser `success` à la place.
+     */
     isValid: boolean;
 
     /**

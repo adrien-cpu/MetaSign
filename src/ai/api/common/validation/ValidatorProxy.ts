@@ -11,14 +11,6 @@ import {
     IEthicsChecker
 } from './interfaces/ValidatorInterfaces';
 import {
-    ErrorSeverity,
-    ValidationContext,
-    // ValidationOptions  // Suppression de l'import non utilisé
-} from './types/ValidationTypes';
-
-
-
-import {
     ValidationResult,
     ValidationOptions,
     ValidationContext,
@@ -47,13 +39,13 @@ interface ExtendedValidator<T> extends IValidator<T> {
 }
 
 /**
- * Classe `ValidationService` pour gérer les validateurs et exécuter des validations.
+ * Classe `ValidationServiceProxy` pour gérer les validateurs et exécuter des validations.
  */
-export class ValidationService {
+export class ValidationServiceProxy {
     private validators: Map<string, ExtendedValidator<unknown>>;
 
     /**
-     * Constructeur de la classe `ValidationService`.
+     * Constructeur de la classe `ValidationServiceProxy`.
      */
     constructor() {
         this.validators = new Map();
@@ -121,6 +113,7 @@ export class ValidationService {
                 } catch (error) {
                     results.set(name, {
                         isValid: false,
+                        success: false,
                         errors: [{
                             code: 'VALIDATION_ERROR',
                             message: error instanceof Error ? error.message : 'Unknown validation error',
@@ -309,6 +302,7 @@ export class ValidatorProxy {
         const warnings = results.flatMap(r => r.warnings || []);
 
         return {
+            success: isValid,
             isValid,
             errors,
             warnings,
@@ -320,10 +314,30 @@ export class ValidatorProxy {
         };
     }
 
+    private convertToIValidationResult(result: ValidationResult): IValidationResult {
+        return {
+            success: result.success,
+            isValid: result.isValid ?? result.success,
+            errors: (result.errors ?? []).map(error => ({
+                code: error.code,
+                message: error.message,
+                severity: error.severity as ErrorSeverity,
+                context: error.context
+            })),
+            warnings: result.warnings,
+            metadata: {
+                validatedAt: Date.now(),
+                duration: 0,
+                validator: 'ValidatorProxy'
+            }
+        };
+    }
+
     private createErrorResult(error: unknown): IValidationResult {
         const errorMessage = error instanceof Error ? error.message : 'Unknown validation error';
         return {
             isValid: false,
+            success: false,
             errors: [{
                 code: 'VALIDATION_ERROR',
                 message: errorMessage,
@@ -347,7 +361,7 @@ export class ValidatorProxy {
 
             const results = await this.validationService.validateAll(data, validationOptions);
 
-            const allResults = Array.from(results.values());
+            const allResults = Array.from(results.values()).map(result => this.convertToIValidationResult(result));
             return this.mergeResults(allResults);
         } catch (error) {
             return this.createErrorResult(error);

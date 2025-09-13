@@ -1,7 +1,14 @@
 // src/ai/api/core/middleware/AbstractMiddleware.ts
 import { IMiddleware } from './types/middleware.types'; // Importation mise à jour
-import { Logger } from '@api/common/monitoring/LogService';
-import { IAPIContext, NextFunction } from '@api/core/types';
+// import { Logger } from '@api/common/monitoring/LogService'; // Temporarily commented out
+class Logger {
+    constructor(private name: string) {}
+    debug(msg: string, data?: any) { console.log(`[DEBUG] ${this.name}: ${msg}`, data); }
+    error(msg: string, data?: any) { console.error(`[ERROR] ${this.name}: ${msg}`, data); }
+    info(msg: string, data?: any) { console.info(`[INFO] ${this.name}: ${msg}`, data); }
+    warn(msg: string, data?: any) { console.warn(`[WARN] ${this.name}: ${msg}`, data); }
+}
+import { IAPIContext, NextFunction } from '../types';
 /**
  * Interface de base pour les options de middleware
  */

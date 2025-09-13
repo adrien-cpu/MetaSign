@@ -1,6 +1,6 @@
 // src/ai/api/core/middleware/RequestIdMiddleware.ts
 import { AbstractMiddleware } from './AbstractMiddleware';
-import { IAPIContext, NextFunction } from '@api/core/types';
+import { IAPIContext, NextFunction } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 // Suppression de l'importation inutilisée de MiddlewareOptions
 

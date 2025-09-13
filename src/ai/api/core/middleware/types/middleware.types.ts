@@ -1,4 +1,4 @@
-import { IAPIContext } from '@api/core/types';
+import { IAPIContext } from '../../types';
 import { IMiddleware, IMiddlewareChain, NextFunction } from '../interfaces';
 
 /**

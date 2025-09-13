@@ -1,18 +1,18 @@
 // src/ai/api/core/APICore.ts
-import { APIContext } from '@api/core/APIContext';
-import { APIRegistry } from '@api/core/APIRegistry';
-import { SecurityMiddlewareChain } from '@api/core/middleware/SecurityMiddlewareChain';
-import { RateLimitingMiddleware } from '@api/core/middleware/middlewares/RateLimitingMiddleware';
-import { SecurityHeadersMiddleware } from '@api/core/middleware/middlewares/SecurityHeadersMiddleware';
-import { CacheManager } from '@api/core/middleware/CacheManager';
+import { APIContext } from './APIContext';
+import { APIRegistry } from './APIRegistry';
+import { SecurityMiddlewareChain } from './middleware/SecurityMiddlewareChain';
+import { RateLimitingMiddleware } from './middleware/middlewares/RateLimitingMiddleware';
+import { SecurityHeadersMiddleware } from './middleware/middlewares/SecurityHeadersMiddleware';
+import { CacheManager } from './middleware/CacheManager';
 import {
     APIRequest,
     APIResponse,
     APIHandlerType,
     ResponseBody,
     RequestType
-} from '@api/core/types';
-import { SecurityServiceProvider } from '@api/core/middleware/di/SecurityServiceProvider';
+} from './types';
+import { SecurityServiceProvider } from './middleware/di/SecurityServiceProvider';
 import {
     CacheConfig,
     CacheLevel,

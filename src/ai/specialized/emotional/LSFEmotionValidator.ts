@@ -177,6 +177,7 @@ export class LSFEmotionValidator implements IValidator {
         // Méthode de base qui valide les données avec un ensemble de règles spécifié
         const result: ValidationResult = {
             isValid: true,
+            success: true,
             errors: [],
             warnings: [],
             metadata: this._metadata
@@ -254,6 +255,7 @@ export class LSFEmotionValidator implements IValidator {
 
         const validationResult: ValidationResult = {
             isValid: isValid && ethicsValidation,
+            success: isValid && ethicsValidation,
             errors,
             warnings,
             metadata: this._metadata

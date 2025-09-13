@@ -3,7 +3,7 @@ import { AbstractMiddleware } from './AbstractMiddleware';
 import { IJWTService, ITokenValidator } from './interfaces';
 // Importer SecurityError depuis le bon chemin
 import { SecurityError } from '@ai/errors/ErrorTypes';
-import { IAPIContext, NextFunction } from '@api/core/types';
+import { IAPIContext, NextFunction } from '../types';
 
 /**
  * Options pour le middleware d'authentification

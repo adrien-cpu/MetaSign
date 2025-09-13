@@ -1,6 +1,6 @@
 // src/ai/api/core/middleware/utils/validation-helpers.ts
-import { IAPIContext } from '@api/core/types';
-import { ValidationError, ErrorSeverity } from '@api/common/validation/types/ValidationTypes';
+import { IAPIContext } from '../../types';
+import { ValidationError, ErrorSeverity } from '../../../common/validation/types/ValidationTypes';
 
 // Fonction d'aide pour créer des ValidationError complètes
 function createValidationError(code: string, field: string, message: string): ValidationError {
