@@ -11,7 +11,9 @@
       "Bash(node:*)",
       "Bash(npm test:*)",
       "Bash(npx jest:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(npm run build:*)",
+      "Bash(cat:*)"
     ]
   },
   "enableAllProjectMcpServers": false

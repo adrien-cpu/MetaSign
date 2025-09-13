@@ -2,9 +2,9 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { LanguageSelector } from '../../components/shared/LanguageSelector';
-import { TranslationControls } from '../../components/shared/TranslationControls';
-import { SubtitlesDisplay } from '../../components/shared/SubtitlesDisplay';
+// import { LanguageSelector } from '../../components/shared/LanguageSelector';
+// import { TranslationControls } from '../../components/shared/TranslationControls';
+// import { SubtitlesDisplay } from '../../components/shared/SubtitlesDisplay';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Grid, Clock, List } from "lucide-react";
@@ -50,21 +50,32 @@ const UnifiedScanTranslation = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <LanguageSelector
-                  label="Source Language"
-                  selectedLanguage={sourceLanguage}
-                  onLanguageChange={setSourceLanguage}
-                />
-                <LanguageSelector
-                  label="Target Language"
-                  selectedLanguage={targetLanguage}
-                  onLanguageChange={setTargetLanguage}
-                />
+                <div className="p-4 border border-gray-300 rounded">
+                  <label className="block text-sm font-medium mb-2">Source Language</label>
+                  <select 
+                    value={sourceLanguage}
+                    onChange={(e) => setSourceLanguage(e.target.value)}
+                    className="w-full p-2 border rounded"
+                  >
+                    <option value="French">French</option>
+                    <option value="English">English</option>
+                  </select>
+                </div>
+                <div className="p-4 border border-gray-300 rounded">
+                  <label className="block text-sm font-medium mb-2">Target Language</label>
+                  <select 
+                    value={targetLanguage}
+                    onChange={(e) => setTargetLanguage(e.target.value)}
+                    className="w-full p-2 border rounded"
+                  >
+                    <option value="LSF">LSF</option>
+                    <option value="English">English</option>
+                  </select>
+                </div>
               </div>
-              <TranslationControls
-                isTranslating={false}
-                onTranslate={() => console.log("Translating...")}
-              />
+              <div className="flex gap-2 mt-4">
+                <Button onClick={() => console.log("Translating...")}>Translate</Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -106,7 +117,11 @@ const UnifiedScanTranslation = () => {
                     {isSubtitleEnabled ? "Disable" : "Enable"}
                   </Button>
                 </div>
-                {isSubtitleEnabled && <SubtitlesDisplay text="Subtitles are enabled." />}
+                {isSubtitleEnabled && (
+                  <div className="mt-4 p-4 bg-gray-100 rounded">
+                    <p>Subtitles are enabled.</p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

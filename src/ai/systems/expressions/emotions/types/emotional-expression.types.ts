@@ -99,11 +99,11 @@ export interface CoherenceResult {
 }
 
 /**
- * Interface pour le résultat de cohérence faciale
+ * Type pour le résultat de cohérence faciale
  */
-export interface FacialCoherenceResult extends CoherenceResult { }
+export type FacialCoherenceResult = CoherenceResult;
 
 /**
- * Interface pour le résultat de cohérence corporelle
+ * Type pour le résultat de cohérence corporelle
  */
-export interface BodyCoherenceResult extends CoherenceResult { }
+export type BodyCoherenceResult = CoherenceResult;

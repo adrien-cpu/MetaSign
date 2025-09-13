@@ -9,7 +9,7 @@ import Banner from '@/components/ui/banner';
 import { FileText } from 'lucide-react';
 import { LanguageSelector } from '../../components/shared/LanguageSelector';
 
-export const VoiceToText = () => {
+export default function VoiceToText() {
   const [isRecording, setIsRecording] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
   const [transcription] = useState('');
@@ -73,6 +73,4 @@ export const VoiceToText = () => {
       </div>
     </div>
   );
-};
-
-export default VoiceToText;
+}

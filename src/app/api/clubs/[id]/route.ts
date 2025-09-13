@@ -45,7 +45,7 @@ import { isCreatePostRequest } from '@/types/clubs/post.types';
  * Interface pour les paramètres de route
  */
 interface RouteParams {
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }
 
 /**
@@ -132,10 +132,11 @@ function validateClubId(clubId: string): true | NextResponse<ApiErrorResponse> {
  */
 export async function GET(
     req: Request,
-    { params }: RouteParams
+    context: RouteParams
 ): Promise<NextResponse<ApiResponse<PostsResponse>>> {
     try {
         const startTime = Date.now();
+        const params = await context.params;
         const clubId = decodeURIComponent(params.id);
 
         // Validation de l'ID du club
@@ -201,7 +202,7 @@ export async function GET(
         console.error("🚨 Erreur critique dans GET /api/clubs/[id]/posts:", error);
 
         // Log de l'erreur critique
-        logPostOperation('GET', undefined, 'unknown', params.id, {
+        logPostOperation('GET', undefined, 'unknown', clubId, {
             error: error instanceof Error ? error.message : 'Unknown error',
             stack: error instanceof Error ? error.stack : undefined
         });
@@ -245,10 +246,11 @@ export async function GET(
  */
 export async function POST(
     req: Request,
-    { params }: RouteParams
+    context: RouteParams
 ): Promise<NextResponse<ApiResponse<ClubPost>>> {
     try {
         const startTime = Date.now();
+        const params = await context.params;
         const clubId = decodeURIComponent(params.id);
 
         // Validation de l'ID du club
@@ -348,7 +350,7 @@ export async function POST(
         console.error("🚨 Erreur critique dans POST /api/clubs/[id]/posts:", error);
 
         // Log de l'erreur critique
-        logPostOperation('CREATE', undefined, 'unknown', params.id, {
+        logPostOperation('CREATE', undefined, 'unknown', clubId, {
             error: error instanceof Error ? error.message : 'Unknown error',
             stack: error instanceof Error ? error.stack : undefined
         });

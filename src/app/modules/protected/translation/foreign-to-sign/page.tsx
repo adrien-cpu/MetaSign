@@ -21,10 +21,6 @@ import {
 /**
  * Props pour le composant ForeignToSign
  */
-interface ForeignToSignProps {
-  /** Classes CSS personnalisées pour le conteneur principal */
-  className?: string;
-}
 
 /**
  * Composant de traduction de langues des signes étrangères vers la LSF
@@ -54,7 +50,7 @@ interface ForeignToSignProps {
  * @param props - Les propriétés du composant
  * @returns JSX.Element - La page de traduction inter-signes
  */
-export const ForeignToSign: React.FC<ForeignToSignProps> = ({ className }) => {
+export default function ForeignToSign() {
   // === ÉTATS DE TRADUCTION ===
 
   /** Indique si une traduction est actuellement en cours */
@@ -117,7 +113,7 @@ export const ForeignToSign: React.FC<ForeignToSignProps> = ({ className }) => {
   }, []);
 
   return (
-    <div className={`space-y-6 ${className ?? ''}`}>
+    <div className="space-y-6">
       {/* En-tête de page avec navigation */}
       <Banner
         title="LS étrangère -> LSF"
@@ -204,6 +200,4 @@ export const ForeignToSign: React.FC<ForeignToSignProps> = ({ className }) => {
       </div>
     </div>
   );
-};
-
-export default ForeignToSign;
+}

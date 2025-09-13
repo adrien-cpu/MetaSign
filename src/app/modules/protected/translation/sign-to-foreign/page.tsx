@@ -18,7 +18,7 @@ import { ActionButtons } from '../../components/shared/ActionButtons';
 import { SubtitlesDisplay } from '../../components/shared/SubtitlesDisplay';
 import Banner from '@/components/ui/banner';
 
-export const SignToForeign: React.FC = () => {
+export default function SignToForeign() {
   const [isTranslating, setIsTranslating] = useState(false);
   const [showSubtitles, setShowSubtitles] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('en');
@@ -100,6 +100,4 @@ export const SignToForeign: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default SignToForeign;
+}

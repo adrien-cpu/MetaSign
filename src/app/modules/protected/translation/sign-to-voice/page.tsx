@@ -11,7 +11,7 @@ import { ActionButtons } from '../../components/shared/ActionButtons';
 import { cn } from '@/lib/utils';
 import Banner from '@/components/ui/banner';
 
-export const SignToVoice: React.FC = () => {
+export default function SignToVoice() {
   const [isTranslating, setIsTranslating] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -73,6 +73,4 @@ export const SignToVoice: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default SignToVoice;
+}

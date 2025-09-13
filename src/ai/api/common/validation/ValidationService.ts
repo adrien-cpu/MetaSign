@@ -110,6 +110,7 @@ export class ValidationService {
                 } catch (error) {
                     results.set(name, {
                         isValid: false,
+                        success: false,
                         errors: [{
                             code: 'VALIDATION_ERROR',
                             message: error instanceof Error ? error.message : 'Unknown validation error',

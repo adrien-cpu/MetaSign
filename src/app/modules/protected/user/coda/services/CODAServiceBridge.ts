@@ -45,9 +45,9 @@ export interface CODASessionData {
  */
 export class CODAServiceBridge {
   private logger = LoggerFactory.getLogger('CODAServiceBridge');
-  private codaApiServer: any = null;
-  private sessionController: any = null;
-  private reverseApprenticeshipSystem: any = null;
+  private codaApiServer: unknown = null;
+  private sessionController: unknown = null;
+  private reverseApprenticeshipSystem: unknown = null;
 
   constructor() {
     this.initializeServices();
@@ -55,28 +55,24 @@ export class CODAServiceBridge {
 
   /**
    * Initialise les services CODA existants
+   * Mode client-side - utilise des API routes au lieu d'imports directs
    */
   private async initializeServices(): Promise<void> {
     try {
-      // Import des services réels
-      const { CODAApiServer } = await import('@/ai/services/learning/human/coda/codavirtuel/api/CODAApiServer');
-      const { SessionController } = await import('@/ai/services/learning/human/coda/codavirtuel/api/controllers/SessionController');
-      const { ReverseApprenticeshipSystem } = await import('@/ai/services/learning/human/coda/codavirtuel/ReverseApprenticeshipSystem');
-
-      // Configuration et initialisation
-      this.codaApiServer = new CODAApiServer({
-        port: 3001, // Port différent de Next.js
-        environment: 'development',
-        enableWebSocket: false, // Pour éviter les conflits
-        enableMetrics: true
-      });
-
-      this.sessionController = new SessionController();
-      this.reverseApprenticeshipSystem = new ReverseApprenticeshipSystem();
-
-      this.logger.info('✅ Services CODA initialisés avec succès');
+      // Vérifier la disponibilité des services via API
+      const response = await fetch('/api/coda/health');
+      if (response.ok) {
+        this.logger.info('✅ Services CODA disponibles via API');
+        // Marquer les services comme disponibles
+        this.codaApiServer = true;
+        this.sessionController = true;
+        this.reverseApprenticeshipSystem = true;
+      } else {
+        throw new Error('API CODA non accessible');
+      }
     } catch (error) {
       this.logger.warn('⚠️ Services CODA non disponibles, mode simulation activé:', error);
+      // Les services restent null, le mode simulation sera utilisé
     }
   }
 
@@ -86,17 +82,28 @@ export class CODAServiceBridge {
   async createSession(config: CODASessionConfig): Promise<CODASessionData> {
     if (this.sessionController) {
       try {
-        const session = await this.sessionController.createSession({
-          mentorId: config.mentorId,
-          topic: config.topic || 'Session LSF',
-          targetLevel: config.targetLevel as any,
-          concepts: [],
-          teachingMethod: config.personalityType,
-          expectedDuration: 30 * 60 * 1000, // 30 minutes
-          materials: [],
-          tags: [config.personalityType, config.targetLevel]
+        const response = await fetch('/api/coda/sessions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            mentorId: config.mentorId,
+            topic: config.topic || 'Session LSF',
+            targetLevel: config.targetLevel,
+            concepts: [],
+            teachingMethod: config.personalityType,
+            expectedDuration: 30 * 60 * 1000, // 30 minutes
+            materials: [],
+            tags: [config.personalityType, config.targetLevel]
+          })
         });
 
+        if (!response.ok) {
+          throw new Error('Erreur création session API');
+        }
+
+        const session = await response.json();
         return {
           id: session.id,
           mentorId: session.mentorId,
@@ -130,21 +137,29 @@ export class CODAServiceBridge {
   async sendInteraction(request: CODAInteractionRequest): Promise<CODAResponse> {
     if (this.reverseApprenticeshipSystem) {
       try {
-        // Utilisation du système CODA réel
-        const response = await this.reverseApprenticeshipSystem.processTeacherInput(
-          request.message,
-          {
+        const response = await fetch('/api/coda/interactions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
             sessionId: request.sessionId,
+            message: request.message,
             timestamp: request.timestamp
-          }
-        );
+          })
+        });
 
+        if (!response.ok) {
+          throw new Error('Erreur interaction API');
+        }
+
+        const data = await response.json();
         return {
-          content: response.response || response.content || '',
-          emotionalState: response.emotionalState || 'focused',
-          gestureDescription: response.gestureDescription,
-          currentLevel: response.currentLevel || 'A2',
-          suggestions: response.suggestions || []
+          content: data.response || data.content || '',
+          emotionalState: data.emotionalState || 'focused',
+          gestureDescription: data.gestureDescription,
+          currentLevel: data.currentLevel || 'A2',
+          suggestions: data.suggestions || []
         };
       } catch (error) {
         this.logger.error('Erreur interaction CODA:', error);
@@ -180,7 +195,7 @@ export class CODAServiceBridge {
   async endSession(sessionId: string): Promise<void> {
     if (this.sessionController) {
       try {
-        await this.sessionController.endSession(sessionId, {
+        await (this.sessionController as any).endSession(sessionId, {
           endTime: new Date(),
           reason: 'user_requested'
         });
@@ -208,7 +223,7 @@ export class CODAServiceBridge {
   async getSessionMetrics(sessionId: string): Promise<any> {
     if (this.sessionController) {
       try {
-        return await this.sessionController.getSessionMetrics(sessionId);
+        return await (this.sessionController as any).getSessionMetrics(sessionId);
       } catch (error) {
         this.logger.error('Erreur récupération métriques:', error);
       }

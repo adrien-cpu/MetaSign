@@ -227,8 +227,10 @@ export class PersistenceAdapterFactory {
                 return new JsonPersistenceAdapter<T>(config);
                 
             case 'sqlite':
-                const { SqlitePersistenceAdapter } = await import('./SqlitePersistenceAdapter');
-                return new SqlitePersistenceAdapter<T>(config);
+                // TODO: Implémentation SQLite à venir
+                throw new Error('SQLite adapter pas encore implémenté');
+                // const { SqlitePersistenceAdapter } = await import('./SqlitePersistenceAdapter');
+                // return new SqlitePersistenceAdapter<T>(config);
                 
             case 'memory':
                 const { MemoryPersistenceAdapter } = await import('./MemoryPersistenceAdapter');

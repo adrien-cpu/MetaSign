@@ -3,13 +3,16 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(
+    req: Request,
+    context: { params: Promise<{ id: string }> }
+) {
     const session = await getServerSession(authOptions);
     if (!session) {
         return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
     }
 
-    const { id } = params; // Artifact ID
+    const { id } = await context.params; // Artifact ID
     const { vote } = await req.json();
 
     // ✅ Vérification que `vote` est bien `true` ou `false`

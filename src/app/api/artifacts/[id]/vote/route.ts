@@ -5,12 +5,13 @@ import { NextResponse } from "next/server"; // ✅ Import correct
 
 export async function POST(
     req: Request,
-    { params }: { params: { id: string } } // ✅ Correction du typage de `params`
+    context: { params: Promise<{ id: string }> }
 ) {
     const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
 
     try {
+        const params = await context.params;
         const { vote } = await req.json();
 
         if (typeof vote !== "boolean") {

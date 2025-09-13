@@ -19,15 +19,7 @@ import {
 } from '@/components/shared';
 
 /**
- * Props pour le composant ArTranslation
- */
-interface ArTranslationProps {
-  /** Classes CSS personnalisées pour le conteneur principal */
-  className?: string;
-}
-
-/**
- * Composant de traduction en temps réel avec réalité augmentée
+ * Page de traduction en temps réel avec réalité augmentée
  * 
  * Fonctionnalités :
  * - Capture vidéo en temps réel via caméra
@@ -37,16 +29,9 @@ interface ArTranslationProps {
  * - Actions de sauvegarde et partage
  * - Affichage optionnel des sous-titres
  * 
- * @component
- * @example
- * ```tsx
- * <ArTranslation />
- * ```
- * 
- * @param props - Les propriétés du composant
  * @returns JSX.Element - La page de traduction AR
  */
-export function ArTranslation({ className }: ArTranslationProps) {
+export default function ArTranslation() {
   // === ÉTATS DE TRADUCTION ===
 
   /** Indique si une traduction est actuellement en cours */
@@ -110,7 +95,7 @@ export function ArTranslation({ className }: ArTranslationProps) {
   }, []);
 
   return (
-    <div className={`space-y-6 text-indigo-500 ${className ?? ''}`}>
+    <div className="space-y-6 text-indigo-500">
       {/* En-tête de page avec navigation */}
       <Banner
         title="Traduction en temps réel"
@@ -198,5 +183,3 @@ export function ArTranslation({ className }: ArTranslationProps) {
     </div>
   );
 }
-
-export default ArTranslation;

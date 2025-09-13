@@ -15,14 +15,12 @@ const withErrorHandling = async <T>(fn: () => Promise<T>) => {
   }
 };
 
-// Example handler for managing AI models
-const handler = async () => {
+// GET handler for fetching AI models
+export async function GET() {
   const fetchModels = async (): Promise<{ models: string[] }> => {
     const models = await prisma.aiModel.findMany(); // Utilisez le nouveau modèle AiModel
     return { models: models.map((model: { name: string }) => model.name) };
   };
 
   return withErrorHandling(fetchModels);
-};
-
-export { handler };
+}

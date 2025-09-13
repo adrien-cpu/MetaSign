@@ -3,12 +3,13 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, context: { params: Promise<{ id: string }> }) {
     const session = await getServerSession(authOptions);
     if (!session) {
         return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
     }
 
+    const params = await context.params;
     const { id } = params; // Club ID
     console.log("Club ID reçu :", id);
 
@@ -31,8 +32,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     }
 }
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, context: { params: Promise<{ id: string }> }) {
     try {
+        const params = await context.params;
         const artifacts = await prisma.artifact.findMany({
             where: { clubId: params.id },
         });

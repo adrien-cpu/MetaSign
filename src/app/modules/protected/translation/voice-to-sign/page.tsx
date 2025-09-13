@@ -10,7 +10,7 @@ import { SubtitlesDisplay } from '../../components/shared/SubtitlesDisplay';
 import { ActionButtons } from '../../components/shared/ActionButtons';
 import Banner from '@/components/ui/banner';
 
-export const VoiceToSign = () => {
+export default function VoiceToSign() {
   const [isRecording, setIsRecording] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
   const [showSubtitles, setShowSubtitles] = useState(false);
@@ -91,6 +91,4 @@ export const VoiceToSign = () => {
       </div>
     </div>
   );
-};
-
-export default VoiceToSign;
+}

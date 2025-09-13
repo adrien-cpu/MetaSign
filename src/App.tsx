@@ -2,18 +2,20 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Sidebar from './components/navigation/Sidebar';
 import { Breadcrumb } from './components/navigation/Breadcrumb';
-import { AIModelManagement } from './components/AdminDashboard/AIModelManagement';
-import { AITrainingMetrics } from './components/AdminDashboard/AITrainingMetrics';
-import { AIPerformanceMonitor } from './components/AdminDashboard/AIPerformanceMonitor';
-import { SecurityDashboard } from './components/AdminDashboard/SecurityDashboard';
-import { UserManagementPanel } from './components/AdminDashboard/UserManagementPanel';
-import { MonitoringPanel } from './components/AdminDashboard/MonitoringPanel';
-import { DataAPIPanel } from './components/AdminDashboard/DataAPIPanel';
-import { FeedbackPanel } from './components/AdminDashboard/FeedbackPanel';
-import { SupportPanel } from './components/AdminDashboard/SupportPanel';
-import { ActivityFeed } from './components/AdminDashboard/ActivityFeed';
-import { DashboardMetrics } from './components/AdminDashboard/DashboardMetrics';
-import { AIModelType } from './types/AIModel';
+import {
+  AIModelManagement,
+  AITrainingMetrics,
+  AIPerformanceMonitor,
+  SecurityDashboard,
+  UserManagementPanel,
+  MonitoringPanel,
+  DataAPIPanel,
+  FeedbackPanel,
+  SupportPanel,
+  ActivityFeed,
+  DashboardMetrics
+} from './components/AdminDashboard';
+import { AIModel } from './types/AIModel';
 
 // Définition des interfaces
 interface PerformanceMetrics {
@@ -85,7 +87,7 @@ const mockTrainingMetrics = [
 ];
 
 // Mise à jour des données mockées avec les types appropriés
-const mockModels: AIModelType[] = [
+const mockModels: AIModel[] = [
   {
     id: '1',
     name: 'SignTranslator',

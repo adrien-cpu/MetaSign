@@ -389,7 +389,7 @@ const CODAPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-gray-600">
               <div className="space-y-2">
                 <h4 className="font-medium text-gray-800">🤖 IA Apprenante</h4>
-                <p>L'IA CODA apprend de vous comme un vrai élève. Elle fait des erreurs, pose des questions et progresse selon vos enseignements.</p>
+                <p>L&apos;IA CODA apprend de vous comme un vrai élève. Elle fait des erreurs, pose des questions et progresse selon vos enseignements.</p>
               </div>
               <div className="space-y-2">
                 <h4 className="font-medium text-gray-800">🎭 Émotions Réalistes</h4>
@@ -397,7 +397,7 @@ const CODAPage = () => {
               </div>
               <div className="space-y-2">
                 <h4 className="font-medium text-gray-800">📈 Progression Adaptative</h4>
-                <p>Son niveau progresse selon vos enseignements et s'adapte à votre style pédagogique personnel.</p>
+                <p>Son niveau progresse selon vos enseignements et s&apos;adapte à votre style pédagogique personnel.</p>
               </div>
               <div className="space-y-2">
                 <h4 className="font-medium text-gray-800">❓ Questions Pertinentes</h4>

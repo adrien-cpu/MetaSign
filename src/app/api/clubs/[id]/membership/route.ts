@@ -80,10 +80,11 @@ type MembershipResponseType = ClubMembershipResponse | ErrorResponse;
  */
 export async function POST(
     req: Request,
-    { params }: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<MembershipResponseType>> {
     try {
         // Décoder l'ID pour gérer les caractères spéciaux
+        const params = await context.params;
         const clubId = decodeURIComponent(params.id);
 
         console.log('🔍 API Membership: Club ID:', clubId);
