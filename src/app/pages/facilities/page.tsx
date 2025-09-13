@@ -5,8 +5,8 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import Banner from '@/components/ui/banner';
 import { ROUTES } from '@/constants/routes';
+import Image from 'next/image';
 import {
-
   LayoutDashboard
 } from 'lucide-react';
 
@@ -265,7 +265,7 @@ export default function FacilitiesPage() {
             {place.photos && place.photos.length > 0 && (
               <div className="flex gap-2 mt-2">
                 {place.photos.map((url, idx) => (
-                  <img key={idx} src={url} alt="photo lieu" className="h-16 w-16 object-cover rounded" />
+                  <Image key={idx} src={url} alt="photo lieu" width={64} height={64} className="h-16 w-16 object-cover rounded" />
                 ))}
               </div>
             )}
@@ -321,7 +321,7 @@ export default function FacilitiesPage() {
                 <div key={idx} className="text-sm text-gray-700 mb-1 border-b pb-1">
                   <span className="font-bold">{r.note}⭐</span> — {r.comment}
                   <span className="ml-2 text-xs text-gray-500">{r.date}</span>
-                  {r.photo && <img src={r.photo} alt="photo avis" className="h-10 w-10 object-cover rounded inline-block ml-2" />}
+                  {r.photo && <Image src={r.photo} alt="photo avis" width={40} height={40} className="h-10 w-10 object-cover rounded inline-block ml-2" />}
                   {r.criteria && (
                     <span className="ml-2 text-xs text-gray-600">
                       Accueil: {r.criteria.accueil ?? '-'} / Accessibilité: {r.criteria.accessibilite ?? '-'} / Communication: {r.criteria.communication ?? '-'}
@@ -358,7 +358,7 @@ export default function FacilitiesPage() {
         {place.photos && place.photos.length > 0 && (
           <div>
             {place.photos.map((url, idx) => (
-              <img key={idx} src={url} alt="photo lieu" className="h-10 w-10 object-cover rounded mt-2" />
+              <Image key={idx} src={url} alt="photo lieu" width={40} height={40} className="h-10 w-10 object-cover rounded mt-2" />
             ))}
           </div>
         )}

@@ -379,7 +379,7 @@ export function ClubPosts({
                             <div className="flex items-center justify-between">
                                 <div className="flex gap-2">
                                     <Button size="sm" variant="outline">
-                                        <Image className="w-4 h-4" />
+                                        <Image className="w-4 h-4" alt="" />
                                     </Button>
                                     <Button size="sm" variant="outline">
                                         <Video className="w-4 h-4" />

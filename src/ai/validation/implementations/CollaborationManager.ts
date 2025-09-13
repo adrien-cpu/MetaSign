@@ -454,9 +454,7 @@ export class CollaborationManager implements ICollaborationManager {
      */
     async notifyExperts(
         expertIds: string[],
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         message: string,
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         context?: NotificationContext
     ): Promise<Result<{ successCount: number; failedIds?: string[] }>> {
         // Vérifier que le gestionnaire est initialisé
@@ -595,7 +593,6 @@ export class CollaborationManager implements ICollaborationManager {
                     return matches;
                 })
                 .map(([
-                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     _id, validation
                 ]) => validation);
 
@@ -657,7 +654,6 @@ export class CollaborationManager implements ICollaborationManager {
      * @param force Forcer l'arrêt même si des opérations sont en cours
      */
     async shutdown(
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         force?: boolean
     ): Promise<Result<void>> {
         return tryCatch(

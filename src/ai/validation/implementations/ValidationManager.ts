@@ -304,7 +304,6 @@ export class ValidationManager extends BaseManager implements IValidationManager
      * Implémentation de l'arrêt interne
      * @param _force Indique si l'arrêt doit être forcé (même s'il y a des opérations en cours)
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     protected async shutdownInternal(_force?: boolean): Promise<void> {
         // ValidationStateManager n'a pas de méthodes initialize/shutdown explicites
         // Vider le cache

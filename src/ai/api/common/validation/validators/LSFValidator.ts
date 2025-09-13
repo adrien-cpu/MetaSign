@@ -186,8 +186,7 @@ export class LSFValidator implements IValidator<LSFExpression> {
                 type: 'sequence',
                 conditions: [
                     // Fonction de validation par défaut pour les règles de syntaxe
-                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                    (_expr) => true
+                    () => true
                 ]
             };
             this.syntaxRules.push(syntaxRule);
@@ -196,8 +195,7 @@ export class LSFValidator implements IValidator<LSFExpression> {
                 ...baseRule,
                 region: ['default'],
                 context: ['general'],
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                validate: (_expr) => true
+                validate: () => true
             };
             this.culturalRules.push(culturalRule);
         } else {
@@ -205,8 +203,7 @@ export class LSFValidator implements IValidator<LSFExpression> {
             const semanticRule: LSFSemanticRule = {
                 ...baseRule,
                 context: ['general'],
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                validate: (_expr, _metadata) => true
+                validate: () => true
             };
             this.semanticRules.push(semanticRule);
         }
@@ -266,8 +263,7 @@ export class LSFValidator implements IValidator<LSFExpression> {
             errorMessage: 'Incohérence sémantique détectée',
             isEnabled: true,
             context: ['general'],
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            validate: (_expr, _metadata) => {
+            validate: () => {
                 // Logique de validation sémantique
                 return true;
             }
@@ -283,8 +279,7 @@ export class LSFValidator implements IValidator<LSFExpression> {
             isEnabled: true,
             region: ['default'],
             context: ['general'],
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            validate: (_expr) => {
+            validate: () => {
                 // Logique de validation culturelle
                 return true;
             }

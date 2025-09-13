@@ -185,7 +185,6 @@ export class CommunicationInterfaces {
    * @returns Contrôle éducatif LSF configuré
    */
   private async setupLSFEducationalControl(
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     config: InterfaceConfiguration
   ): Promise<LSFEducationalControl> {
     return {
@@ -216,7 +215,6 @@ export class CommunicationInterfaces {
   }
 
   private async initializeDataInterfaces(
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     _config: InterfaceConfiguration
   ): Promise<DataInterface[]> {
     // Implémenter l'initialisation des interfaces de données
@@ -231,7 +229,6 @@ export class CommunicationInterfaces {
   }
 
   private async setupControlInterfaces(
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     _config: InterfaceConfiguration
   ): Promise<ControlInterface[]> {
     // Implémenter la configuration des interfaces de contrôle
@@ -246,7 +243,6 @@ export class CommunicationInterfaces {
   }
 
   private async establishCulturalInterfaces(
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     _config: InterfaceConfiguration
   ): Promise<CulturalInterface[]> {
     // Implémenter l'établissement des interfaces culturelles
@@ -301,7 +297,6 @@ export class CommunicationInterfaces {
   }
 
   private async initializeMonitoring(
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     _setup: InterfaceSetup
   ): Promise<void> {
     // Initialiser le monitoring des métriques

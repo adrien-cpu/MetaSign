@@ -466,7 +466,6 @@ describe('EnhancedCollaborationManager', () => {
 
             // 2. S'abonner aux événements
             // Ignorer allSubscriptionId puisqu'il n'est pas utilisé dans ce test
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const allSubscriptionId = manager.subscribeToEvents('all', allEventsCallback);
             const stateSubscriptionId = manager.subscribeToEvents(ValidationEventType.STATE_CHANGED, stateChangeCallback);
 

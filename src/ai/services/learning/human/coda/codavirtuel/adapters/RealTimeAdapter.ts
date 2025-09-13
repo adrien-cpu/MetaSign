@@ -37,7 +37,6 @@ const convertLearningPreferencesToRecord = (sourcePrefs: Record<string, unknown>
 // Classes d'analyse
 class InteractionPatternAnalyzer {
     // Utilisation du préfixe underscore pour indiquer que ces paramètres sont intentionnellement non utilisés
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     analyzeInteractions(interactions: UserInteraction[], timeRange?: number): PatternAnalysisResult {
         // Implémentation simplifiée
         return {
@@ -52,7 +51,6 @@ class InteractionPatternAnalyzer {
 // Classes mock (à remplacer par les implémentations réelles)
 // Importés directement pour éviter les problèmes d'importation
 class EngagementMonitor {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     analyze(userId: string, interactions: UserInteraction[]): EngagementMetrics {
         return {
             overallEngagement: 0.75,
@@ -69,14 +67,12 @@ class EngagementMonitor {
 }
 
 class FrustrationDetector {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     detect(userId: string, interactions: UserInteraction[]): FrustrationLevel {
         return FrustrationLevel.MEDIUM;
     }
 }
 
 class PaceAdjuster {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     adjust(userId: string, context: LearningContext): PaceAdjustment {
         return {
             currentPace: 5,
@@ -92,7 +88,6 @@ class PaceAdjuster {
 }
 
 class AssistanceProvider {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async provideAssistance(context: LearningContext, profile: ExtendedUserProfile): Promise<AssistanceResult> {
         return {
             type: 'encouragement',
@@ -104,7 +99,6 @@ class AssistanceProvider {
 }
 
 class InteractionService {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async getRecentInteractions(userId: string): Promise<UserInteraction[]> {
         return [];
     }

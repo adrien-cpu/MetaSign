@@ -111,13 +111,11 @@ export class CulturalTestUtilities {
     AUTOMATED_VALIDATORS: {
       CULTURAL_CHECKS: {
         LINGUISTIC: {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           validateSpatialGrammar: (_expression: Record<string, unknown>) => ({
             isValid: true,
             score: 0.95,
             violations: []
           }),
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           validateNonManualComponents: (_expression: Record<string, unknown>) => ({
             isValid: true,
             score: 0.98,
@@ -126,13 +124,11 @@ export class CulturalTestUtilities {
         },
 
         RESPECT: {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           validateElderInteraction: (_interaction: Record<string, unknown>) => ({
             isValid: true,
             score: 0.97,
             violations: []
           }),
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           validateCommunityNorms: (_behavior: Record<string, unknown>) => ({
             isValid: true,
             score: 0.96,
@@ -142,13 +138,11 @@ export class CulturalTestUtilities {
       },
 
       EMERGENCY_CHECKS: {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         validateClarity: (_message: Record<string, unknown>) => ({
           isValid: true,
           score: 0.94,
           improvements: []
         }),
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         validateEffectiveness: (_response: Record<string, unknown>) => ({
           isValid: true,
           score: 0.92,
@@ -445,7 +439,6 @@ export class CulturalTestUtilities {
    * @param _params Paramètres visuels
    * @returns Composants manuels
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   generateManualComponents(_params: VisualParameters): ManualComponents {
     return {
       handshape: ['FLAT', 'OPEN'],
@@ -459,7 +452,6 @@ export class CulturalTestUtilities {
    * @param _params Paramètres visuels (non utilisés actuellement)
    * @returns Composants non-manuels
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   generateNonManualComponents(_params: VisualParameters): NonManualComponents {
     return {
       facial: { eyebrows: 0.5, mouth: 0.7 },

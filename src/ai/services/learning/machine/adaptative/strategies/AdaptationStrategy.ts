@@ -473,7 +473,6 @@ export abstract class BaseAdaptationStrategy implements IAdaptationStrategy {
      * @param _context Contexte d'apprentissage à valider (non utilisé dans l'implémentation par défaut)
      * @returns Si le contexte satisfait aux conditions spécifiques
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     protected validateContextSpecificConditions(_context?: LearningContext): boolean {
         // Par défaut, aucune condition supplémentaire
         // Le paramètre _context est préfixé avec _ pour indiquer qu'il n'est pas utilisé

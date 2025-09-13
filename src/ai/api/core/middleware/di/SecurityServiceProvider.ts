@@ -1,7 +1,14 @@
 // src/ai/api/core/middleware/di/SecurityServiceProvider.ts
 
 import { IServiceProvider, ServiceFactory } from './types';
-import { Logger } from '@api/common/monitoring/LogService';
+// Mock Logger class
+class Logger {
+    constructor(private name: string) {}
+    debug(msg: string, data?: any) { console.log(`[DEBUG] ${this.name}: ${msg}`, data); }
+    error(msg: string, data?: any) { console.error(`[ERROR] ${this.name}: ${msg}`, data); }
+    info(msg: string, data?: any) { console.info(`[INFO] ${this.name}: ${msg}`, data); }
+    warn(msg: string, data?: any) { console.warn(`[WARN] ${this.name}: ${msg}`, data); }
+}
 
 /**
  * Type pour les services enregistrés dans le fournisseur

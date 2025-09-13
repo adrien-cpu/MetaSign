@@ -1,6 +1,13 @@
-import { IAPIContext } from '@api/core/types';
-import { IMiddleware, NextFunction, IMiddlewareChain } from './middleware-interfaces';
-import { Logger } from '@api/common/monitoring/LogService';
+import { IAPIContext, NextFunction } from '../types';
+import { IMiddleware, IMiddlewareChain } from './interfaces';
+// import { Logger } from '@api/common/monitoring/LogService';
+class Logger {
+    constructor(private name: string) {}
+    debug(msg: string, data?: any) { console.log(`[DEBUG] ${this.name}: ${msg}`, data); }
+    error(msg: string, data?: any) { console.error(`[ERROR] ${this.name}: ${msg}`, data); }
+    info(msg: string, data?: any) { console.info(`[INFO] ${this.name}: ${msg}`, data); }
+    warn(msg: string, data?: any) { console.warn(`[WARN] ${this.name}: ${msg}`, data); }
+}
 
 /**
  * Implémentation d'une chaîne de middlewares de sécurité.
@@ -29,7 +36,7 @@ export class SecurityMiddlewareChain implements IMiddleware, IMiddlewareChain {
      * @param middleware Le middleware à ajouter
      * @returns this pour chaînage
      */
-    public use(middleware: IMiddleware): SecurityMiddlewareChain {
+    public use(middleware: IMiddleware): IMiddlewareChain {
         this.middlewares.push(middleware);
         return this;
     }
@@ -40,7 +47,7 @@ export class SecurityMiddlewareChain implements IMiddleware, IMiddlewareChain {
      * @param middleware Le middleware à ajouter si la condition est vraie
      * @returns this pour chaînage
      */
-    public useIf(condition: boolean, middleware: IMiddleware): SecurityMiddlewareChain {
+    public useIf(condition: boolean, middleware: IMiddleware): IMiddlewareChain {
         if (condition) {
             this.use(middleware);
         }
@@ -70,6 +77,14 @@ export class SecurityMiddlewareChain implements IMiddleware, IMiddlewareChain {
         }
 
         await this.executeMiddlewareChain(context, 0, next);
+    }
+
+    /**
+     * Traite une requête API de façon asynchrone sans fonction next
+     * @param context Le contexte de la requête API
+     */
+    public async processAsync(context: IAPIContext): Promise<void> {
+        await this.process(context, async () => {});
     }
 
     /**
@@ -107,13 +122,13 @@ export class SecurityMiddlewareChain implements IMiddleware, IMiddlewareChain {
 
         // Si le middleware est désactivé, on passe au suivant
         if ('isEnabled' in currentMiddleware && !currentMiddleware.isEnabled) {
-            this.logger.debug(`Skipping disabled middleware: ${currentMiddleware.name || currentMiddleware.constructor.name}`);
+            this.logger.debug(`Skipping disabled middleware: ${currentMiddleware.constructor.name}`);
             await this.executeMiddlewareChain(context, index + 1, finalNext);
             return;
         }
 
         try {
-            const middlewareName = currentMiddleware.name || currentMiddleware.constructor.name;
+            const middlewareName = currentMiddleware.constructor.name;
             this.logger.debug(`Executing middleware: ${middlewareName}`);
 
             // Création de la fonction "next" pour ce middleware
@@ -124,7 +139,7 @@ export class SecurityMiddlewareChain implements IMiddleware, IMiddlewareChain {
             // Exécution du middleware actuel
             await currentMiddleware.process(context, nextMiddleware);
         } catch (error) {
-            const middlewareName = currentMiddleware.name || currentMiddleware.constructor.name;
+            const middlewareName = currentMiddleware.constructor.name;
             this.logger.error(`Error in middleware ${middlewareName}:`, error);
             throw error;
         }

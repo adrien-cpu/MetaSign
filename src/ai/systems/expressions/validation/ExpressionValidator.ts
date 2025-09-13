@@ -255,7 +255,6 @@ export class ExpressionValidator implements IExpressionValidator {
   /**
    * Valide les sourcils pour LSF
    */
-  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   private validateEyebrowsForLSF(_eyebrows: ExpressionPattern['eyebrows']): boolean {
     // Implémentation simplifiée - idéalement plus complexe selon les règles LSF
     return true;
@@ -264,7 +263,6 @@ export class ExpressionValidator implements IExpressionValidator {
   /**
    * Valide les yeux pour LSF
    */
-  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   private validateEyesForLSF(_eyes: ExpressionPattern['eyes']): boolean {
     // Implémentation simplifiée - idéalement plus complexe selon les règles LSF
     return true;
@@ -273,7 +271,6 @@ export class ExpressionValidator implements IExpressionValidator {
   /**
    * Valide la bouche pour LSF
    */
-  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   private validateMouthForLSF(_mouth: ExpressionPattern['mouth']): boolean {
     // Implémentation simplifiée - idéalement plus complexe selon les règles LSF
     return true;
@@ -282,7 +279,6 @@ export class ExpressionValidator implements IExpressionValidator {
   /**
    * Valide les sourcils
    */
-  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   private validateEyebrows(_eyebrows: Record<string, number>): { isValid: boolean } {
     // Implémentation simplifiée
     return { isValid: true };
@@ -291,7 +287,6 @@ export class ExpressionValidator implements IExpressionValidator {
   /**
    * Valide la bouche
    */
-  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   private validateMouth(_mouth: Record<string, number>): { isValid: boolean } {
     // Implémentation simplifiée
     return { isValid: true };
@@ -300,7 +295,6 @@ export class ExpressionValidator implements IExpressionValidator {
   /**
    * Valide les yeux
    */
-  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   private validateEyes(_eyes: Record<string, number>): { isValid: boolean } {
     // Implémentation simplifiée
     return { isValid: true };
@@ -309,7 +303,6 @@ export class ExpressionValidator implements IExpressionValidator {
   /**
    * Valide le corps
    */
-  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   private validateBody(_body: LSFExpression['body']): { isValid: boolean } {
     // Implémentation simplifiée
     return { isValid: true };
@@ -318,7 +311,6 @@ export class ExpressionValidator implements IExpressionValidator {
   /**
    * Valide le timing
    */
-  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   private validateTiming(_timing: Record<string, unknown>): boolean {
     // Implémentation simplifiée
     return true;

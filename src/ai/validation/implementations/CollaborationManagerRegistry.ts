@@ -444,7 +444,6 @@ export class CollaborationManagerRegistry implements ICollaborationManagerRegist
      * @returns Liste de feedbacks associés à l'expert
      */
     private async getExpertFeedback(
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         expertId: string
     ): Promise<{ validationId: string; approved: boolean; score?: number }[]> {
         /* Dans une implémentation complète, cette méthode interrogerait une base de données

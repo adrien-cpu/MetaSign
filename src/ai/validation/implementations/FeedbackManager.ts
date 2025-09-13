@@ -228,7 +228,6 @@ export class FeedbackManager extends BaseManager implements IFeedbackManager {
     async notifyExperts(
         expertIds: string[],
         message: string,
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         _context?: NotificationContext
     ): Promise<Result<{ successCount: number; failedIds?: string[] }>> {
         const initCheck = this.checkInitialized();
@@ -443,7 +442,6 @@ export class FeedbackManager extends BaseManager implements IFeedbackManager {
      * Implémentation de l'arrêt interne
      * @param _force Forcer l'arrêt même si des opérations sont en cours
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     protected async shutdownInternal(_force?: boolean): Promise<void> {
         // Rien de spécial à faire, juste vider les maps
         this.feedbackMap.clear();

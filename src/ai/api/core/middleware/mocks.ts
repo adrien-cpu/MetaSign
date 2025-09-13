@@ -36,7 +36,6 @@ interface SecurityEvent {
  */
 export function createMockJwtService(): IJWTService {
     return {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         generateToken: async (payload: Record<string, unknown>, options?: Record<string, unknown>) => {
             return `mock.jwt.token.${Date.now()}.${JSON.stringify(payload).substring(0, 20)}`;
         },
@@ -95,11 +94,9 @@ export function createMockTokenValidator(): ITokenValidator {
  */
 export function createMockEncryptionService(): IEncryptionService {
     return {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         encrypt: async (data: string, key?: string) => {
             return `encrypted:${data.substring(0, 20)}...`;
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         decrypt: async (encryptedData: string, key?: string) => {
             if (encryptedData.startsWith('encrypted:')) {
                 const dataHint = encryptedData.replace('encrypted:', '').replace('...', '');
@@ -118,7 +115,6 @@ export function createMockEncryptionService(): IEncryptionService {
  */
 export function createMockDataSanitizer(): IDataSanitizer {
     return {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         sanitize: async <T>(input: T, options?: Record<string, unknown>): Promise<T> => {
             // Vérifiez si l'entrée est une chaîne
             if (typeof input === 'string') {
@@ -167,9 +163,7 @@ export function createMockBehaviorAnalyzer(): ISecurityBehaviorAnalyzer {
             endpoint: string,
             method: string,
             ip: string,
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             userAgent?: string,
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             requestData?: Record<string, unknown>
         ): Promise<BehaviorAnalysisResult> => {
             // Simuler une anomalie pour les tests
@@ -195,7 +189,6 @@ export function createMockBehaviorAnalyzer(): ISecurityBehaviorAnalyzer {
 
             return result;
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         reportAnomaly: async (anomalyInfo: Record<string, unknown>) => {
             // Rien à faire dans le mock
         }
@@ -226,7 +219,6 @@ export function createMockIntrusionDetectionSystem(): IIntrusionDetectionSystem 
                 mitigationSuggested: isThreat
             };
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         reportThreat: async (threatInfo: Record<string, unknown>) => {
             // Rien à faire dans le mock
         }
@@ -260,7 +252,6 @@ export function createMockRateLimiter(): IRateLimiter {
             // Limiter à 100 requêtes par minute
             return counters[key].count <= 100;
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         recordRequest: async (clientId: string, endpoint: string): Promise<void> => {
             // Déjà géré par isAllowed
         },
@@ -273,7 +264,6 @@ export function createMockRateLimiter(): IRateLimiter {
             });
         },
         // Pour compatibilité avec l'ancienne interface
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         checkLimit: (key: string, limit: number) => {
             if (key.includes('blocked')) {
                 return { allowed: false, remaining: 0, resetTime: Date.now() + 60000 };
@@ -291,31 +281,24 @@ export function createMockRateLimiter(): IRateLimiter {
 */
 export function createMockSecurityAuditor(): ISecurityAuditor {
     return {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         logSecurityEvent: async (eventType: string, details: Record<string, unknown>) => {
             // Rien à faire dans le mock
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         logRequest: async (requestInfo: Record<string, unknown>) => {
             // Rien à faire dans le mock
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         logResponse: async (responseInfo: Record<string, unknown>) => {
             // Rien à faire dans le mock
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         logError: async (errorInfo: Record<string, unknown>) => {
             // Rien à faire dans le mock
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         logSecurityIncident: async (incidentInfo: Record<string, unknown>) => {
             // Rien à faire dans le mock
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         logSensitiveDataExposure: async (exposureInfo: Record<string, unknown>) => {
             // Rien à faire dans le mock
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         logComplianceIssue: async (issueInfo: Record<string, unknown>) => {
             // Rien à faire dans le mock
         }
@@ -347,11 +330,9 @@ export function createMockComplianceValidator(): IComplianceValidator {
                 riskLevel: isCompliant ? 'low' : 'high'
             };
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         logComplianceIssue: async (issueInfo: Record<string, unknown>) => {
             // Rien à faire dans le mock
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         getRegulationRequirements: (regulation: string) => ['user consent', 'data minimization']
     };
 }
@@ -361,7 +342,6 @@ export function createMockComplianceValidator(): IComplianceValidator {
 */
 export function createMockSensitiveDataChecker(): ISensitiveDataChecker {
     return {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         checkForSensitiveData: async (data: unknown, clearanceLevel?: string) => {
             // Convertir les données en chaîne pour vérifier les données sensibles
             const dataString = JSON.stringify(data);
@@ -389,7 +369,6 @@ export function createMockSecurityMetricsCollector(): ISecurityMetricsCollector 
     const events: Record<string, SecurityEvent[]> = {};
 
     return {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         recordMetric: async (name: string, value: number, tags?: Record<string, string>) => {
             if (!metrics[name]) {
                 metrics[name] = [];
@@ -405,7 +384,6 @@ export function createMockSecurityMetricsCollector(): ISecurityMetricsCollector 
                 ...properties
             });
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         getMetricStats: async (name: string, timeRange?: { start: Date; end: Date }) => {
             const values = metrics[name] || [];
 
@@ -481,7 +459,6 @@ export function createMockFraudDetectionSystem(): IFraudDetectionSystem {
 
             return result;
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         reportFraud: async (fraudInfo: Record<string, unknown>) => {
             // Rien à faire dans le mock
         }

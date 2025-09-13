@@ -239,7 +239,7 @@ const CODAPage = () => {
                   <div className="text-center text-gray-500 mt-20">
                     <Brain className="w-16 h-16 mx-auto mb-4 text-cyan-300" />
                     <h3 className="text-xl font-semibold mb-2">Prêt pour une session CODA ?</h3>
-                    <p>Démarrez une session pour commencer l'apprentissage inversé avec votre élève IA !</p>
+                    <p>Démarrez une session pour commencer l&apos;apprentissage inversé avec votre élève IA !</p>
                   </div>
                 )}
 
@@ -342,7 +342,7 @@ const CODAPage = () => {
               </h3>
               <div className="space-y-3">
                 <div>
-                  <label className="text-sm text-gray-600">Niveau d'apprentissage</label>
+                  <label className="text-sm text-gray-600">Niveau d&apos;apprentissage</label>
                   <select 
                     value={selectedLevel}
                     onChange={(e) => setSelectedLevel(e.target.value)}
@@ -371,7 +371,7 @@ const CODAPage = () => {
                 </div>
                 {codaError && (
                   <div className="text-xs text-amber-600 bg-amber-50 p-2 rounded">
-                    <strong>Mode simulation :</strong> L'API CODA n'est pas disponible. Les fonctionnalités sont simulées localement.
+                    <strong>Mode simulation :</strong> L&apos;API CODA n&apos;est pas disponible. Les fonctionnalités sont simulées localement.
                   </div>
                 )}
               </div>
@@ -384,7 +384,7 @@ const CODAPage = () => {
           <Card className="p-6">
             <h3 className="font-semibold mb-4 flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-blue-500" />
-              Guide d'utilisation CODA
+              Guide d&apos;utilisation CODA
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-gray-600">
               <div className="space-y-2">

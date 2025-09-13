@@ -1,9 +1,16 @@
-import { IAPIContext } from '@api/core/types';
-import { IMiddleware, NextFunction, SecurityError } from '@api/core/middleware/types/middleware.types';
+import { IAPIContext } from '../../types';
+import { IMiddleware, NextFunction } from '../interfaces';
 import { SecurityServiceKeys, IServiceProvider } from '../di/types';
-import { Logger } from '@api/common/monitoring/LogService';
-import { TokenValidationResult as SecurityTokenValidationResult, ClearanceLevel } from '@security/types/SecurityTypes';
-import { TokenValidationResult as CoreTokenValidationResult } from '@api/core/types';
+// Mock Logger
+class Logger {
+    constructor(private name: string) {}
+    debug(msg: string, data?: any) { console.log(`[DEBUG] ${this.name}: ${msg}`, data); }
+    error(msg: string, data?: any) { console.error(`[ERROR] ${this.name}: ${msg}`, data); }
+    info(msg: string, data?: any) { console.info(`[INFO] ${this.name}: ${msg}`, data); }
+    warn(msg: string, data?: any) { console.warn(`[WARN] ${this.name}: ${msg}`, data); }
+}
+// import { TokenValidationResult as CoreTokenValidationResult, string } from '@security/types/SecurityTypes';
+import { TokenValidationResult as CoreTokenValidationResult } from '../../types';
 
 // Définir une constante pour la clé TOKEN_REFRESHER
 export const TOKEN_REFRESHER_SERVICE_KEY = 'token_refresher';
@@ -12,7 +19,7 @@ export const TOKEN_REFRESHER_SERVICE_KEY = 'token_refresher';
  * Interface pour le validateur de token
  */
 export interface ITokenValidator {
-    validate(token: string): Promise<SecurityTokenValidationResult>;
+    validate(token: string): Promise<CoreTokenValidationResult>;
 }
 
 /**
@@ -24,7 +31,7 @@ export interface ITokenRefresher {
      * @param tokenInfo Informations du token actuel
      * @returns Promesse résolue avec les nouvelles informations du token
      */
-    refreshToken(tokenInfo: SecurityTokenValidationResult): Promise<SecurityTokenValidationResult>;
+    refreshToken(tokenInfo: CoreTokenValidationResult): Promise<CoreTokenValidationResult>;
 }
 
 /**
@@ -123,7 +130,7 @@ export interface ErrorDetails {
 /**
  * Erreur d'authentification
  */
-export class AuthenticationError extends Error implements SecurityError {
+export class AuthenticationError extends Error {
     public readonly code: string;
     public readonly statusCode: number = 401;
     public readonly severity: 'low' | 'medium' | 'high' | 'critical' = 'medium';
@@ -161,9 +168,9 @@ export class AuthenticationError extends Error implements SecurityError {
  */
 export class TokenResultConverter {
     /**
-     * Convertit un SecurityTokenValidationResult en CoreTokenValidationResult
+     * Convertit un CoreTokenValidationResult en CoreTokenValidationResult
      */
-    public static toCoreResult(securityResult: SecurityTokenValidationResult): CoreTokenValidationResult {
+    public static toCoreResult(securityResult: CoreTokenValidationResult): CoreTokenValidationResult {
         const now = new Date();
 
         return {
@@ -171,7 +178,7 @@ export class TokenResultConverter {
             userId: securityResult.userId || '', // Garantir que userId est une chaîne non vide
             roles: securityResult.roles || [], // Utiliser un tableau vide si undefined
             permissions: securityResult.permissions || [], // Utiliser un tableau vide si undefined
-            clearanceLevel: this.mapClearanceLevelToString(securityResult.clearanceLevel),
+            clearanceLevel: this.mapstringToString(securityResult.clearanceLevel),
             expiresAt: securityResult.expiresAt || new Date(now.getTime() + 3600000), // Par défaut 1h
             issuedAt: securityResult.issuedAt || now, // Utiliser la date actuelle si undefined
             encryptionKey: securityResult.encryptionKey || '' // Ajouter encryptionKey requis par CoreTokenValidationResult
@@ -181,7 +188,7 @@ export class TokenResultConverter {
     /**
      * Convertit un clearanceLevel en chaîne de caractères
      */
-    private static mapClearanceLevelToString(clearanceLevel: ClearanceLevel | undefined): string {
+    private static mapstringToString(clearanceLevel: string | undefined): string {
         if (typeof clearanceLevel === 'string') {
             return clearanceLevel;
         }
@@ -190,12 +197,12 @@ export class TokenResultConverter {
     }
 
     /**
-     * Convertit un CoreTokenValidationResult en SecurityTokenValidationResult
-     * Note: Utilisée uniquement quand on a besoin de retourner un SecurityTokenValidationResult 
+     * Convertit un CoreTokenValidationResult en CoreTokenValidationResult
+     * Note: Utilisée uniquement quand on a besoin de retourner un CoreTokenValidationResult 
      */
-    public static toSecurityResult(coreResult: CoreTokenValidationResult): SecurityTokenValidationResult {
+    public static toSecurityResult(coreResult: CoreTokenValidationResult): CoreTokenValidationResult {
         // Utiliser une vérification de type plus sûre pour convertir le clearanceLevel
-        let clearanceLevel: ClearanceLevel = 'public';
+        let clearanceLevel: string = 'public';
 
         if (
             coreResult.clearanceLevel === 'public' ||
@@ -204,7 +211,7 @@ export class TokenResultConverter {
             coreResult.clearanceLevel === 'restricted' ||
             coreResult.clearanceLevel === 'secret'
         ) {
-            clearanceLevel = coreResult.clearanceLevel as ClearanceLevel;
+            clearanceLevel = coreResult.clearanceLevel as string;
         }
 
         return {
@@ -528,7 +535,7 @@ export class AuthenticationMiddleware implements IMiddleware {
      * @param token Token à valider
      * @returns Résultat de la validation
      */
-    private async validateTokenWithTimeout(token: string): Promise<SecurityTokenValidationResult> {
+    private async validateTokenWithTimeout(token: string): Promise<CoreTokenValidationResult> {
         // Créer une promesse qui se résout après le délai d'attente
         const timeoutPromise = new Promise<never>((_, reject) => {
             setTimeout(() => {
@@ -633,7 +640,7 @@ export class AuthenticationMiddleware implements IMiddleware {
      * @param tokenInfo Informations du token
      * @returns true si le token doit être rafraîchi
      */
-    private shouldRefreshToken(tokenInfo: SecurityTokenValidationResult): boolean {
+    private shouldRefreshToken(tokenInfo: CoreTokenValidationResult): boolean {
         if (!tokenInfo.expiresAt) {
             return false;
         }
@@ -650,14 +657,14 @@ export class AuthenticationMiddleware implements IMiddleware {
      * @param tokenInfo Informations du token
      * @param context Contexte de la requête API
      */
-    private refreshToken(tokenInfo: SecurityTokenValidationResult, context: IAPIContext): void {
+    private refreshToken(tokenInfo: CoreTokenValidationResult, context: IAPIContext): void {
         if (!this.tokenRefresher) {
             return;
         }
 
         // Lancer le rafraîchissement en arrière-plan (ne pas attendre)
         this.tokenRefresher.refreshToken(tokenInfo)
-            .then((newTokenInfo: SecurityTokenValidationResult) => {
+            .then((newTokenInfo: CoreTokenValidationResult) => {
                 if (!context.security) {
                     context.security = {};
                 }

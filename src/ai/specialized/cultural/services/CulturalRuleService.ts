@@ -31,7 +31,6 @@ export class CulturalRuleService implements ICulturalRuleService {
             contexts: ['formal', 'educational', 'official'],
             condition: (_element, context) =>
                 this.mapFormalityLevelToNumeric(context.formalityLevel) > 0.7,
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             apply: async (element, _context) => {
                 const adaptations: Adaptation[] = [{
                     type: 'FORMAL' as AdaptationType,

@@ -18,11 +18,8 @@ export class MockComplianceValidator implements IComplianceValidator {
     }
 
     public async validateCompliance(
-        // Utilisation du préfixe _ pour éviter les avertissements de variables non utilisées
-        /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-        _data: unknown,
-        /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-        _context: Record<string, unknown>
+        data: unknown,
+        context: Record<string, unknown>
     ): Promise<ComplianceValidationResult> {
         return {
             isCompliant: this.isCompliant,

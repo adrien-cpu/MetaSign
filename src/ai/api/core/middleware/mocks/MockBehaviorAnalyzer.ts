@@ -18,8 +18,7 @@ export class MockBehaviorAnalyzer implements IBehaviorAnalyzer {
         this.anomalyScore = options?.anomalyScore ?? 0.1;
     }
 
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-    public async analyzeRequest(userId: string, _requestData: unknown): Promise<BehaviorAnalysisResult> {
+    public async analyzeRequest(userId: string, requestData: unknown): Promise<BehaviorAnalysisResult> {
         return {
             userId,
             timestamp: Date.now(),
@@ -51,8 +50,7 @@ export class MockBehaviorAnalyzer implements IBehaviorAnalyzer {
     }
 
     // Implémentation des méthodes manquantes pour satisfaire l'interface
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-    public async analyzeBehavior(profile: UserBehaviorProfile, _currentActivity: unknown): Promise<BehaviorAnalysisResult> {
+    public async analyzeBehavior(profile: UserBehaviorProfile, currentActivity: unknown): Promise<BehaviorAnalysisResult> {
         return {
             userId: profile.userId,
             timestamp: Date.now(),
@@ -66,8 +64,7 @@ export class MockBehaviorAnalyzer implements IBehaviorAnalyzer {
         };
     }
 
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-    public async getUserAnomalies(userId: string, _timeRange?: { start: number; end: number }): Promise<BehaviorAnalysisResult[]> {
+    public async getUserAnomalies(userId: string, timeRange?: { start: number; end: number }): Promise<BehaviorAnalysisResult[]> {
         if (!this.shouldFlagAnomaly) {
             return [];
         }
@@ -94,8 +91,7 @@ export class MockBehaviorAnalyzer implements IBehaviorAnalyzer {
         ];
     }
 
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-    public async getHighRiskUsers(_threshold: number): Promise<string[]> {
+    public async getHighRiskUsers(threshold: number): Promise<string[]> {
         if (!this.shouldFlagAnomaly) {
             return [];
         }
@@ -103,8 +99,7 @@ export class MockBehaviorAnalyzer implements IBehaviorAnalyzer {
         return ['high-risk-user-1', 'high-risk-user-2', 'high-risk-user-3'];
     }
 
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-    public async cleanup(_olderThan: number): Promise<void> {
+    public async cleanup(olderThan: number): Promise<void> {
         // Méthode simulée, ne fait rien
         return Promise.resolve();
     }

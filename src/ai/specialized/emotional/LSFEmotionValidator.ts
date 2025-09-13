@@ -106,7 +106,6 @@ export class LSFEmotionValidator implements IValidator {
         const initialRulesCount = this.rules.length;
         this.rules = this.rules.filter(rule => {
             // Pour éviter l'erreur de propriété manquante, on utilise une approche sécurisée
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const timestamp = (rule as any).timestamp || Date.now() - olderThan - 1;
             return timestamp > olderThan;
         });
@@ -143,7 +142,6 @@ export class LSFEmotionValidator implements IValidator {
      * Met à jour le contexte de validation
      * Cette méthode est requise par l'interface mais n'est pas utilisée ici
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     updateContext(_context: ValidationContext): void {
         // Non implémenté
     }
@@ -172,7 +170,6 @@ export class LSFEmotionValidator implements IValidator {
     /**
      * Valide les règles spécifiées
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async validateRules(rules: ValidationRule[]): Promise<ValidationResult> {
         // Méthode de base qui valide les données avec un ensemble de règles spécifié
         const result: ValidationResult = {
@@ -216,7 +213,6 @@ export class LSFEmotionValidator implements IValidator {
 
         try {
             // Utiliser une approche sécurisée pour vérifier et appeler la méthode
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const ethicsSystemExt = this.ethicsSystem as any;
             if (typeof ethicsSystemExt.validateEmotions === 'function') {
                 const ethicsResult = await ethicsSystemExt.validateEmotions(input);

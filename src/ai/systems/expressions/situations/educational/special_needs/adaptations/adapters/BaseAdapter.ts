@@ -246,9 +246,7 @@ export abstract class BaseAdapter<T> implements IAdapter<T> {
   * @returns Score d'efficacité (0-1)
   */
     protected evaluateEffectiveness(
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         _strategies: AdaptationStrategy[],
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         _needs: Record<string, unknown>
     ): number {
         // Calcul simplifié de l'efficacité
@@ -262,9 +260,7 @@ export abstract class BaseAdapter<T> implements IAdapter<T> {
      * @returns Niveau de confiance (0-1)
      */
     protected calculateConfidence(
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         _strategies: AdaptationStrategy[],
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         _needs: Record<string, unknown>
     ): number {
         // Calcul simplifié de la confiance

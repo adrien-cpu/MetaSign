@@ -1,5 +1,5 @@
 // src/ai/api/core/middleware/middleware-interfaces.ts
-import { IAPIContext } from '@api/core/types';
+import { IAPIContext } from '../types';
 
 /**
  * Type pour la fonction middleware suivante

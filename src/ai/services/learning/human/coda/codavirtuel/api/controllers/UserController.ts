@@ -101,7 +101,6 @@ export interface UserResponse {
     };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ApiResponse<T = any> {
     readonly success: boolean;
     readonly data?: T;

@@ -361,7 +361,6 @@ export class ConceptMap {
   }
 
   addRelation(relation: ConceptualRelation): void {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { source, target } = relation;
     if (!this.relations.has(source)) {
       this.relations.set(source, []);

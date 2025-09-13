@@ -18,8 +18,6 @@ export class MockIntrusionDetectionSystem implements IIntrusionDetectionSystem {
         this.threatLevel = options?.threatLevel ?? ThreatLevel.NONE;
     }
 
-    // Utilisation de /* eslint-disable next-line */ pour éviter le warning
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     public async detectIntrusion(requestData: unknown): Promise<IntrusionDetectionResult> {
         return {
             threatDetected: this.anomaliesDetected,

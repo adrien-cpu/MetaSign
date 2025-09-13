@@ -1,8 +1,6 @@
 // Ces importations sont utilisées dans les types référencés
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { EmotionState } from '@ai/emotions/types/base';
 import { QualityMetrics, FeedbackPattern, FeedbackRecommendation } from './feedback.types';
-/* eslint-enable @typescript-eslint/no-unused-vars */
 
 /**
  * Interface pour les analyses d'intensité d'émotion
