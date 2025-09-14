@@ -21,7 +21,7 @@ import {
     IntrusionDetectionResult,
     ComplianceValidationResult,
     AnomalyType
-} from '@api/core/types';
+} from '../types';
 
 import { SecurityErrorType } from './types/middleware.types';
 

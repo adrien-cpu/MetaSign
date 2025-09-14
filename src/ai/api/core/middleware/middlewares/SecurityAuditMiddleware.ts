@@ -18,7 +18,7 @@ import {
     SecurityAuditError,
     SecurityIncident,
     SecurityContext
-} from '@api/core/middleware/types/middleware.types';
+} from '../types/middleware.types';
 
 export interface AuditConfig {
     logLevel: 'error' | 'warn' | 'info' | 'debug';

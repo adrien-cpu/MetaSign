@@ -262,7 +262,7 @@ export class ErrorHandlerMiddleware implements IMiddleware {
         };
 
         if (error.severity === 'critical') {
-            this.logger.critical('Critical security error', logData);
+            this.logger.error('Critical security error', logData);
         } else if (error.severity === 'high') {
             this.logger.error('High severity security error', logData);
         } else if (error.severity === 'medium') {

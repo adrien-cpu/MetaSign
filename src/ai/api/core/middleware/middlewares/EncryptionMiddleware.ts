@@ -97,10 +97,10 @@ export class EncryptionMiddleware implements IMiddleware {
                 // Parse the decrypted body if it's JSON
                 // Parse the decrypted body if it's JSON
                 try {
-                    context.request.body = JSON.parse(decryptedBody);
+                    context.request.body = JSON.parse(decryptedBody) as any;
                 } catch {
                     // Si le parsing échoue, utiliser le texte brut
-                    context.request.body = decryptedBody;
+                    context.request.body = decryptedBody as any;
                 }
 
                 // Remove encryption headers

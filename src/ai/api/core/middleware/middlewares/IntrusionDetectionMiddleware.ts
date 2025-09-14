@@ -4,7 +4,7 @@ import {
     IntrusionDetectionConfig,
     IIntrusionDetectionSystem,
     ISecurityAuditor
-} from '@api/core/middleware/types/middleware.types';
+} from '../types/middleware.types';
 import { SecurityServiceProvider } from '../di/SecurityServiceProvider';
 import { SecurityServiceKeys } from '../di/types';
 // Mock Logger
