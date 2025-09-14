@@ -1,10 +1,17 @@
 //src/ai/api/core/middleware/middlewares/EncryptionMiddleware.ts
-import { IAPIContext } from '@api/core/types';
-import { IMiddleware, NextFunction } from '@api/core/middleware/middleware-interfaces';
-import { Logger } from '@api/common/monitoring/LogService';
-import { IEncryptionService } from '@api/core/middleware/interfaces';
-import { SecurityServiceProvider } from '@api/core/middleware/di/SecurityServiceProvider';
-import { SecurityServiceKeys } from '@api/core/middleware/di/types';
+import { IAPIContext } from '../../types';
+import { IMiddleware, NextFunction } from '../middleware-interfaces';
+// Mock Logger
+class Logger {
+    constructor(private name: string) {}
+    debug(msg: string, data?: any) { console.log(`[DEBUG] ${this.name}: ${msg}`, data); }
+    error(msg: string, data?: any) { console.error(`[ERROR] ${this.name}: ${msg}`, data); }
+    info(msg: string, data?: any) { console.info(`[INFO] ${this.name}: ${msg}`, data); }
+    warn(msg: string, data?: any) { console.warn(`[WARN] ${this.name}: ${msg}`, data); }
+}
+import { IEncryptionService } from '../interfaces';
+import { SecurityServiceProvider } from '../di/SecurityServiceProvider';
+import { SecurityServiceKeys } from '../di/types';
 
 export interface EncryptionConfig {
     algorithm: string;

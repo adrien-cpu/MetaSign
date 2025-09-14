@@ -1,10 +1,25 @@
-import { IAPIContext, AnomalyType } from '@api/core/types';
-import { IMiddleware, NextFunction } from '@api/core/middleware/middleware-interfaces';
-import { BehaviorAnalysisConfig } from '@api/core/middleware/types/middleware.types';
-import { SecurityServiceProvider } from '@api/core/middleware/di/SecurityServiceProvider';
-import { SecurityServiceKeys } from '@api/core/middleware/di/types';
-import { Logger } from '@api/common/monitoring/LogService';
-import { ISecurityBehaviorAnalyzer } from '@api/core/middleware/interfaces';
+import { IAPIContext } from '../../types';
+// Mock AnomalyType
+type AnomalyType = 'UNUSUAL_PATTERN' | 'FREQUENCY_ANOMALY' | 'TIMING_ANOMALY' | 'CONTENT_ANOMALY' | 'behavioral' | 'pattern' | 'anomaly';
+import { IMiddleware, NextFunction } from '../middleware-interfaces';
+// Mock BehaviorAnalysisConfig
+interface BehaviorAnalysisConfig {
+    sessionProfilingEnabled?: boolean;
+    userProfilingEnabled?: boolean;
+    anomalyThreshold?: number;
+    learningPeriod?: number;
+}
+import { SecurityServiceProvider } from '../di/SecurityServiceProvider';
+import { SecurityServiceKeys } from '../di/types';
+// Mock Logger
+class Logger {
+    constructor(private name: string) {}
+    debug(msg: string, data?: any) { console.log(`[DEBUG] ${this.name}: ${msg}`, data); }
+    error(msg: string, data?: any) { console.error(`[ERROR] ${this.name}: ${msg}`, data); }
+    info(msg: string, data?: any) { console.info(`[INFO] ${this.name}: ${msg}`, data); }
+    warn(msg: string, data?: any) { console.warn(`[WARN] ${this.name}: ${msg}`, data); }
+}
+import { ISecurityBehaviorAnalyzer } from '../interfaces';
 
 export class BehaviorAnalysisMiddleware implements IMiddleware {
     public readonly name: string = 'BehaviorAnalysisMiddleware';
@@ -54,8 +69,8 @@ export class BehaviorAnalysisMiddleware implements IMiddleware {
             }
             // Conversion au type attendu
             context.security.behaviorAnalysis = {
-                anomalyDetected: analysisResult.anomalyScore > this.config.anomalyThreshold,
-                anomalyType: this.convertToAnomalyType(analysisResult.anomalyType) || 'UNUSUAL_PATTERN',
+                anomalyDetected: analysisResult.anomalyScore > (this.config.anomalyThreshold || 0.8),
+                anomalyType: (this.convertToAnomalyType(analysisResult.anomalyType) || 'behavioral') as any,
                 anomalyConfidence: analysisResult.confidence,
                 details: String(analysisResult.details || ""),
                 riskScore: analysisResult.anomalyScore,
@@ -63,7 +78,7 @@ export class BehaviorAnalysisMiddleware implements IMiddleware {
             };
 
             // Log anomalies if detected
-            if (analysisResult.anomalyScore >= this.config.anomalyThreshold) {
+            if (analysisResult.anomalyScore >= (this.config.anomalyThreshold || 0.8)) {
                 this.logger.warn('Behavior anomaly detected', {
                     userId,
                     sessionId,

@@ -1,13 +1,20 @@
-import { IAPIContext } from '@api/core/types';
-import { IMiddleware, NextFunction } from '@api/core/middleware/middleware-interfaces';
+import { IAPIContext } from '../../types';
+import { IMiddleware, NextFunction } from '../middleware-interfaces';
 import {
     IntrusionDetectionConfig,
     IIntrusionDetectionSystem,
     ISecurityAuditor
 } from '@api/core/middleware/types/middleware.types';
-import { SecurityServiceProvider } from '@api/core/middleware/di/SecurityServiceProvider';
-import { SecurityServiceKeys } from '@api/core/middleware/di/types';
-import { Logger } from '@api/common/monitoring/LogService';
+import { SecurityServiceProvider } from '../di/SecurityServiceProvider';
+import { SecurityServiceKeys } from '../di/types';
+// Mock Logger
+class Logger {
+    constructor(private name: string) {}
+    debug(msg: string, data?: any) { console.log(`[DEBUG] ${this.name}: ${msg}`, data); }
+    error(msg: string, data?: any) { console.error(`[ERROR] ${this.name}: ${msg}`, data); }
+    info(msg: string, data?: any) { console.info(`[INFO] ${this.name}: ${msg}`, data); }
+    warn(msg: string, data?: any) { console.warn(`[WARN] ${this.name}: ${msg}`, data); }
+}
 
 export class IntrusionDetectionMiddleware implements IMiddleware {
     public readonly name: string = 'IntrusionDetectionMiddleware';

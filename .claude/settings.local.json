@@ -14,7 +14,10 @@
       "Bash(pkill:*)",
       "Bash(npm run build:*)",
       "Bash(cat:*)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "Bash(for file in src/ai/api/core/middleware/middlewares/*.ts)",
+      "Bash(do sed -i 's/constructor(private name: string) .*/constructor(private name: string) {}/g' \"$file\")",
+      "Bash(done)"
     ]
   },
   "enableAllProjectMcpServers": false

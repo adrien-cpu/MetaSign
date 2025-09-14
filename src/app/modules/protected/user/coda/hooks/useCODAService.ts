@@ -42,25 +42,44 @@ export const useCODAService = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   
   // Référence vers le service bridge
   const bridgeRef = useRef<CODAServiceBridge | null>(null);
+  const maxRetries = 3;
+  
+  // Cache des sessions et métriques
+  const sessionCacheRef = useRef<Map<string, any>>(new Map());
+  const metricsCacheRef = useRef<Map<string, { data: any; timestamp: number }>>(new Map());
 
-  // Initialise le service bridge
-  useEffect(() => {
+  // Initialise le service bridge avec retry automatique
+  const initializeBridge = useCallback(async () => {
     if (!bridgeRef.current) {
       bridgeRef.current = new CODAServiceBridge();
-      // Vérifier la connexion après un court délai
-      setTimeout(() => {
-        if (bridgeRef.current) {
-          setIsConnected(bridgeRef.current.isConnected());
-          if (!bridgeRef.current.isConnected()) {
-            setError('Mode simulation activé - Services CODA non disponibles');
-          }
-        }
-      }, 1000);
     }
-  }, []);
+    
+    // Attendre un peu pour que l'initialisation se termine
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    const connected = bridgeRef.current.isConnected();
+    setIsConnected(connected);
+    
+    if (!connected && retryCount < maxRetries) {
+      setError(`Tentative de connexion ${retryCount + 1}/${maxRetries}...`);
+      setRetryCount(prev => prev + 1);
+      // Retry avec backoff exponentiel
+      setTimeout(() => initializeBridge(), 2000 * (retryCount + 1));
+    } else if (!connected) {
+      setError('Mode simulation activé - Services CODA non disponibles');
+    } else {
+      setError(null);
+      setRetryCount(0);
+    }
+  }, [retryCount, maxRetries]);
+  
+  useEffect(() => {
+    initializeBridge();
+  }, [initializeBridge]);
 
   /**
    * Initialise une session CODA via le service bridge
@@ -168,20 +187,108 @@ export const useCODAService = () => {
   }, []);
 
   /**
-   * Met à jour l'état émotionnel de l'IA
+   * Met à jour l'état émotionnel de l'IA avec validation
    */
   const updateEmotionalState = useCallback(async (
     sessionId: string, 
     newState: string
   ): Promise<void> => {
+    if (!sessionId?.trim()) {
+      console.warn('sessionId requis pour mise à jour émotionnelle');
+      return;
+    }
+    
+    if (!newState?.trim()) {
+      console.warn('newState requis pour mise à jour émotionnelle');
+      return;
+    }
+    
     try {
-      await fetch(`/api/coda/session/${sessionId}/emotion`, {
+      const response = await fetch(`/api/coda/session/${encodeURIComponent(sessionId.trim())}/emotion`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ emotionalState: newState })
+        body: JSON.stringify({ emotionalState: newState.trim() })
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.warn(`Erreur API mise à jour émotionnelle ${response.status}:`, errorData.error);
+      }
     } catch (err) {
       console.warn('Erreur lors de la mise à jour émotionnelle:', err);
+    }
+  }, []);
+
+  /**
+   * Récupère les métriques de session avec cache local
+   */
+  const getSessionMetrics = useCallback(async (sessionId: string) => {
+    if (!sessionId?.trim()) {
+      throw new Error('sessionId requis');
+    }
+    
+    if (!bridgeRef.current) {
+      throw new Error('Service bridge non initialisé');
+    }
+    
+    const cacheKey = `metrics_${sessionId.trim()}`;
+    const cached = metricsCacheRef.current.get(cacheKey);
+    const cacheExpiry = 30000; // 30 secondes
+    
+    if (cached && (Date.now() - cached.timestamp) < cacheExpiry) {
+      return cached.data;
+    }
+    
+    try {
+      const metrics = await bridgeRef.current.getSessionMetrics(sessionId.trim());
+      metricsCacheRef.current.set(cacheKey, {
+        data: metrics,
+        timestamp: Date.now()
+      });
+      return metrics;
+    } catch (err) {
+      console.warn('Erreur récupération métriques:', err);
+      throw err;
+    }
+  }, []);
+
+  /**
+   * Nettoie le cache des sessions et métriques
+   */
+  const clearCache = useCallback(() => {
+    sessionCacheRef.current.clear();
+    metricsCacheRef.current.clear();
+  }, []);
+
+  /**
+   * Force la reconnexion au service bridge
+   */
+  const forceReconnect = useCallback(async (): Promise<boolean> => {
+    if (!bridgeRef.current) {
+      return false;
+    }
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const reconnected = await bridgeRef.current.reconnect();
+      setIsConnected(reconnected);
+      
+      if (reconnected) {
+        setRetryCount(0);
+        setError(null);
+      } else {
+        setError('Reconnexion échouée - Mode simulation');
+      }
+      
+      return reconnected;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erreur reconnexion';
+      setError(errorMessage);
+      return false;
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -190,12 +297,18 @@ export const useCODAService = () => {
     isConnected,
     isLoading,
     error,
+    retryCount,
     
-    // Actions
+    // Actions principales
     initializeSession,
     sendMessage,
     endSession,
     updateEmotionalState,
+    
+    // Nouvelles fonctionnalités
+    getSessionMetrics,
+    forceReconnect,
+    clearCache,
     
     // Utilitaires
     clearError: () => setError(null)

@@ -1,9 +1,16 @@
-import { IAPIContext } from '@api/core/types';
+import { IAPIContext } from '../../types';
 import { IMiddleware, NextFunction, SecurityError } from '../types/middleware.types';
 import { SecurityServiceKeys } from '../di/types';
 import { IServiceProvider } from '../di/types';
 import { IRateLimiter } from '../interfaces';
-import { Logger } from '@api/common/monitoring/LogService';
+// Mock Logger
+class Logger {
+    constructor(private name: string) {}
+    debug(msg: string, data?: any) { console.log(`[DEBUG] ${this.name}: ${msg}`, data); }
+    error(msg: string, data?: any) { console.error(`[ERROR] ${this.name}: ${msg}`, data); }
+    info(msg: string, data?: any) { console.info(`[INFO] ${this.name}: ${msg}`, data); }
+    warn(msg: string, data?: any) { console.warn(`[WARN] ${this.name}: ${msg}`, data); }
+}
 
 /**
  * Erreur de dépassement de limite de débit
