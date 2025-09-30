@@ -62,7 +62,7 @@ export const ROUTES = {
   USER_STATS: '/modules/protected/user/stats', //fait
   USER_CONTACTS: '/modules/protected/user/contacts', //fait
   USER_CODA: '/modules/protected/user/coda', //fait
-
+  LEARNING_CODA: '/modules/protected/learning/coda', //fait
   //PROFIL UTILISATEUR - PASSWORD
   VERIFY_PASSWORD: '/api/user/verify-password', //fait
   UPDATE_PASSWORD: '/api/user/updatePassword', //fait
@@ -79,11 +79,11 @@ export const ROUTES = {
   // LEARNING
   LEARN: '/pages/learn',
   LEARNING_PATH: '/modules/protected/learning/',
+  LEARNING_CODA: '/modules/protected/learning/coda',
 
   //CULTURE SOURDE
   DEAF_CULTURE: '/pages/deaf-culture',
   DEAF_CULTURE_ADD_THEME: '/pages/deaf-culture/add-theme',
-
 
   //SOCIAL
   SOCIAL: '/pages/social',
@@ -104,10 +104,6 @@ export const ROUTES = {
   CLUB_DETAILS: '/pages/clubs/[id]',
   CLUB_CREATE: '/pages/clubs/create',
   CLUB_EDIT: '/pages/clubs/[id]/edit',
-
-
-
-
 
   AVATAR: '/avatar',
   SEARCH: '/search',

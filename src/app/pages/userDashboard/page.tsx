@@ -60,7 +60,7 @@ const DashboardMainPage = () => {
       title: "CODA Virtuel",
       description: "Apprentissage inversé avec IA CODA",
       icon: <Brain className="tile-icon text-cyan-600" />,
-      href: ROUTES.USER_CODA,
+      href: ROUTES.LEARNING_CODA,
     },
   ], []);
 

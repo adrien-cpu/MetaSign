@@ -42,6 +42,18 @@
       ],
       "@constants/*": [
         "src/constants/*"
+      ],
+      "@learning/*": [
+        "src/ai/services/learning/*"
+      ],
+      "@learning/types/*": [
+        "src/ai/services/learning/personalization/types/*"
+      ],
+      "@learning/metrics/*": [
+        "src/ai/services/learning/metrics/*"
+      ],
+      "@learning/human/*": [
+        "src/ai/services/learning/human/*"
       ]
     },
     "types": [

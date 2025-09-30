@@ -25,7 +25,7 @@ export const Button: React.FC<ButtonProps> = ({
 
   const variantClasses: Record<Required<ButtonProps>['variant'], string> = {
     default: 'bg-primary text-white hover:bg-primary/90',
-    outline: 'border-2 border-white text-white hover:bg-gray-600',
+    outline: 'border-2 border-white text-white bg-gray-500 hover:bg-gray-400',
     ghost: 'text-white hover:bg-slate-300',
     star: 'text-white text-primary hover:bg-slate-900',
     secondary: 'bg-gray-500 text-white hover:bg-gray-600'

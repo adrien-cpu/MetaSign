@@ -1,532 +1,574 @@
 /**
- * Gestionnaire de progression pour les parcours d'apprentissage personnalisés - Version refactorisée
+ * Gestionnaire de progression pour les parcours d'apprentissage personnalisés
  * 
  * @file src/ai/services/learning/personalization/managers/PathProgressManager.ts
  * @module ai/services/learning/personalization/managers
- * @description Gestionnaire spécialisé pour le suivi et la mise à jour de la progression - Version modulaire
+ * @description Gestion de la progression, adaptation et statistiques des parcours d'apprentissage LSF
  * Compatible avec exactOptionalPropertyTypes: true et respecte la limite de 300 lignes
  * @author MetaSign Learning Team
- * @version 3.0.0
- * @since 2024
- * @lastModified 2025-01-15
+ * @version 1.0.0
+ * @since 2025
+ * @lastModified 2025-01-22
  */
 
 import type {
     PersonalizedLearningPathModel,
     LearningPathStep,
     PathStatistics,
-    PathAdaptationResult,
     StepStatus
-} from '../types/LearningPathTypes';
-import { LEARNING_PATH_CONSTANTS } from '../types/LearningPathTypes';
-import { ProgressCalculator } from './ProgressCalculator';
-import { PathStatisticsGenerator } from './PathStatisticsGenerator';
-import { Logger } from '@/ai/utils/Logger';
+} from '@learning/types/LearningPathTypes';
+
+import { Logger } from '@ai/utils/Logger';
 
 /**
- * Configuration pour le gestionnaire de progression
+ * Configuration du gestionnaire de progression
  */
 interface ProgressManagerConfig {
-    /**
-     * Seuil minimum de progression pour débloquer les étapes suivantes
-     */
-    readonly progressThreshold: number;
-
-    /**
-     * Activer l'adaptation automatique
-     */
+    /** Activer l'adaptation automatique */
     readonly enableAutoAdaptation: boolean;
-
-    /**
-     * Intervalle de sauvegarde automatique (ms)
-     */
-    readonly autoSaveInterval: number;
-
-    /**
-     * Générer des statistiques étendues
-     */
-    readonly generateExtendedStatistics: boolean;
+    /** Seuil de réussite pour débloquer l'étape suivante (0-1) */
+    readonly unlockThreshold: number;
+    /** Nombre maximum de tentatives par étape */
+    readonly maxAttempts: number;
 }
 
 /**
- * Résultat d'une mise à jour de progression
+ * Résultat de mise à jour de progression
  */
-export interface ProgressUpdateResult {
-    /**
-     * Parcours mis à jour
-     */
+interface ProgressUpdateResult {
+    /** Parcours mis à jour */
     readonly updatedPath: PersonalizedLearningPathModel;
-
-    /**
-     * Étapes débloquées suite à la mise à jour
-     */
-    readonly unlockedSteps: readonly string[];
-
-    /**
-     * Parcours terminé
-     */
-    readonly isCompleted: boolean;
-
-    /**
-     * Progression précédente
-     */
-    readonly previousProgress: number;
-
-    /**
-     * Nouvelle progression
-     */
+    /** Nouvelle progression globale */
     readonly newProgress: number;
+    /** Étapes débloquées */
+    readonly unlockedSteps: readonly string[];
+    /** Parcours terminé */
+    readonly isCompleted: boolean;
+    /** Messages informatifs */
+    readonly messages: readonly string[];
+}
 
-    /**
-     * Horodatage de la mise à jour
-     */
-    readonly timestamp: Date;
+/**
+ * Résultat d'adaptation de parcours
+ */
+interface PathAdaptationResult {
+    /** Parcours adapté */
+    readonly adaptedPath: PersonalizedLearningPathModel;
+    /** Liste des changements apportés */
+    readonly changes: readonly string[];
+    /** Nouvelles étapes ajoutées */
+    readonly addedSteps: readonly string[];
+    /** Étapes supprimées */
+    readonly removedSteps: readonly string[];
 }
 
 /**
  * Configuration par défaut
  */
-const DEFAULT_PROGRESS_CONFIG: ProgressManagerConfig = {
-    progressThreshold: LEARNING_PATH_CONSTANTS.MIN_PROGRESS_THRESHOLD,
+const DEFAULT_CONFIG: ProgressManagerConfig = {
     enableAutoAdaptation: true,
-    autoSaveInterval: 30000,
-    generateExtendedStatistics: false
+    unlockThreshold: 0.7,
+    maxAttempts: 5
 } as const;
 
 /**
- * Gestionnaire de progression des parcours d'apprentissage - Version refactorisée
+ * Gestionnaire de progression des parcours d'apprentissage
  * 
+ * @class PathProgressManager
  * @example
  * ```typescript
- * const manager = new PathProgressManager({
- *     enableAutoAdaptation: true,
- *     generateExtendedStatistics: true
- * });
+ * const manager = new PathProgressManager({ enableAutoAdaptation: true });
+ * const result = manager.updateProgress(path, stepId, true);
+ * console.log(`Nouvelle progression: ${result.newProgress}%`);
  * ```
  */
 export class PathProgressManager {
     private readonly logger = Logger.getInstance('PathProgressManager');
     private readonly config: ProgressManagerConfig;
-    private readonly progressCalculator: ProgressCalculator;
-    private readonly statisticsGenerator: PathStatisticsGenerator;
 
     /**
      * Constructeur du gestionnaire de progression
      * 
-     * @param config Configuration du gestionnaire (optionnelle)
-     * @param progressCalculator Instance du calculateur de progression (optionnelle)
-     * @param statisticsGenerator Instance du générateur de statistiques (optionnelle)
-     * 
-     * @example
-     * ```typescript
-     * const manager = new PathProgressManager({
-     *     progressThreshold: 0.8,
-     *     enableAutoAdaptation: true
-     * });
-     * ```
+     * @param config - Configuration du gestionnaire (optionnelle)
      */
-    constructor(
-        config?: Partial<ProgressManagerConfig>,
-        progressCalculator?: ProgressCalculator,
-        statisticsGenerator?: PathStatisticsGenerator
-    ) {
-        this.config = { ...DEFAULT_PROGRESS_CONFIG, ...config };
-        this.progressCalculator = progressCalculator || new ProgressCalculator();
-        this.statisticsGenerator = statisticsGenerator || new PathStatisticsGenerator({
-            includePerformanceMetrics: this.config.generateExtendedStatistics,
-            includeCompletionPredictions: this.config.generateExtendedStatistics
-        });
+    constructor(config?: Partial<ProgressManagerConfig>) {
+        this.config = { ...DEFAULT_CONFIG, ...config };
 
         this.logger.info('PathProgressManager initialisé', this.config);
     }
 
     /**
-     * Met à jour la progression d'un parcours après qu'une étape soit complétée
+     * Met à jour la progression d'un parcours après completion d'une étape
      * 
-     * @param path Parcours d'apprentissage
-     * @param stepId Identifiant de l'étape complétée
-     * @param success Indique si l'étape a été complétée avec succès
-     * @returns Résultat de la mise à jour
-     * 
-     * @example
-     * ```typescript
-     * const result = manager.updateProgress(path, 'step-123', true);
-     * console.log(`Progression: ${result.newProgress * 100}%`);
-     * ```
+     * @param path - Parcours d'apprentissage
+     * @param stepId - Identifiant de l'étape complétée
+     * @param success - Succès de la completion
+     * @returns ProgressUpdateResult Résultat de la mise à jour
      */
     public updateProgress(
         path: PersonalizedLearningPathModel,
         stepId: string,
         success: boolean
     ): ProgressUpdateResult {
-        this.logger.info('Mise à jour de la progression', {
+        this.logger.debug('Mise à jour de la progression', {
             pathId: path.id,
             stepId,
             success
         });
 
-        const previousProgress = path.overallProgress;
+        const updatedPath = { ...path };
+        const messages: string[] = [];
+        let unlockedSteps: string[] = [];
 
-        try {
-            // Créer une copie mutable du parcours pour les modifications
-            const mutablePath = this.createMutablePath(path);
+        // Trouver l'étape concernée
+        const stepIndex = updatedPath.steps.findIndex(step => step.id === stepId);
+        if (stepIndex === -1) {
+            throw new Error(`Étape non trouvée: ${stepId}`);
+        }
 
-            // Valider et mettre à jour l'étape
-            this.updateStepStatus(mutablePath, stepId, success);
+        const step = { ...updatedPath.steps[stepIndex] };
 
-            // Recalculer la progression globale
-            const newProgress = this.progressCalculator.calculateOverallProgress(mutablePath);
-            mutablePath.overallProgress = newProgress;
+        // Mettre à jour les statistiques de l'étape
+        step.attempts = step.attempts + 1;
+        step.completedAt = success ? new Date() : step.completedAt;
 
-            // Vérifier si le parcours est terminé
-            const isCompleted = newProgress >= 1;
-            if (isCompleted && !mutablePath.actualEndDate) {
-                mutablePath.actualEndDate = new Date();
+        if (success) {
+            step.status = 'completed';
+            step.progress = 100;
+            step.bestScore = Math.max(step.bestScore ?? 0, 100);
+
+            messages.push(`Étape "${step.title}" complétée avec succès`);
+        } else {
+            // Logique d'échec
+            if (step.attempts >= this.config.maxAttempts) {
+                step.status = 'failed';
+                messages.push(`Étape "${step.title}" échouée après ${step.attempts} tentatives`);
+            } else {
+                step.status = 'in_progress';
+                messages.push(`Tentative ${step.attempts} pour l'étape "${step.title}"`);
             }
-
-            // Mettre à jour le statut des autres étapes
-            const statusUpdateResult = this.progressCalculator.updateStepsStatus(mutablePath.steps);
-
-            // Mettre à jour la date de dernière modification
-            mutablePath.updatedAt = new Date();
-
-            // Appliquer les modifications au parcours original
-            Object.assign(path, mutablePath);
-
-            const result: ProgressUpdateResult = {
-                updatedPath: path,
-                unlockedSteps: statusUpdateResult.unlockedSteps,
-                isCompleted,
-                previousProgress,
-                newProgress,
-                timestamp: new Date()
-            };
-
-            this.logger.info('Progression mise à jour avec succès', {
-                pathId: path.id,
-                previousProgress: Math.round(previousProgress * 100) / 100,
-                newProgress: Math.round(newProgress * 100) / 100,
-                unlockedSteps: statusUpdateResult.unlockedSteps.length,
-                isCompleted
-            });
-
-            return result;
-
-        } catch (error) {
-            this.logger.error('Erreur lors de la mise à jour de la progression', {
-                pathId: path.id,
-                stepId,
-                error
-            });
-            throw new Error(`Échec de la mise à jour de progression: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
-        }
-    }
-
-    /**
-     * Met à jour le statut de toutes les étapes d'un parcours
-     * 
-     * @param path Parcours d'apprentissage (mutable)
-     * @returns Identifiants des étapes débloquées
-     * 
-     * @example
-     * ```typescript
-     * const unlockedSteps = manager.updateStepsStatus(path);
-     * console.log(`${unlockedSteps.length} étapes débloquées`);
-     * ```
-     */
-    public updateStepsStatus(path: MutablePersonalizedLearningPathModel): string[] {
-        const statusUpdateResult = this.progressCalculator.updateStepsStatus(path.steps);
-        return Array.from(statusUpdateResult.unlockedSteps);
-    }
-
-    /**
-     * Calcule la progression globale d'un parcours
-     * 
-     * @param path Parcours d'apprentissage
-     * @returns Progression globale (0-1)
-     * 
-     * @example
-     * ```typescript
-     * const progress = manager.calculateOverallProgress(path);
-     * console.log(`Progression: ${(progress * 100).toFixed(1)}%`);
-     * ```
-     */
-    public calculateOverallProgress(path: PersonalizedLearningPathModel | MutablePersonalizedLearningPathModel): number {
-        return this.progressCalculator.calculateOverallProgress(path);
-    }
-
-    /**
-     * Génère des statistiques détaillées sur un parcours
-     * 
-     * @param path Parcours d'apprentissage
-     * @returns Statistiques du parcours
-     * 
-     * @example
-     * ```typescript
-     * const stats = manager.generatePathStatistics(path);
-     * console.log(`${stats.completedSteps}/${stats.totalSteps} étapes complétées`);
-     * ```
-     */
-    public generatePathStatistics(path: PersonalizedLearningPathModel): PathStatistics {
-        if (this.config.generateExtendedStatistics) {
-            return this.statisticsGenerator.generateExtendedStatistics(path);
         }
 
-        return this.statisticsGenerator.generatePathStatistics(path);
+        // Remplacer l'étape dans le parcours
+        updatedPath.steps = [
+            ...updatedPath.steps.slice(0, stepIndex),
+            step,
+            ...updatedPath.steps.slice(stepIndex + 1)
+        ];
+
+        // Débloquer les étapes suivantes si nécessaire
+        if (success) {
+            unlockedSteps = this.unlockNextSteps(updatedPath, stepId);
+            messages.push(...unlockedSteps.map(id => `Étape ${id} débloquée`));
+        }
+
+        // Recalculer la progression globale
+        const newProgress = this.calculateOverallProgress(updatedPath.steps);
+        updatedPath.overallProgress = newProgress;
+        updatedPath.updatedAt = new Date();
+
+        // Vérifier si le parcours est terminé
+        const isCompleted = this.isPathCompleted(updatedPath.steps);
+
+        if (isCompleted) {
+            messages.push('Parcours d\'apprentissage terminé avec succès !');
+        }
+
+        return {
+            updatedPath,
+            newProgress,
+            unlockedSteps,
+            isCompleted,
+            messages
+        };
     }
 
     /**
-     * Adapte un parcours en fonction des performances récentes
+     * Met à jour les statuts des étapes selon leurs dépendances
      * 
-     * @param path Parcours d'apprentissage
-     * @param strengthAreas Domaines de force identifiés
-     * @param weaknessAreas Domaines de faiblesse identifiés
-     * @returns Résultat de l'adaptation
+     * @param path - Parcours d'apprentissage
+     * @returns PersonalizedLearningPathModel Parcours mis à jour
+     */
+    public updateStepsStatus(path: PersonalizedLearningPathModel): PersonalizedLearningPathModel {
+        const updatedPath = { ...path };
+        const updatedSteps = [...updatedPath.steps];
+
+        // Première étape toujours disponible
+        if (updatedSteps.length > 0 && updatedSteps[0].status === 'locked') {
+            updatedSteps[0] = { ...updatedSteps[0], status: 'available' };
+        }
+
+        // Ordonner les étapes par ordre si pas déjà fait
+        updatedSteps.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+        // Définir les ordres si manquants
+        updatedSteps.forEach((step, index) => {
+            if (step.order === undefined || step.order === 0) {
+                updatedSteps[index] = { ...step, order: index + 1 };
+            }
+        });
+
+        updatedPath.steps = updatedSteps;
+
+        this.logger.debug('Statuts des étapes mis à jour', {
+            pathId: path.id,
+            totalSteps: updatedSteps.length
+        });
+
+        return updatedPath;
+    }
+
+    /**
+     * Adapte un parcours en fonction des performances et domaines de force/faiblesse
      * 
-     * @example
-     * ```typescript
-     * const result = manager.adaptPath(path, ['vocabulary'], ['grammar']);
-     * console.log(`${result.changes.length} changements appliqués`);
-     * ```
+     * @param path - Parcours d'apprentissage
+     * @param strengthAreas - Domaines de force
+     * @param weaknessAreas - Domaines de faiblesse
+     * @returns PathAdaptationResult Résultat de l'adaptation
      */
     public adaptPath(
         path: PersonalizedLearningPathModel,
         strengthAreas: readonly string[],
         weaknessAreas: readonly string[]
     ): PathAdaptationResult {
-        if (!this.config.enableAutoAdaptation) {
-            return this.createNoAdaptationResult(path);
-        }
-
         this.logger.info('Adaptation du parcours', {
             pathId: path.id,
             strengthAreas: strengthAreas.length,
             weaknessAreas: weaknessAreas.length
         });
 
-        try {
-            const changes: string[] = [];
-            const reasons: string[] = [];
-
-            // Créer une copie mutable pour les modifications
-            const mutablePath = this.createMutablePath(path);
-
-            // Appliquer les adaptations
-            this.applyStrengthBasedAdaptations(mutablePath, strengthAreas, changes, reasons);
-            this.applyWeaknessBasedAdaptations(mutablePath, weaknessAreas, changes, reasons);
-
-            // Réorganiser les étapes par priorité si des changements ont été apportés
-            if (changes.length > 0) {
-                this.reorderStepsByPriority(mutablePath.steps);
-                changes.push('Étapes réorganisées par priorité mise à jour');
-                mutablePath.updatedAt = new Date();
-            }
-
-            // Appliquer les modifications au parcours original
-            Object.assign(path, mutablePath);
-
-            const result: PathAdaptationResult = {
+        if (!this.config.enableAutoAdaptation) {
+            this.logger.warn('Adaptation automatique désactivée');
+            return {
                 adaptedPath: path,
-                changes,
-                reasons,
-                timestamp: new Date()
+                changes: [],
+                addedSteps: [],
+                removedSteps: []
             };
-
-            this.logger.info('Adaptation du parcours terminée', {
-                pathId: path.id,
-                changesCount: changes.length,
-                reasonsCount: reasons.length
-            });
-
-            return result;
-
-        } catch (error) {
-            this.logger.error('Erreur lors de l\'adaptation du parcours', {
-                pathId: path.id,
-                error
-            });
-            throw new Error(`Adaptation du parcours échouée: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
-        }
-    }
-
-    /**
-     * Crée une copie mutable d'un parcours pour permettre les modifications
-     * 
-     * @param path Parcours d'apprentissage en lecture seule
-     * @returns Copie mutable du parcours
-     * @private
-     */
-    private createMutablePath(path: PersonalizedLearningPathModel): MutablePersonalizedLearningPathModel {
-        return {
-            ...path,
-            steps: path.steps.map(step => ({ ...step }))
-        };
-    }
-
-    /**
-     * Met à jour le statut d'une étape spécifique
-     * 
-     * @param path Parcours mutable
-     * @param stepId Identifiant de l'étape
-     * @param success Succès de la completion
-     * @throws {Error} Si l'étape n'est pas trouvée
-     * @private
-     */
-    private updateStepStatus(path: MutablePersonalizedLearningPathModel, stepId: string, success: boolean): void {
-        const stepIndex = path.steps.findIndex(step => step.id === stepId);
-
-        if (stepIndex === -1) {
-            throw new Error(`Étape non trouvée: ${stepId}`);
         }
 
-        // Mettre à jour le statut de l'étape selon le succès
-        const newStatus: StepStatus = success ? 'completed' : 'available';
-        
-        // Si l'étape a échoué, réduire légèrement la difficulté pour la prochaine tentative
-        const difficultyAdjustment = success ? 0 : -0.05;
-        
-        path.steps[stepIndex] = {
-            ...path.steps[stepIndex],
-            status: newStatus,
-            difficulty: Math.max(0, Math.min(1, path.steps[stepIndex].difficulty + difficultyAdjustment))
-        };
-    }
+        const adaptedPath = { ...path };
+        const changes: string[] = [];
+        const addedSteps: string[] = [];
+        const removedSteps: string[] = [];
 
-    /**
-     * Applique les adaptations basées sur les forces
-     * 
-     * @param path Parcours mutable
-     * @param strengthAreas Domaines de force
-     * @param changes Liste des changements
-     * @param reasons Liste des raisons
-     * @private
-     */
-    private applyStrengthBasedAdaptations(
-        path: MutablePersonalizedLearningPathModel,
-        strengthAreas: readonly string[],
-        changes: string[],
-        reasons: string[]
-    ): void {
-        for (let i = 0; i < path.steps.length; i++) {
-            const step = path.steps[i];
+        // Analyser les étapes existantes
+        const updatedSteps = [...adaptedPath.steps];
 
-            if (step.status === 'pending' || step.status === 'available') {
-                const targetSkills = step.targetSkills.map(this.normalizeSkillName);
-                const hasOnlyStrengths = targetSkills.every(skill => strengthAreas.includes(skill)) &&
-                    targetSkills.length > 0;
+        // Réduire la difficulté des domaines de force
+        for (let i = 0; i < updatedSteps.length; i++) {
+            const step = updatedSteps[i];
+            const isStrengthArea = step.skillsTargeted.some(skill =>
+                strengthAreas.includes(skill)
+            );
 
-                if (hasOnlyStrengths) {
-                    path.steps[i] = {
-                        ...step,
-                        priority: step.priority - 1,
-                        difficulty: Math.max(0, Math.min(1, step.difficulty + 0.1))
-                    };
-                    changes.push(`Étape "${step.title}": priorité diminuée, difficulté augmentée`);
-                    reasons.push(`Cible uniquement des forces: ${targetSkills.join(', ')}`);
-                }
+            if (isStrengthArea && step.difficulty > 1) {
+                const oldDifficulty = step.difficulty;
+                updatedSteps[i] = {
+                    ...step,
+                    difficulty: Math.max(1, step.difficulty - 1),
+                    estimatedDuration: Math.round(step.estimatedDuration * 0.8)
+                };
+                changes.push(
+                    `Étape "${step.title}" : difficulté réduite de ${oldDifficulty} à ${updatedSteps[i].difficulty}`
+                );
             }
         }
-    }
 
-    /**
-     * Applique les adaptations basées sur les faiblesses
-     * 
-     * @param path Parcours mutable
-     * @param weaknessAreas Domaines de faiblesse
-     * @param changes Liste des changements
-     * @param reasons Liste des raisons
-     * @private
-     */
-    private applyWeaknessBasedAdaptations(
-        path: MutablePersonalizedLearningPathModel,
-        weaknessAreas: readonly string[],
-        changes: string[],
-        reasons: string[]
-    ): void {
-        for (let i = 0; i < path.steps.length; i++) {
-            const step = path.steps[i];
+        // Renforcer les domaines de faiblesse
+        for (let i = 0; i < updatedSteps.length; i++) {
+            const step = updatedSteps[i];
+            const isWeaknessArea = step.skillsTargeted.some(skill =>
+                weaknessAreas.includes(skill)
+            );
 
-            if (step.status === 'pending' || step.status === 'available') {
-                const targetSkills = step.targetSkills.map(this.normalizeSkillName);
-                const hasWeakness = targetSkills.some(skill => weaknessAreas.includes(skill));
-
-                if (hasWeakness) {
-                    path.steps[i] = {
-                        ...step,
-                        priority: step.priority + 2,
-                        difficulty: Math.max(0, Math.min(1, step.difficulty - 0.1))
-                    };
-                    changes.push(`Étape "${step.title}": priorité augmentée, difficulté réduite`);
-                    reasons.push(`Cible des faiblesses détectées: ${targetSkills.join(', ')}`);
-                }
+            if (isWeaknessArea) {
+                const oldDifficulty = step.difficulty;
+                updatedSteps[i] = {
+                    ...step,
+                    difficulty: Math.min(5, step.difficulty + 1),
+                    estimatedDuration: Math.round(step.estimatedDuration * 1.2),
+                    weight: step.weight * 1.5
+                };
+                changes.push(
+                    `Étape "${step.title}" : renforcement pour faiblesse (difficulté ${oldDifficulty} → ${updatedSteps[i].difficulty})`
+                );
             }
         }
-    }
 
-    /**
-     * Réorganise les étapes par priorité
-     * 
-     * @param steps Liste mutable des étapes
-     * @private
-     */
-    private reorderStepsByPriority(steps: Array<Omit<LearningPathStep, 'status' | 'priority'> & { status: StepStatus; priority: number }>): void {
-        steps.sort((a, b) => {
-            // D'abord par statut
-            const statusOrder: Record<StepStatus, number> = {
-                'available': 0,
-                'pending': 1,
-                'locked': 2,
-                'completed': 3
-            };
-            const statusDiff = statusOrder[a.status] - statusOrder[b.status];
+        adaptedPath.steps = updatedSteps;
+        adaptedPath.updatedAt = new Date();
 
-            if (statusDiff !== 0) {
-                return statusDiff;
-            }
-
-            // Ensuite par priorité (décroissante)
-            return b.priority - a.priority;
+        this.logger.info('Adaptation du parcours terminée', {
+            pathId: path.id,
+            changesCount: changes.length
         });
-    }
 
-    /**
-     * Crée un résultat pour indiquer qu'aucune adaptation n'a été effectuée
-     * 
-     * @param path Parcours d'apprentissage
-     * @returns Résultat sans adaptation
-     * @private
-     */
-    private createNoAdaptationResult(path: PersonalizedLearningPathModel): PathAdaptationResult {
         return {
-            adaptedPath: path,
-            changes: [],
-            reasons: ['Adaptation automatique désactivée'],
-            timestamp: new Date()
+            adaptedPath,
+            changes,
+            addedSteps,
+            removedSteps
         };
     }
 
     /**
-     * Normalise le nom d'une compétence
+     * Génère des statistiques détaillées sur un parcours
      * 
-     * @param skillName Nom de la compétence
-     * @returns Nom normalisé
+     * @param path - Parcours d'apprentissage
+     * @returns PathStatistics Statistiques du parcours
+     */
+    public generatePathStatistics(path: PersonalizedLearningPathModel): PathStatistics {
+        const totalSteps = path.steps.length;
+        const completedSteps = path.steps.filter(step => step.status === 'completed').length;
+        const inProgressSteps = path.steps.filter(step => step.status === 'in_progress').length;
+        const failedSteps = path.steps.filter(step => step.status === 'failed').length;
+
+        const totalDuration = path.steps.reduce(
+            (sum, step) => sum + step.estimatedDuration,
+            0
+        );
+
+        const completedDuration = path.steps
+            .filter(step => step.status === 'completed')
+            .reduce((sum, step) => sum + step.estimatedDuration, 0);
+
+        const averageScore = this.calculateAverageScore(path.steps);
+        const successRate = this.calculateSuccessRate(path.steps);
+
+        const skillsAcquired = this.identifyAcquiredSkills(path.steps);
+        const skillsInProgress = this.identifyInProgressSkills(path.steps);
+
+        const estimatedTimeRemaining = totalDuration - completedDuration;
+        const estimatedCompletionDate = this.estimateCompletionDate(
+            path.startDate,
+            estimatedTimeRemaining
+        );
+
+        return {
+            totalSteps,
+            completedSteps,
+            inProgressSteps,
+            failedSteps,
+            totalDuration,
+            completedDuration,
+            estimatedTimeRemaining,
+            averageScore,
+            successRate,
+            skillsAcquired,
+            skillsInProgress,
+            overallProgress: path.overallProgress,
+            estimatedCompletionDate,
+            lastActivityDate: path.updatedAt
+        };
+    }
+
+    /**
+     * Débloque les étapes suivantes après completion d'une étape
+     * 
+     * @param path - Parcours d'apprentissage
+     * @param completedStepId - Identifiant de l'étape complétée
+     * @returns string[] Identifiants des étapes débloquées
      * @private
      */
-    private normalizeSkillName(skillName: string): string {
-        return skillName.toLowerCase().trim();
+    private unlockNextSteps(
+        path: PersonalizedLearningPathModel,
+        completedStepId: string
+    ): string[] {
+        const unlockedSteps: string[] = [];
+        const completedStep = path.steps.find(step => step.id === completedStepId);
+
+        if (!completedStep) {
+            return unlockedSteps;
+        }
+
+        // Trouver toutes les étapes qui peuvent être débloquées
+        for (let i = 0; i < path.steps.length; i++) {
+            const step = path.steps[i];
+
+            if (step.status === 'locked') {
+                // Vérifier si toutes les prérequis sont satisfaits
+                const canUnlock = this.checkPrerequisites(step, path.steps);
+
+                if (canUnlock) {
+                    path.steps[i] = { ...step, status: 'available' };
+                    unlockedSteps.push(step.id);
+                }
+            }
+        }
+
+        return unlockedSteps;
+    }
+
+    /**
+     * Vérifie si les prérequis d'une étape sont satisfaits
+     * 
+     * @param step - Étape à vérifier
+     * @param allSteps - Toutes les étapes du parcours
+     * @returns boolean True si les prérequis sont satisfaits
+     * @private
+     */
+    private checkPrerequisites(
+        step: LearningPathStep,
+        allSteps: readonly LearningPathStep[]
+    ): boolean {
+        // Si pas de prérequis, toujours disponible
+        if (step.prerequisites.length === 0) {
+            return true;
+        }
+
+        // Vérifier que toutes les compétences prérequises sont acquises
+        const acquiredSkills = this.identifyAcquiredSkills(allSteps);
+
+        return step.prerequisites.every(prereq =>
+            acquiredSkills.includes(prereq)
+        );
+    }
+
+    /**
+     * Calcule la progression globale du parcours
+     * 
+     * @param steps - Étapes du parcours
+     * @returns number Progression (0-100)
+     * @private
+     */
+    private calculateOverallProgress(steps: readonly LearningPathStep[]): number {
+        if (steps.length === 0) {
+            return 0;
+        }
+
+        // Calcul pondéré par le poids de chaque étape
+        let totalWeight = 0;
+        let completedWeight = 0;
+
+        for (const step of steps) {
+            totalWeight += step.weight;
+
+            if (step.status === 'completed') {
+                completedWeight += step.weight;
+            } else if (step.status === 'in_progress') {
+                completedWeight += step.weight * (step.progress / 100);
+            }
+        }
+
+        return totalWeight > 0 ? Math.round((completedWeight / totalWeight) * 100) : 0;
+    }
+
+    /**
+     * Vérifie si le parcours est terminé
+     * 
+     * @param steps - Étapes du parcours
+     * @returns boolean True si le parcours est terminé
+     * @private
+     */
+    private isPathCompleted(steps: readonly LearningPathStep[]): boolean {
+        if (steps.length === 0) {
+            return false;
+        }
+
+        // Toutes les étapes doivent être complétées ou dépassées
+        return steps.every(step =>
+            step.status === 'completed' || step.status === 'skipped'
+        );
+    }
+
+    /**
+     * Calcule le score moyen des étapes complétées
+     * 
+     * @param steps - Étapes du parcours
+     * @returns number Score moyen (0-100)
+     * @private
+     */
+    private calculateAverageScore(steps: readonly LearningPathStep[]): number {
+        const completedSteps = steps.filter(step =>
+            step.status === 'completed' && step.bestScore !== undefined
+        );
+
+        if (completedSteps.length === 0) {
+            return 0;
+        }
+
+        const totalScore = completedSteps.reduce(
+            (sum, step) => sum + (step.bestScore ?? 0),
+            0
+        );
+
+        return Math.round(totalScore / completedSteps.length);
+    }
+
+    /**
+     * Calcule le taux de réussite
+     * 
+     * @param steps - Étapes du parcours
+     * @returns number Taux de réussite (0-100)
+     * @private
+     */
+    private calculateSuccessRate(steps: readonly LearningPathStep[]): number {
+        const attemptedSteps = steps.filter(step => step.attempts > 0);
+
+        if (attemptedSteps.length === 0) {
+            return 0;
+        }
+
+        const successfulSteps = steps.filter(step => step.status === 'completed');
+
+        return Math.round((successfulSteps.length / attemptedSteps.length) * 100);
+    }
+
+    /**
+     * Identifie les compétences acquises
+     * 
+     * @param steps - Étapes du parcours
+     * @returns string[] Compétences acquises
+     * @private
+     */
+    private identifyAcquiredSkills(steps: readonly LearningPathStep[]): readonly string[] {
+        const acquiredSkills = new Set<string>();
+
+        for (const step of steps) {
+            if (step.status === 'completed') {
+                step.skillsTargeted.forEach(skill => acquiredSkills.add(skill));
+            }
+        }
+
+        return Array.from(acquiredSkills);
+    }
+
+    /**
+     * Identifie les compétences en cours d'acquisition
+     * 
+     * @param steps - Étapes du parcours
+     * @returns string[] Compétences en cours
+     * @private
+     */
+    private identifyInProgressSkills(steps: readonly LearningPathStep[]): readonly string[] {
+        const inProgressSkills = new Set<string>();
+
+        for (const step of steps) {
+            if (step.status === 'in_progress' || step.status === 'available') {
+                step.skillsTargeted.forEach(skill => inProgressSkills.add(skill));
+            }
+        }
+
+        return Array.from(inProgressSkills);
+    }
+
+    /**
+     * Estime la date de completion du parcours
+     * 
+     * @param startDate - Date de début
+     * @param remainingMinutes - Minutes restantes
+     * @returns Date Date estimée de completion
+     * @private
+     */
+    private estimateCompletionDate(startDate: Date, remainingMinutes: number): Date {
+        // Hypothèse : 30 minutes d'étude par jour en moyenne
+        const dailyStudyMinutes = 30;
+        const daysRemaining = Math.ceil(remainingMinutes / dailyStudyMinutes);
+
+        const completionDate = new Date(startDate);
+        completionDate.setDate(completionDate.getDate() + daysRemaining);
+
+        return completionDate;
     }
 }
-
-/**
- * Type utilitaire pour créer une version mutable d'un parcours
- */
-type MutablePersonalizedLearningPathModel = Omit<PersonalizedLearningPathModel, 'steps'> & {
-    steps: Array<Omit<LearningPathStep, 'status' | 'priority' | 'difficulty'> & {
-        status: StepStatus;
-        priority: number;
-        difficulty: number;
-    }>;
-    overallProgress: number;
-    updatedAt: Date;
-    actualEndDate?: Date;
-};

@@ -6,55 +6,46 @@
  * @description Service principal pour la génération et gestion des parcours d'apprentissage LSF
  * Compatible avec exactOptionalPropertyTypes: true et respecte la limite de 300 lignes
  * @author MetaSign Learning Team
- * @version 3.0.0
+ * @version 3.1.0
  * @since 2024
- * @lastModified 2025-01-15
+ * @lastModified 2025-01-22
  */
 
+// Types et interfaces
 import type {
     PersonalizedLearningPathModel,
     PathGenerationOptions,
-    LearningPathStep,
     PathStatistics,
     StepGeneratorConfig,
     CECRLLevel
-} from './types/LearningPathTypes';
+} from '@learning/types/LearningPathTypes';
 
-import {
-    LearningPathTypeUtils,
-    LEARNING_PATH_CONSTANTS
-} from './types/LearningPathTypes';
-import type { UserReverseProfile } from '@/ai/services/learning/human/coda/codavirtuel/types/index';
-import type { LearningMetricsCollector } from '@/ai/services/learning/metrics/LearningMetricsCollector';
-import type { MetricsAnalyzer } from '@/ai/services/learning/metrics/MetricsAnalyzer';
+import type { UserReverseProfile } from '@learning/human/coda/codavirtuel/types';
+import type { LearningMetricsCollector } from '@learning/metrics/LearningMetricsCollector';
+import type { MetricsAnalyzer } from '@learning/metrics/MetricsAnalyzer';
 
+// Utilitaires et services
+import { LearningPathTypeUtils, LEARNING_PATH_CONSTANTS } from '@learning/types/LearningPathTypes';
 import { PathStepGenerator } from './generators/PathStepGenerator';
 import { PathProgressManager } from './managers/PathProgressManager';
-import { PathFormatUtils } from './utils/PathFormatUtils';
-import { Logger } from '@/ai/utils/Logger';
+import { PathCacheManager } from './cache/PathCacheManager';
+import { PathValidationService } from './validation/PathValidationService';
+import { Logger } from '@ai/utils/Logger';
 
 /**
  * Configuration pour le service de parcours personnalisés
+ * Compatible avec exactOptionalPropertyTypes: true
+ * 
+ * @interface PersonalizedLearningPathConfig
  */
 interface PersonalizedLearningPathConfig {
-    /**
-     * Activer la génération automatique d'identifiants
-     */
+    /** Activer la génération automatique d'identifiants */
     readonly enableAutoIdGeneration: boolean;
-
-    /**
-     * Taille maximale du cache
-     */
+    /** Taille maximale du cache */
     readonly maxCacheSize: number;
-
-    /**
-     * Durée de vie du cache (ms)
-     */
+    /** Durée de vie du cache (ms) */
     readonly cacheTTL: number;
-
-    /**
-     * Activer l'adaptation automatique
-     */
+    /** Activer l'adaptation automatique */
     readonly enableAutoAdaptation: boolean;
 }
 
@@ -69,8 +60,24 @@ const DEFAULT_CONFIG: PersonalizedLearningPathConfig = {
 } as const;
 
 /**
- * Service de gestion des parcours d'apprentissage personnalisés
+ * Résultat d'adaptation de parcours
  * 
+ * @interface PathAdaptationResult
+ */
+interface PathAdaptationResult {
+    /** Parcours adapté */
+    readonly adaptedPath: PersonalizedLearningPathModel;
+    /** Liste des changements apportés */
+    readonly changes: readonly string[];
+    /** Indicateur de succès */
+    readonly success: boolean;
+}
+
+/**
+ * Service de gestion des parcours d'apprentissage personnalisés
+ * Respecte les principes SOLID et les bonnes pratiques du projet LSF
+ * 
+ * @class PersonalizedLearningPath
  * @example
  * ```typescript
  * const service = new PersonalizedLearningPath(metricsCollector, metricsAnalyzer);
@@ -83,15 +90,15 @@ export class PersonalizedLearningPath {
     private readonly config: PersonalizedLearningPathConfig;
     private readonly stepGenerator: PathStepGenerator;
     private readonly progressManager: PathProgressManager;
-    private readonly pathsCache: Map<string, PersonalizedLearningPathModel>;
-    private readonly cacheTimestamps: Map<string, number>;
+    private readonly cacheManager: PathCacheManager;
+    private readonly validationService: PathValidationService;
 
     /**
      * Constructeur du service de parcours personnalisés
      * 
-     * @param metricsCollector Collecteur de métriques (optionnel)
-     * @param metricsAnalyzer Analyseur de métriques (optionnel)
-     * @param config Configuration du service (optionnelle)
+     * @param metricsCollector - Collecteur de métriques (optionnel)
+     * @param metricsAnalyzer - Analyseur de métriques (optionnel)
+     * @param config - Configuration du service (optionnelle)
      */
     constructor(
         private readonly metricsCollector?: LearningMetricsCollector,
@@ -103,8 +110,11 @@ export class PersonalizedLearningPath {
         this.progressManager = new PathProgressManager({
             enableAutoAdaptation: this.config.enableAutoAdaptation
         });
-        this.pathsCache = new Map();
-        this.cacheTimestamps = new Map();
+        this.cacheManager = new PathCacheManager({
+            maxSize: this.config.maxCacheSize,
+            ttl: this.config.cacheTTL
+        });
+        this.validationService = new PathValidationService();
 
         this.logger.info('PersonalizedLearningPath initialisé', this.config);
     }
@@ -112,10 +122,12 @@ export class PersonalizedLearningPath {
     /**
      * Génère un parcours d'apprentissage personnalisé
      * 
-     * @param userId Identifiant de l'utilisateur
-     * @param profile Profil d'apprentissage de l'utilisateur
-     * @param options Options de génération du parcours
-     * @returns Parcours d'apprentissage généré
+     * @param userId - Identifiant de l'utilisateur
+     * @param profile - Profil d'apprentissage de l'utilisateur
+     * @param options - Options de génération du parcours
+     * @returns Promise<PersonalizedLearningPathModel> Parcours d'apprentissage généré
+     * 
+     * @throws {Error} Si les paramètres ne sont pas valides ou si la génération échoue
      * 
      * @example
      * ```typescript
@@ -140,7 +152,7 @@ export class PersonalizedLearningPath {
 
         try {
             // Validation des paramètres
-            this.validateGenerationParams(userId, profile, options);
+            this.validationService.validateGenerationParams(userId, profile, options);
 
             // Création du modèle de base du parcours
             const pathModel = this.createBasePathModel(userId, profile, options);
@@ -150,8 +162,8 @@ export class PersonalizedLearningPath {
                 profile,
                 path: pathModel,
                 options,
-                mode: options.mode || 'balanced',
-                intensity: options.intensity || LEARNING_PATH_CONSTANTS.DEFAULT_INTENSITY
+                mode: options.mode ?? 'balanced',
+                intensity: options.intensity ?? LEARNING_PATH_CONSTANTS.DEFAULT_INTENSITY
             };
 
             // Génération des étapes
@@ -162,7 +174,7 @@ export class PersonalizedLearningPath {
             this.progressManager.updateStepsStatus(pathModel);
 
             // Mise en cache
-            this.setCacheEntry(pathModel.id, pathModel);
+            this.cacheManager.set(pathModel.id, pathModel);
 
             this.logger.info('Parcours généré avec succès', {
                 pathId: pathModel.id,
@@ -185,11 +197,11 @@ export class PersonalizedLearningPath {
     /**
      * Obtient un parcours d'apprentissage existant
      * 
-     * @param pathId Identifiant du parcours
-     * @returns Parcours d'apprentissage ou undefined si non trouvé
+     * @param pathId - Identifiant du parcours
+     * @returns PersonalizedLearningPathModel | undefined Parcours d'apprentissage ou undefined si non trouvé
      */
     public getPath(pathId: string): PersonalizedLearningPathModel | undefined {
-        const cachedPath = this.getCacheEntry(pathId);
+        const cachedPath = this.cacheManager.get(pathId);
         if (cachedPath) {
             this.logger.debug('Parcours récupéré depuis le cache', { pathId });
         }
@@ -199,17 +211,11 @@ export class PersonalizedLearningPath {
     /**
      * Obtient tous les parcours d'apprentissage d'un utilisateur
      * 
-     * @param userId Identifiant de l'utilisateur
-     * @returns Liste des parcours d'apprentissage
+     * @param userId - Identifiant de l'utilisateur
+     * @returns PersonalizedLearningPathModel[] Liste des parcours d'apprentissage
      */
     public getUserPaths(userId: string): PersonalizedLearningPathModel[] {
-        const userPaths: PersonalizedLearningPathModel[] = [];
-
-        for (const path of this.pathsCache.values()) {
-            if (path.userId === userId) {
-                userPaths.push(path);
-            }
-        }
+        const userPaths = this.cacheManager.getUserPaths(userId);
 
         this.logger.debug('Parcours utilisateur récupérés', {
             userId,
@@ -222,17 +228,17 @@ export class PersonalizedLearningPath {
     /**
      * Marque une étape comme terminée et met à jour la progression
      * 
-     * @param pathId Identifiant du parcours
-     * @param stepId Identifiant de l'étape
-     * @param success Indique si l'étape a été complétée avec succès
-     * @returns Parcours mis à jour ou undefined si non trouvé
+     * @param pathId - Identifiant du parcours
+     * @param stepId - Identifiant de l'étape
+     * @param success - Indique si l'étape a été complétée avec succès
+     * @returns PersonalizedLearningPathModel | undefined Parcours mis à jour ou undefined si non trouvé
      */
     public completeStep(
         pathId: string,
         stepId: string,
         success: boolean
     ): PersonalizedLearningPathModel | undefined {
-        const path = this.getCacheEntry(pathId);
+        const path = this.cacheManager.get(pathId);
         if (!path) {
             this.logger.warn('Tentative de completion d\'étape sur parcours inexistant', {
                 pathId,
@@ -245,7 +251,7 @@ export class PersonalizedLearningPath {
             const updateResult = this.progressManager.updateProgress(path, stepId, success);
 
             // Mettre à jour le cache
-            this.setCacheEntry(pathId, updateResult.updatedPath);
+            this.cacheManager.set(pathId, updateResult.updatedPath);
 
             this.logger.info('Étape complétée avec succès', {
                 pathId,
@@ -271,15 +277,15 @@ export class PersonalizedLearningPath {
     /**
      * Adapte un parcours d'apprentissage en fonction des performances
      * 
-     * @param pathId Identifiant du parcours
-     * @param userId Identifiant de l'utilisateur
-     * @returns Parcours adapté ou undefined si non trouvé
+     * @param pathId - Identifiant du parcours
+     * @param userId - Identifiant de l'utilisateur
+     * @returns Promise<PersonalizedLearningPathModel | undefined> Parcours adapté ou undefined si non trouvé
      */
     public async adaptPath(
         pathId: string,
         userId: string
     ): Promise<PersonalizedLearningPathModel | undefined> {
-        const path = this.getCacheEntry(pathId);
+        const path = this.cacheManager.get(pathId);
         if (!path || path.userId !== userId) {
             this.logger.warn('Tentative d\'adaptation sur parcours inexistant ou non autorisé', {
                 pathId,
@@ -289,31 +295,22 @@ export class PersonalizedLearningPath {
         }
 
         try {
-            // Analyser les performances si disponible
-            let strengthAreas: string[] = [];
-            let weaknessAreas: string[] = [];
+            const adaptationResult = await this.performPathAdaptation(path, userId);
 
-            if (this.metricsAnalyzer) {
-                const analysis = await this.metricsAnalyzer.identifyStrengthsAndWeaknesses(userId);
-                strengthAreas = analysis.strengths.map(PathFormatUtils.normalizeSkillName);
-                weaknessAreas = analysis.weaknesses.map(PathFormatUtils.normalizeSkillName);
+            if (adaptationResult.success) {
+                // Mettre à jour le cache
+                this.cacheManager.set(pathId, adaptationResult.adaptedPath);
+
+                this.logger.info('Parcours adapté avec succès', {
+                    pathId,
+                    userId,
+                    changesCount: adaptationResult.changes.length
+                });
+
+                return adaptationResult.adaptedPath;
             }
 
-            // Adapter le parcours
-            const adaptationResult = this.progressManager.adaptPath(path, strengthAreas, weaknessAreas);
-
-            // Mettre à jour le cache
-            this.setCacheEntry(pathId, adaptationResult.adaptedPath);
-
-            this.logger.info('Parcours adapté avec succès', {
-                pathId,
-                userId,
-                changesCount: adaptationResult.changes.length,
-                strengthAreas: strengthAreas.length,
-                weaknessAreas: weaknessAreas.length
-            });
-
-            return adaptationResult.adaptedPath;
+            return undefined;
 
         } catch (error) {
             this.logger.error('Erreur lors de l\'adaptation du parcours', {
@@ -328,27 +325,22 @@ export class PersonalizedLearningPath {
     /**
      * Génère des statistiques détaillées sur un parcours
      * 
-     * @param pathId Identifiant du parcours
-     * @returns Statistiques du parcours ou undefined si non trouvé
+     * @param pathId - Identifiant du parcours
+     * @returns PathStatistics | undefined Statistiques du parcours ou undefined si non trouvé
      */
     public getPathStatistics(pathId: string): PathStatistics | undefined {
-        const path = this.getCacheEntry(pathId);
-        if (!path) {
-            return undefined;
-        }
-
-        return this.progressManager.generatePathStatistics(path);
+        const path = this.cacheManager.get(pathId);
+        return path ? this.progressManager.generatePathStatistics(path) : undefined;
     }
 
     /**
      * Supprime un parcours d'apprentissage
      * 
-     * @param pathId Identifiant du parcours
-     * @returns True si le parcours a été supprimé
+     * @param pathId - Identifiant du parcours
+     * @returns boolean True si le parcours a été supprimé
      */
     public deletePath(pathId: string): boolean {
-        const deleted = this.pathsCache.delete(pathId);
-        this.cacheTimestamps.delete(pathId);
+        const deleted = this.cacheManager.delete(pathId);
 
         if (deleted) {
             this.logger.info('Parcours supprimé', { pathId });
@@ -360,19 +352,10 @@ export class PersonalizedLearningPath {
     /**
      * Nettoie le cache des entrées expirées
      * 
-     * @returns Nombre d'entrées supprimées
+     * @returns number Nombre d'entrées supprimées
      */
     public cleanupCache(): number {
-        const now = Date.now();
-        let removedCount = 0;
-
-        for (const [pathId, timestamp] of this.cacheTimestamps.entries()) {
-            if (now - timestamp > this.config.cacheTTL) {
-                this.pathsCache.delete(pathId);
-                this.cacheTimestamps.delete(pathId);
-                removedCount++;
-            }
-        }
+        const removedCount = this.cacheManager.cleanup();
 
         if (removedCount > 0) {
             this.logger.info('Cache nettoyé', { removedEntries: removedCount });
@@ -382,47 +365,12 @@ export class PersonalizedLearningPath {
     }
 
     /**
-     * Valide les paramètres de génération
-     * 
-     * @param userId Identifiant utilisateur
-     * @param profile Profil utilisateur
-     * @param options Options de génération
-     * @throws {Error} Si les paramètres ne sont pas valides
-     * @private
-     */
-    private validateGenerationParams(
-        userId: string,
-        profile: UserReverseProfile,
-        options: PathGenerationOptions
-    ): void {
-        if (!userId || typeof userId !== 'string') {
-            throw new Error('ID utilisateur requis');
-        }
-
-        if (!profile?.currentLevel) {
-            throw new Error('Niveau actuel requis dans le profil');
-        }
-
-        if (!LearningPathTypeUtils.isValidCECRLLevel(options.targetLevel)) {
-            throw new Error(`Niveau cible invalide: ${options.targetLevel}`);
-        }
-
-        if (options.mode && !LearningPathTypeUtils.isValidGenerationMode(options.mode)) {
-            throw new Error(`Mode de génération invalide: ${options.mode}`);
-        }
-
-        if (options.intensity !== undefined && (options.intensity < 1 || options.intensity > 5)) {
-            throw new Error('L\'intensité doit être entre 1 et 5');
-        }
-    }
-
-    /**
      * Crée le modèle de base d'un parcours
      * 
-     * @param userId Identifiant utilisateur
-     * @param profile Profil utilisateur
-     * @param options Options de génération
-     * @returns Modèle de base du parcours
+     * @param userId - Identifiant utilisateur
+     * @param profile - Profil utilisateur
+     * @param options - Options de génération
+     * @returns PersonalizedLearningPathModel Modèle de base du parcours
      * @private
      */
     private createBasePathModel(
@@ -434,21 +382,19 @@ export class PersonalizedLearningPath {
         const targetLevel = LearningPathTypeUtils.normalizeCECRLLevel(options.targetLevel);
         const currentLevel = LearningPathTypeUtils.normalizeCECRLLevel(profile.currentLevel);
 
-        const focusAreas = options.focusAreas || profile.weaknessAreas || [];
-
-        // Extraire les types d'exercice préférés depuis les préférences d'exercice
-        const preferredExerciseTypes = options.preferredExerciseTypes ||
-            profile.exercisePreferences.preferredTypes ||
+        const focusAreas = options.focusAreas ?? profile.weaknessAreas ?? [];
+        const preferredExerciseTypes = options.preferredExerciseTypes ??
+            profile.exercisePreferences.preferredTypes ??
             [];
 
-        const targetDuration = options.targetDuration ||
+        const targetDuration = options.targetDuration ??
             this.estimateDefaultDuration(currentLevel, targetLevel);
 
         return {
             id: pathId,
             userId,
-            name: PathFormatUtils.generatePathTitle(currentLevel, targetLevel, focusAreas),
-            description: PathFormatUtils.generatePathDescription(currentLevel, targetLevel, focusAreas),
+            name: `Parcours ${currentLevel} → ${targetLevel}`,
+            description: `Apprentissage personnalisé de ${currentLevel} vers ${targetLevel}`,
             createdAt: new Date(),
             updatedAt: new Date(),
             startDate: new Date(),
@@ -459,7 +405,7 @@ export class PersonalizedLearningPath {
             steps: [],
             focusAreas,
             preferences: {
-                difficultyPreference: profile.exercisePreferences.difficultyPreference || 0.5,
+                difficultyPreference: profile.exercisePreferences.difficultyPreference ?? 0.5,
                 preferredExerciseTypes,
                 preferredSessionDuration: LEARNING_PATH_CONSTANTS.DEFAULT_SESSION_DURATION,
                 learningStyle: 'mixed'
@@ -468,10 +414,42 @@ export class PersonalizedLearningPath {
     }
 
     /**
+     * Effectue l'adaptation d'un parcours
+     * 
+     * @param path - Parcours à adapter
+     * @param userId - Identifiant utilisateur
+     * @returns Promise<PathAdaptationResult> Résultat de l'adaptation
+     * @private
+     */
+    private async performPathAdaptation(
+        path: PersonalizedLearningPathModel,
+        userId: string
+    ): Promise<PathAdaptationResult> {
+        // Analyser les performances si disponible
+        let strengthAreas: string[] = [];
+        let weaknessAreas: string[] = [];
+
+        if (this.metricsAnalyzer) {
+            const analysis = await this.metricsAnalyzer.identifyStrengthsAndWeaknesses(userId);
+            strengthAreas = analysis.strengths.map(skill => skill.toLowerCase().trim());
+            weaknessAreas = analysis.weaknesses.map(skill => skill.toLowerCase().trim());
+        }
+
+        // Adapter le parcours
+        const adaptationResult = this.progressManager.adaptPath(path, strengthAreas, weaknessAreas);
+
+        return {
+            adaptedPath: adaptationResult.adaptedPath,
+            changes: adaptationResult.changes,
+            success: true
+        };
+    }
+
+    /**
      * Génère un identifiant unique pour un parcours
      * 
-     * @param userId Identifiant utilisateur
-     * @returns Identifiant unique
+     * @param userId - Identifiant utilisateur
+     * @returns string Identifiant unique
      * @private
      */
     private generatePathId(userId: string): string {
@@ -483,9 +461,9 @@ export class PersonalizedLearningPath {
     /**
      * Estime la durée par défaut pour passer d'un niveau à un autre
      * 
-     * @param currentLevel Niveau actuel
-     * @param targetLevel Niveau cible
-     * @returns Durée estimée en jours
+     * @param currentLevel - Niveau actuel
+     * @param targetLevel - Niveau cible
+     * @returns number Durée estimée en jours
      * @private
      */
     private estimateDefaultDuration(currentLevel: CECRLLevel, targetLevel: CECRLLevel): number {
@@ -508,58 +486,11 @@ export class PersonalizedLearningPath {
     /**
      * Calcule la durée totale d'une liste d'étapes
      * 
-     * @param steps Liste des étapes
-     * @returns Durée totale en minutes
+     * @param steps - Liste des étapes
+     * @returns number Durée totale en minutes
      * @private
      */
-    private calculateTotalDuration(steps: readonly LearningPathStep[]): number {
-        return steps.reduce((total, step) => total + step.estimatedDuration, 0);
-    }
-
-    /**
-     * Récupère une entrée du cache si elle est valide
-     * 
-     * @param pathId Identifiant du parcours
-     * @returns Parcours en cache ou undefined
-     * @private
-     */
-    private getCacheEntry(pathId: string): PersonalizedLearningPathModel | undefined {
-        const timestamp = this.cacheTimestamps.get(pathId);
-
-        if (!timestamp || Date.now() - timestamp > this.config.cacheTTL) {
-            this.pathsCache.delete(pathId);
-            this.cacheTimestamps.delete(pathId);
-            return undefined;
-        }
-
-        return this.pathsCache.get(pathId);
-    }
-
-    /**
-     * Ajoute une entrée au cache
-     * 
-     * @param pathId Identifiant du parcours
-     * @param path Parcours à mettre en cache
-     * @private
-     */
-    private setCacheEntry(pathId: string, path: PersonalizedLearningPathModel): void {
-        // Vérifier la taille du cache
-        if (this.pathsCache.size >= this.config.maxCacheSize) {
-            this.cleanupCache();
-
-            // Si toujours plein, supprimer l'entrée la plus ancienne
-            if (this.pathsCache.size >= this.config.maxCacheSize) {
-                const oldestEntry = Array.from(this.cacheTimestamps.entries())
-                    .sort(([, a], [, b]) => a - b)[0];
-
-                if (oldestEntry) {
-                    this.pathsCache.delete(oldestEntry[0]);
-                    this.cacheTimestamps.delete(oldestEntry[0]);
-                }
-            }
-        }
-
-        this.pathsCache.set(pathId, path);
-        this.cacheTimestamps.set(pathId, Date.now());
+    private calculateTotalDuration(steps: readonly unknown[]): number {
+        return steps.reduce((total, step: any) => total + (step.estimatedDuration ?? 0), 0);
     }
 }
