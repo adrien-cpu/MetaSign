@@ -286,7 +286,7 @@ const CODAMainPage: React.FC = () => {
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
                     <h2 className="text-xl font-semibold text-gray-700 mb-2">CODA Virtuel</h2>
-                    <p className="text-gray-500">Initialisation du système d'apprentissage...</p>
+                    <p className="text-gray-500">Initialisation du système d&apos;apprentissage...</p>
                 </div>
             </div>
         );
@@ -302,7 +302,7 @@ const CODAMainPage: React.FC = () => {
                         CODA Virtuel
                     </h1>
                     <p className="text-gray-600 mt-1">
-                        Système d'apprentissage inversé pour la Langue des Signes Française
+                        Système d&apos;apprentissage inversé pour la Langue des Signes Française
                     </p>
                 </div>
 
@@ -396,7 +396,12 @@ const CODAMainPage: React.FC = () => {
             )}
 
             {/* Contenu principal avec navigation */}
-            <Tabs value={pageState.activeTab} onValueChange={handleTabChange} className="space-y-6">
+            <Tabs
+                value={pageState.activeTab}
+                onValueChange={handleTabChange}
+                defaultValue="dashboard"
+                className="space-y-6"
+            >
                 <TabsList className="grid w-full grid-cols-5">
                     <TabsTrigger value="dashboard" className="flex items-center gap-2">
                         <BarChart3 className="w-4 h-4" />
@@ -439,7 +444,7 @@ const CODAMainPage: React.FC = () => {
                                     <CardContent className="p-4 text-center">
                                         <Clock className="w-6 h-6 text-green-600 mx-auto mb-2" />
                                         <p className="text-2xl font-bold">{Math.floor(pageState.studentProgress.totalLearningTime / 60)}h</p>
-                                        <p className="text-sm text-gray-600">Temps d'enseignement</p>
+                                        <p className="text-sm text-gray-600">Temps d&apos;enseignement</p>
                                     </CardContent>
                                 </Card>
 
@@ -465,7 +470,7 @@ const CODAMainPage: React.FC = () => {
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
                                         <User className="w-5 h-5" />
-                                        Progression de l'avatar Alex
+                                        Progression de l&apo;avatar Alex
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
@@ -517,14 +522,14 @@ const CODAMainPage: React.FC = () => {
                                         <div className="p-3 bg-green-50 rounded-lg">
                                             <p className="font-medium text-green-800">🎯 Session recommandée</p>
                                             <p className="text-sm text-green-700 mt-1">
-                                                Exercice de syntaxe spatiale - L'avatar a besoin de renforcer cette compétence
+                                                Exercice de syntaxe spatiale - L&apos;avatar a besoin de renforcer cette compétence
                                             </p>
                                         </div>
 
                                         <div className="p-3 bg-yellow-50 rounded-lg">
                                             <p className="font-medium text-yellow-800">⚡ Moment optimal</p>
                                             <p className="text-sm text-yellow-700 mt-1">
-                                                Les performances sont meilleures l'après-midi - planifiez vos sessions entre 14h et 17h
+                                                Les performances sont meilleures l&apos;après-midi - planifiez vos sessions entre 14h et 17h
                                             </p>
                                         </div>
 
@@ -619,7 +624,7 @@ const CODAMainPage: React.FC = () => {
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <Play className="w-5 h-5" />
-                                Session d'enseignement CODA
+                                Session d&apo;enseignement CODA
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -651,7 +656,7 @@ const CODAMainPage: React.FC = () => {
                                     <Play className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                                     <h3 className="text-xl font-semibold text-gray-700 mb-2">Aucune session active</h3>
                                     <p className="text-gray-500 mb-4">
-                                        Démarrez une nouvelle session d'enseignement avec votre avatar
+                                        Démarrez une nouvelle session d&apo;enseignement avec votre avatar
                                     </p>
                                     <Button onClick={handleStartQuickSession}>
                                         <Play className="w-4 h-4 mr-2" />
@@ -669,7 +674,7 @@ const CODAMainPage: React.FC = () => {
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <BookOpen className="w-5 h-5" />
-                                Gestionnaire d'exercices
+                                Gestionnaire d&apo;sexercices
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -680,7 +685,7 @@ const CODAMainPage: React.FC = () => {
                                     Le composant CODAExerciseManager sera affiché ici
                                 </p>
                                 <p className="text-sm text-gray-400">
-                                    Créez, modifiez et organisez vos exercices d'enseignement
+                                    Créez, modifiez et organisez vos exercices d&apo;enseignement
                                 </p>
                             </div>
                         </CardContent>
@@ -693,18 +698,18 @@ const CODAMainPage: React.FC = () => {
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <User className="w-5 h-5" />
-                                Profil de l'avatar étudiant
+                                Profil de l&apo;avatar étudiant
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="text-center py-12">
                                 <User className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                                <h3 className="text-xl font-semibold text-gray-700 mb-2">Profil d'Alex</h3>
+                                <h3 className="text-xl font-semibold text-gray-700 mb-2">Profil d&apo;Alex</h3>
                                 <p className="text-gray-500 mb-4">
                                     Le composant AvatarStudentProfile sera affiché ici
                                 </p>
                                 <p className="text-sm text-gray-400">
-                                    Consultez les compétences, la progression et les préférences d'apprentissage
+                                    Consultez les compétences, la progression et les préférences d&apos;apprentissage
                                 </p>
                             </div>
                         </CardContent>
@@ -734,7 +739,7 @@ const CODAMainPage: React.FC = () => {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">Sensibilité d'adaptation</label>
+                                    <label className="text-sm font-medium">Sensibilité d&apos;adaptation</label>
                                     <select className="w-full p-2 border border-gray-300 rounded-lg">
                                         <option>Faible</option>
                                         <option selected>Moyenne</option>
@@ -769,12 +774,12 @@ const CODAMainPage: React.FC = () => {
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <User className="w-5 h-5" />
-                                    Paramètres de l'avatar
+                                    Paramètres de l&apos;avatar
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">Nom de l'avatar</label>
+                                    <label className="text-sm font-medium">Nom de l&apos;avatar</label>
                                     <input
                                         type="text"
                                         defaultValue="Alex"
@@ -793,7 +798,7 @@ const CODAMainPage: React.FC = () => {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">Style d'apprentissage privilégié</label>
+                                    <label className="text-sm font-medium">Style d&apos;apprentissage privilégié</label>
                                     <select className="w-full p-2 border border-gray-300 rounded-lg">
                                         <option selected>Visuel</option>
                                         <option>Kinesthésique</option>
@@ -803,7 +808,7 @@ const CODAMainPage: React.FC = () => {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">Rythme d'apprentissage</label>
+                                    <label className="text-sm font-medium">Rythme d&apos;apprentissage</label>
                                     <select className="w-full p-2 border border-gray-300 rounded-lg">
                                         <option>Lent</option>
                                         <option selected>Modéré</option>
@@ -818,7 +823,7 @@ const CODAMainPage: React.FC = () => {
 
                                 <div className="pt-4">
                                     <Button size="sm" variant="outline" className="w-full">
-                                        Réinitialiser le profil de l'avatar
+                                        Réinitialiser le profil de l&apos;avatar
                                     </Button>
                                 </div>
                             </CardContent>
@@ -837,7 +842,7 @@ const CODAMainPage: React.FC = () => {
 
                                 <Button variant="outline" className="w-full justify-start">
                                     <BarChart3 className="w-4 h-4 mr-2" />
-                                    Générer un rapport d'activité
+                                    Générer un rapport d&apos;activité
                                 </Button>
 
                                 <Button variant="outline" className="w-full justify-start">
