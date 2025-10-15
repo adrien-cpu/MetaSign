@@ -401,7 +401,7 @@ export class AvatarApprenant {
         const adaptedErrorProbability = this.config.errorProbability * (1 - teacherExperience * 0.3);
 
         // Remplacer la configuration par une nouvelle version adaptée
-        (this as { config: AvatarBehaviorConfig }).config = {
+        (this as unknown as { config: AvatarBehaviorConfig }).config = {
             ...this.config,
             learningRate: adaptedLearningRate,
             errorProbability: adaptedErrorProbability
@@ -421,7 +421,8 @@ export class AvatarApprenant {
      * @private
      */
     private assessTeacherExperience(): number {
-        const levelScore = this.getCECRLLevelScore(this.teacherProfile.currentLevel);
+        const cecrLevel = this.teacherProfile.currentLevel as CECRLLevel;
+        const levelScore = this.getCECRLLevelScore(cecrLevel);
         return Math.min(levelScore / 6, 1); // Normaliser sur C2 = 6
     }
 
@@ -617,12 +618,12 @@ export class AvatarApprenant {
      * @private
      */
     private getRealisticErrorForSkill(skill: string): string {
-        const skillErrors = {
-            'grammaire': 'Confusion dans l\'ordre des signes',
-            'vocabulaire': 'Forme de main incorrecte',
-            'expressions_faciales': 'Expression trop neutre',
-            'espace_signe': 'Placement spatial incorrect',
-            'mouvement': 'Mouvement trop rapide/lent'
+        const skillErrors: Record<string, string> = {
+            grammaire: 'Confusion dans l\'ordre des signes',
+            vocabulaire: 'Forme de main incorrecte',
+            expressions_faciales: 'Expression trop neutre',
+            espace_signe: 'Placement spatial incorrect',
+            mouvement: 'Mouvement trop rapide/lent'
         };
 
         return skillErrors[skill] ?? 'Hésitation dans l\'exécution';
@@ -636,13 +637,13 @@ export class AvatarApprenant {
      * @private
      */
     private getSkillDifficultyFactor(skill: string): number {
-        const difficulties = {
-            'salutations': 0.9,
-            'vocabulaire_base': 0.8,
-            'grammaire': 0.6,
-            'expressions_faciales': 0.5,
-            'espace_signe': 0.6,
-            'vocabulaire_avance': 0.4
+        const difficulties: Record<string, number> = {
+            salutations: 0.9,
+            vocabulaire_base: 0.8,
+            grammaire: 0.6,
+            expressions_faciales: 0.5,
+            espace_signe: 0.6,
+            vocabulaire_avance: 0.4
         };
 
         return difficulties[skill] ?? 0.7;
@@ -753,13 +754,12 @@ export class AvatarApprenant {
      * @private
      */
     private mapAvatarLevelToCECRL(avatarLevel: AvatarLevel): CECRLLevel {
-        const mapping = {
-            [AVATAR_LEVELS.DEBUTANT]: 'A1' as CECRLLevel,
-            [AVATAR_LEVELS.INTERMEDIAIRE]: 'A2' as CECRLLevel,
-            [AVATAR_LEVELS.AVANCE]: 'B1' as CECRLLevel,
-            [AVATAR_LEVELS.MAITRISE_CODA]: 'B2' as CECRLLevel
+        const mapping: Record<AvatarLevel, CECRLLevel> = {
+            debutant: 'A1',
+            intermediaire: 'A2',
+            avance: 'B1',
+            maitrise_coda: 'B2'
         };
-
         return mapping[avatarLevel];
     }
 
@@ -771,24 +771,24 @@ export class AvatarApprenant {
      * @private
      */
     private getNewSkillsForLevel(level: AvatarLevel): readonly string[] {
-        const skillsByLevel = {
-            [AVATAR_LEVELS.INTERMEDIAIRE]: [
+        const skillsByLevel: Record<AvatarLevel, string[]> = {
+            debutant: [],
+            intermediaire: [
                 'grammaire_base',
                 'questions_simples',
                 'temps_present'
             ],
-            [AVATAR_LEVELS.AVANCE]: [
+            avance: [
                 'grammaire_avancee',
                 'expression_emotions',
                 'recit_simple'
             ],
-            [AVATAR_LEVELS.MAITRISE_CODA]: [
+            maitrise_coda: [
                 'nuances_culturelles',
                 'humour_lsf',
                 'adaptation_dialectale'
             ]
         };
-
         return skillsByLevel[level] ?? [];
     }
 
@@ -800,17 +800,18 @@ export class AvatarApprenant {
      * @private
      */
     private getNewStrugglingAreasForLevel(level: AvatarLevel): readonly string[] {
-        const strugglingByLevel = {
-            [AVATAR_LEVELS.INTERMEDIAIRE]: [
+        const strugglingByLevel: Record<AvatarLevel, string[]> = {
+            debutant: [],
+            intermediaire: [
                 'conjugaisons',
                 'pronoms_complexes'
             ],
-            [AVATAR_LEVELS.AVANCE]: [
+            avance: [
                 'metaphores',
                 'ironie',
                 'registres_langue'
             ],
-            [AVATAR_LEVELS.MAITRISE_CODA]: [
+            maitrise_coda: [
                 'poetique_lsf'
             ]
         };
